@@ -137,13 +137,10 @@ def _button_style(brand_color: str | None) -> str:
 
 
 def _powered_by_html(lang: str) -> str:
-    """The small "Powered by LearnHouse" line under an org-branded footer."""
-    from src.services.email.branding import POWERED_BY_URL
-
+    """The small "Powered by Jelenius" line under an org-branded footer."""
     return (
         f'\n            <p style="{STYLES["footer_text"]} margin-top: 12px;">'
-        f'<a href="{POWERED_BY_URL}" style="color: rgba(0,0,0,0.35); text-decoration: none;">'
-        f'{t(lang, "common.powered_by")}</a></p>'
+        f'<span style="color: rgba(0,0,0,0.35);">{t(lang, "common.powered_by")}</span></p>'
     )
 
 
@@ -249,7 +246,7 @@ def _email_layout(
     ``logo_html`` defaults to the LearnHouse mark; white-labeled emails pass the
     org's logo <img> (or its name as a wordmark) instead.
 
-    ``powered_by`` adds the "Powered by LearnHouse" line to the footer. Only
+    ``powered_by`` adds the "Powered by Jelenius" line to the footer. Only
     org-branded mail sets it, and only when the org's watermark is on — a
     platform email already carries the LearnHouse mark up top.
 
@@ -327,7 +324,7 @@ def send_account_creation_email(
     When ``org_name`` is set the email is WHITE-LABELED to that organization:
     the subject and body name the org (not LearnHouse), the org's ``logo_url``
     (or its name) replaces the LearnHouse mark, the button takes the org's
-    ``brand_color``, and the footer is reduced to a "Powered by LearnHouse"
+    ``brand_color``, and the footer is reduced to a "Powered by Jelenius"
     line that ``powered_by=False`` removes. Org-less signups keep the
     LearnHouse-branded variant with the Academy footer link.
     """
@@ -764,7 +761,7 @@ def send_email_verification_email(
         Boolean indicating if email was sent successfully
     """
     safe_username = html.escape(user.username)
-    brand = html.escape(organization.name) if organization else "LearnHouse"
+    brand = html.escape(organization.name) if organization else "Jelenius"
     safe_token = quote(token, safe='')
     safe_user_uuid = quote(user.user_uuid, safe='')
     org_uuid = organization.org_uuid if organization else "none"

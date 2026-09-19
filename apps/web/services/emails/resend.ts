@@ -27,8 +27,12 @@ export function isEmailEnabled(): boolean {
   return Boolean(process.env.RESEND_API_KEY)
 }
 
+// `.invalid` is reserved by RFC 2606 for exactly this: a placeholder that is
+// guaranteed not to resolve, so an operator who forgets to set
+// RESEND_FROM_EMAIL gets an obvious send failure instead of transactional
+// mail silently going out under a domain this deployment doesn't own.
 const DEFAULT_FROM =
-  process.env.RESEND_FROM_EMAIL || 'LearnHouse <hello@emails.learnhouse.app>'
+  process.env.RESEND_FROM_EMAIL || 'Jelenius <no-reply@jelenius.invalid>'
 
 export interface SendResult {
   ok: boolean

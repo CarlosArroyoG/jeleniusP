@@ -80,16 +80,16 @@ class TestEmailsService:
         assert "user&lt;script&gt;" in body
         assert "Get Started" in body
 
-    def test_orgless_welcome_uses_cta_url_and_learnhouse_branding(self):
+    def test_orgless_welcome_uses_cta_url_and_jelenius_branding(self):
         with patch("src.services.users.emails.send_email", return_value=True) as send_email:
             send_account_creation_email(
                 _user(), "user@test.com", cta_url="https://platform.test/organizations"
             )
         call = send_email.call_args.kwargs
         assert "https://platform.test/organizations" in call["body"]
-        # Org-less keeps the LearnHouse-branded subject + Academy footer, no org logo.
-        assert "Welcome to LearnHouse" in call["subject"]
-        assert "LearnHouse Academy" in call["body"]
+        # Org-less keeps the Jelenius-branded subject + Academy footer, no org logo.
+        assert "Welcome to Jelenius" in call["subject"]
+        assert "Jelenius Academy" in call["body"]
         assert "<img" not in call["body"]
 
     def test_welcome_is_whitelabeled_when_org_supplied(self):
@@ -102,14 +102,14 @@ class TestEmailsService:
                 logo_url="https://api.test/content/orgs/org_uuid/logos/logo.png",
             )
         call = send_email.call_args.kwargs
-        # Subject/body name the org (html-escaped), not LearnHouse.
+        # Subject/body name the org (html-escaped), not Jelenius.
         assert "Acme &amp; Co" in call["subject"]
-        assert "Welcome to LearnHouse" not in call["subject"]
+        assert "Welcome to Jelenius" not in call["subject"]
         assert "Acme &amp; Co" in call["body"]
         # Org logo replaces the mark; Academy link is gone; powered-by remains.
         assert '<img src="https://api.test/content/orgs/org_uuid/logos/logo.png"' in call["body"]
-        assert "LearnHouse Academy" not in call["body"]
-        assert "Powered by LearnHouse" in call["body"]
+        assert "Jelenius Academy" not in call["body"]
+        assert "Powered by Jelenius" in call["body"]
         assert "https://acme.test/home" in call["body"]
 
     def test_whitelabel_without_logo_uses_the_org_name_as_wordmark(self):
@@ -123,7 +123,7 @@ class TestEmailsService:
         assert "<svg" not in call["body"]
         assert _wordmark("Acme &amp; Co") in call["body"]
         assert "Acme &amp; Co" in call["subject"]
-        assert "Powered by LearnHouse" in call["body"]
+        assert "Powered by Jelenius" in call["body"]
 
     def test_role_changed_email_links_back_to_the_org(self):
         """Telling someone their permissions changed is useless without a way
@@ -151,9 +151,10 @@ class TestEmailsService:
         body = send_email.call_args.kwargs["body"]
         assert "Go to Acme" not in body
         assert 'href="/"' not in body
-        # The only link left is the footer attribution, never a CTA.
-        assert body.count("<a href") == 1
-        assert "Powered by LearnHouse" in body
+        # The footer attribution is plain text (no fabricated platform URL to
+        # link to), so no link should remain when there is no CTA either.
+        assert body.count("<a href") == 0
+        assert "Powered by Jelenius" in body
 
     def test_org_join_email_is_whitelabeled_and_links_to_the_org(self):
         with patch("src.services.users.emails.send_email", return_value=True) as send_email:
@@ -485,7 +486,7 @@ class TestWhiteLabel:
 
     With the org's watermark off there must be no trace of the platform in
     the rendered mail — no wordmark, no name in the copy, no attribution
-    line. With it on, exactly one "Powered by LearnHouse" line remains.
+    line. With it on, exactly one "Powered by Jelenius" line remains.
     """
 
     LOGO = "https://api.test/content/orgs/org_uuid/logos/logo.png"
@@ -580,10 +581,10 @@ class TestWhiteLabel:
     def test_watermark_on_adds_exactly_one_powered_by_line(self):
         branding = dict(self.BRANDING, powered_by=True)
         for call in self._all_org_scoped_sends(**branding):
-            assert call["body"].count("Powered by LearnHouse") == 1, call["subject"]
+            assert call["body"].count("Powered by Jelenius") == 1, call["subject"]
             # ...and that line is the only place the platform appears.
-            assert call["body"].count("LearnHouse") == 1
-            assert "LearnHouse" not in call["subject"]
+            assert call["body"].count("Jelenius") == 1
+            assert "Jelenius" not in call["subject"]
 
     def test_square_logo_renders_as_a_square_box_and_wide_logo_letterboxed(self):
         square = "https://api.test/content/orgs/org_uuid/square_logos/sq.png"
@@ -663,10 +664,10 @@ class TestWhiteLabel:
         for call in sent.call_args_list:
             body = call.kwargs["body"]
             assert "<svg" in body, call.kwargs["subject"]
-            assert "Powered by LearnHouse" not in body
+            assert "Powered by Jelenius" not in body
             assert "#ff5500" not in body
         verification_body = sent.call_args_list[1].kwargs["body"]
-        assert "welcome to LearnHouse!" in verification_body
+        assert "welcome to Jelenius!" in verification_body
 
     def test_translated_whitelabel_copy_has_no_unfilled_placeholders(self):
         from src.services.auth.magic_login import send_magic_login_email
