@@ -15,6 +15,10 @@ export const CURATED_FONTS = [
   'Lexend',
   'Libre Franklin',
   'Manrope',
+  // The list's only serif — added for institutions that want a more
+  // traditional/academic look than the rest of this (all sans-serif) list
+  // offers. See jelenius-docs/visual-testing.md's Colegio Demo fixture.
+  'Merriweather',
   'Montserrat',
   'Mulish',
   'Noto Sans',
