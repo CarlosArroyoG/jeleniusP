@@ -36,6 +36,7 @@ import { FeedbackModal } from '@components/Objects/Modals/FeedbackModal'
 import { DASHBOARD_MENU_ITEMS, DashboardMenuItem } from '@/lib/dashboard-menu-items'
 import { isFeatureAvailable } from '@services/plans/plans'
 import { getMenuColorClasses } from '@services/utils/ts/colorUtils'
+import { useOrganizationTheme } from '@/lib/theme/useOrganizationTheme'
 import AuthenticatedClientElement from '@components/Security/AuthenticatedClientElement'
 import { useJoinBannerVisible, JOIN_BANNER_HEIGHT } from '@components/Objects/Banners/OrgJoinBanner'
 import {
@@ -81,9 +82,13 @@ export const OrgMenu = (props: any) => {
   }
   const topOffset = isJoinBannerVisible ? JOIN_BANNER_HEIGHT : 0
 
-  // Get primary color from org config (v2: customization.general.color, v1: general.color)
   const config = org?.config?.config
-  const primaryColor = config?.customization?.general?.color || config?.general?.color || ''
+
+  // Org color, or the Jelenius default when the org hasn't set one — see
+  // lib/theme/resolveOrganizationTheme.ts. Never empty, so the header always
+  // reads as branded (Jelenius navy by default), never a neutral LearnHouse gray.
+  const { tokens } = useOrganizationTheme()
+  const primaryColor = tokens.brandPrimary
   const colors = getMenuColorClasses(primaryColor)
 
   // Filter dashboard menu items by resolved_features from API
@@ -141,10 +146,10 @@ export const OrgMenu = (props: any) => {
       <div className="backdrop-blur-lg h-[60px] blur-3xl" style={{ zIndex: 'var(--z-behind)', marginTop: topOffset }}></div>
       <nav
         aria-label="Top navigation"
-        className={`backdrop-blur-lg fixed start-0 end-0 h-[60px] ${!primaryColor ? 'bg-white/90 nice-shadow' : ''}`}
+        className="backdrop-blur-lg fixed start-0 end-0 h-[60px]"
         style={{
           zIndex: 'var(--z-nav)',
-          backgroundColor: primaryColor || undefined,
+          backgroundColor: primaryColor,
           top: topOffset
         }}
       >

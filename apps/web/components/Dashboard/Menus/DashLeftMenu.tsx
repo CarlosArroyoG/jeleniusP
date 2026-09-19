@@ -369,7 +369,7 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-white/[0.08]"
+                        ? "text-white bg-[var(--brand-primary)]/20"
                         : "text-white/50 hover:text-white hover:bg-white/[0.08]",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
@@ -377,7 +377,7 @@ function DashLeftMenu() {
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-white rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
@@ -443,7 +443,7 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-white/[0.08]"
+                        ? "text-white bg-[var(--brand-primary)]/20"
                         : "text-white/50 hover:text-white hover:bg-white/[0.08]",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
@@ -451,7 +451,7 @@ function DashLeftMenu() {
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-white rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
@@ -565,7 +565,7 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-white/[0.08]"
+                        ? "text-white bg-[var(--brand-primary)]/20"
                         : "text-white/50 hover:text-white hover:bg-white/[0.08]",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
@@ -573,7 +573,7 @@ function DashLeftMenu() {
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-white rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
@@ -660,7 +660,7 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-white/[0.08]"
+                        ? "text-white bg-[var(--brand-primary)]/20"
                         : "text-white/50 hover:text-white hover:bg-white/[0.08]",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
@@ -668,7 +668,7 @@ function DashLeftMenu() {
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-white rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
@@ -737,7 +737,7 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-white/[0.08]"
+                        ? "text-white bg-[var(--brand-primary)]/20"
                         : "text-white/50 hover:text-white hover:bg-white/[0.08]",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
@@ -745,7 +745,7 @@ function DashLeftMenu() {
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-white rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
@@ -796,7 +796,7 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-white/[0.08]"
+                        ? "text-white bg-[var(--brand-primary)]/20"
                         : "text-white/50 hover:text-white hover:bg-white/[0.08]",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
@@ -804,7 +804,7 @@ function DashLeftMenu() {
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-white rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
@@ -1256,7 +1256,7 @@ const MenuLink = ({ href, icon, label, isCollapsed, isExternal, active, onClick 
       className={cn(
         "relative flex items-center w-full rounded-lg transition-all",
         active
-          ? "text-white bg-white/[0.08]"
+          ? "text-white bg-[var(--brand-primary)]/20"
           : "text-white/50 hover:text-white hover:bg-white/[0.08]",
         isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
       )}
@@ -1264,7 +1264,7 @@ const MenuLink = ({ href, icon, label, isCollapsed, isExternal, active, onClick 
       {active && (
         <span
           aria-hidden="true"
-          className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-white rounded-full"
+          className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
         />
       )}
       {icon}

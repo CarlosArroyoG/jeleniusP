@@ -311,7 +311,7 @@ const PillLink = ({
     href={href}
     className={cn(
       'flex items-center justify-center p-2.5 rounded-full transition-all duration-200',
-      active ? 'bg-white/[0.15] text-white' : 'text-white/50 hover:text-white hover:bg-white/[0.08]',
+      active ? 'bg-[var(--brand-primary)]/30 text-white' : 'text-white/50 hover:text-white hover:bg-white/[0.08]',
       className
     )}
   >
@@ -338,13 +338,13 @@ const PanelItem = ({
     aria-current={active ? 'page' : undefined}
     className={cn(
       'relative flex items-center w-full rounded-lg px-2.5 py-2 gap-2 transition-all',
-      active ? 'text-white bg-white/[0.08]' : 'text-white/50 hover:text-white hover:bg-white/[0.06]'
+      active ? 'text-white bg-[var(--brand-primary)]/20' : 'text-white/50 hover:text-white hover:bg-white/[0.06]'
     )}
   >
     {active && (
       <span
         aria-hidden="true"
-        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-4 w-[2px] bg-white rounded-full"
+        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-4 w-[2px] bg-brand rounded-full"
       />
     )}
     {icon}

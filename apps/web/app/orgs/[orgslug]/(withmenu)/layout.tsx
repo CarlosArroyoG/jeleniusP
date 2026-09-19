@@ -16,6 +16,7 @@ import { JELENIUS_BRAND } from '@/lib/brand'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { usePlan } from '@components/Hooks/usePlan'
 import { getGoogleFontUrl, DEFAULT_FONT } from '@/lib/fonts'
+import { useOrganizationTheme } from '@/lib/theme/useOrganizationTheme'
 
 // Helper to convert hex to rgba
 const hexToRgba = (hex: string, alpha: number): string => {
@@ -54,9 +55,9 @@ function OrgFooter() {
 }
 
 function LayoutContent({ children, orgslug }: { children: ReactNode; orgslug: string }) {
-  const org = useOrg() as any
-  const primaryColor = org?.config?.config?.customization?.general?.color || org?.config?.config?.general?.color || ''
-  const customFont = org?.config?.config?.customization?.general?.font || org?.config?.config?.general?.font || ''
+  const { tokens, style: themeVars } = useOrganizationTheme()
+  const primaryColor = tokens.brandPrimary
+  const customFont = tokens.fontSans
   const pathname = usePathname()
   const searchParams = useSearchParams()
   // chrome=none strips the org navigation/footer so this route can be embedded
@@ -65,7 +66,7 @@ function LayoutContent({ children, orgslug }: { children: ReactNode; orgslug: st
 
   // Inject Google Font stylesheet into document head
   useEffect(() => {
-    if (!customFont || customFont === DEFAULT_FONT) return
+    if (customFont === DEFAULT_FONT) return
 
     const fontId = `gfont-${customFont.replace(/\s/g, '-')}`
     if (document.getElementById(fontId)) return
@@ -111,8 +112,9 @@ function LayoutContent({ children, orgslug }: { children: ReactNode; orgslug: st
       // target this element specifically.
       className="lh-org-font-root flex flex-col min-h-screen"
       style={{
-        backgroundColor: primaryColor ? hexToRgba(primaryColor, 0.05) : 'transparent',
-        ...(customFont ? { fontFamily: `'${customFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif` } : {}),
+        ...themeVars,
+        backgroundColor: hexToRgba(primaryColor, 0.05),
+        fontFamily: `'${customFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`,
       }}
     >
       <PageViewTracker />
