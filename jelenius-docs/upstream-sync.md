@@ -80,11 +80,9 @@ conflicts should concentrate in a predictable, short list of files:
   login screen, `<head>`/metadata, global CSS/theme tokens.
 - `apps/web/public/` if LearnHouse changes its own logo/favicon assets in a
   way that touches files we've replaced.
-- Organization-related API models/schemas, if we add branding fields that
-  upstream also starts extending (e.g. the `feat/branding-redesign-square-logo`
-  and `feat/email-whitelabel` branches already visible on `upstream` suggest
-  LearnHouse is actively evolving this area — worth diffing against before
-  each sync once those land on `dev`).
+- Organization-related API models/schemas, if upstream extends
+  `OrganizationConfig.customization` further (it already did once — see the
+  sync log below).
 
 Conflicts should NOT show up in: auth logic, course/activity data models,
 the editor, the collaboration server, payments/analytics — because this
@@ -102,6 +100,29 @@ phase does not touch that code.
   names) are left as `LEARNHOUSE_*` / `learnhouse-*` unless there's a concrete
   reason to change them. Renaming these for cosmetic reasons multiplies
   merge conflicts for no product value.
+
+## Sync log
+
+**2026-09-19 (phase 2).** `git fetch upstream` showed `upstream/dev` had not
+moved since the fork point (`0ec01f291`, still its tip) — only
+`upstream/renovate/all-minor-patch` had a newer commit, and that branch
+isn't merged into `dev`. Result: 7 commits ahead, 0 behind. `git merge
+upstream/dev` was a genuine no-op ("Already up to date").
+
+**Correction to the note this doc previously carried:** Phase 1 flagged
+`upstream/feat/branding-redesign-square-logo` and
+`upstream/feat/email-whitelabel` as branches "visible on upstream, worth
+diffing" as if unmerged. They are not unmerged — `git merge-base
+--is-ancestor <branch> upstream/dev` confirms both were already merged into
+`upstream/dev` *before* our fork point. In other words, both were already
+part of the code Phase 1 audited and built on top of:
+`apps/api/src/services/email/branding.py` (the org-scoped email
+white-labeling Phase 1's email work extended) and the whole
+`OrgEditBranding` five-tab admin UI (Logos/Theme/Auth/Social/Previews) both
+came from these two PRs, not from Jelenius. `git branch -a` lists a remote
+branch ref forever regardless of merge status — always check
+`--is-ancestor`, not just presence in the branch list, before assuming
+something is unmerged.
 
 ## What we do NOT do
 

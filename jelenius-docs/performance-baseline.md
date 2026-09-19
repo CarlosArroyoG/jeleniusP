@@ -43,6 +43,29 @@ before further work, not a statistically clean one.
 - No optimization was attempted based on these numbers — per phase
   instructions, this is a baseline record, not a performance pass.
 
+## Phase 2 re-measurement (2026-09-19, after the theme engine + login/sidebar redesign)
+
+Re-measured the same way (`bun run next build && bun run next start`,
+warm-repeated `curl -w`), specifically to check for a regression from the
+new theme resolver running on every render of the migrated components.
+
+| Route | Production — cold (server just started) | Production — warm (3 repeated samples) |
+|---|---|---|
+| `/` | 1.70s | 0.036s / 0.016s / 0.017s |
+| `/login` | — | 0.066s / 0.022s / 0.016s |
+| `/courses` | — | 0.041s / 0.022s / 0.017s |
+| `/dash` | — | 0.052s / 0.019s / 0.015s |
+
+**No regression** — if anything these numbers are lower than phase 1's
+(0.35–0.58s first-hit vs. phase 2's 0.02–0.07s), most plausibly because
+this run's Next.js route cache was already warm from the repeated
+build/test cycles earlier in the same session, not because of any specific
+optimization. The theme engine's actual per-render cost
+(`resolveOrganizationTheme` + `useMemo` in `useOrganizationTheme`) is a few
+plain-object reads and one hex-color regex match — not something a
+`curl`-level timing could distinguish from noise either way. Treat "no
+significant regression" as the finding, not "measurably faster."
+
 ## Known gaps in this measurement
 
 - No real browser was used, so client-side hydration cost, JS bundle

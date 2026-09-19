@@ -3,6 +3,17 @@
 Snapshot taken on `jelenius-dev` at the point it branched from `upstream/dev`
 (commit `0ec01f2`). Paths are relative to the repo root.
 
+> **Phase 2 addendum (2026-09-19):** §7c's gap ("no CSS-variable bridge
+> between org config and Tailwind") is closed — see `theme-engine.md`.
+> Login (`AuthLayout.tsx`) and the app shell/sidebar
+> (`(withmenu)/layout.tsx`, `OrgMenu.tsx`, `DashLeftMenu.tsx`,
+> `DashMobileMenu.tsx`) now consume it; course editor/player/analytics
+> still don't, by design (out of phase 2's scope). Also: §13's note that
+> `feat/branding-redesign-square-logo` and `feat/email-whitelabel` were
+> "unmerged, worth diffing" was **wrong** — both were already merged into
+> `upstream/dev` at this snapshot's own commit. See
+> `upstream-sync.md`'s sync log for the correction.
+
 ## 1. Top-level structure
 
 | Directory | Contents |

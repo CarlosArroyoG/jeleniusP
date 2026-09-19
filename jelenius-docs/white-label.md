@@ -1,5 +1,15 @@
 # White-Label Architecture
 
+> **Phase 2 update (2026-09-19):** the ad hoc inline-style branding
+> described below now goes through a proper resolver — see
+> `theme-engine.md` for `resolveOrganizationTheme()`, the CSS-variable
+> bridge into Tailwind's `@theme`, and where it's wired in (login, app
+> shell, sidebar). This document's description of the *data model* (what
+> LearnHouse already supports) is unchanged and still accurate; only the
+> *consumption* side changed. Jelenius's default brand values were also
+> corrected from an approximation to the exact hex values published at
+> https://jelenius.com.mx/ — see `brand-reference.md`.
+
 ## Principle: reuse, don't rebuild
 
 LearnHouse already ships a mature, per-organization branding system — data
@@ -67,14 +77,23 @@ list (`apps/web/lib/fonts.ts`).
 ```ts
 export const JELENIUS_BRAND = {
   name: 'Jelenius',
-  primaryColor: '#0B1F3A', // navy
-  accentColor: '#14B8A6',  // teal
+  primaryColor: '#0B1930',   // navy — exact value from jelenius.com.mx (see brand-reference.md)
+  secondaryColor: '#172033', // ink
+  accentColor: '#19B7A5',    // teal
+  tertiaryColor: '#2F80ED',  // blue
   font: 'Inter',
   wordmark: '/jelenius/jelenius-wordmark.svg',
   icon: '/jelenius/jelenius-icon.svg',
   favicon: '/jelenius/jelenius-icon.svg',
 } as const
 ```
+
+Phase 1 shipped this with hand-picked approximate values
+(`#0B1F3A`/`#14B8A6`); phase 2 replaced them with the exact hex codes and
+the real logo mark extracted from https://jelenius.com.mx/'s own CSS and
+SVG assets — see `brand-reference.md` for the extraction. Same asset paths,
+corrected values and added the mark's actual paths (previously an
+independently-drawn placeholder icon).
 
 This is the **one place** the platform default lives. It is deliberately not
 duplicated as inline literals anywhere else — every fallback point imports
@@ -108,22 +127,20 @@ fallback**; `app/orgs/[orgslug]/layout.tsx`'s existing `generateMetadata()`
 (which reads the org's own favicon) still wins whenever an org context
 exists, since Next.js merges metadata down the layout tree.
 
-## Theme tokens — current state and what's deferred
+## Theme tokens (built in phase 2 — see `theme-engine.md`)
 
-Tailwind v4 in this codebase is configured via `@theme` in
-`apps/web/styles/globals.css`, with a static shadcn/ui token set
-(`--primary`, `--background`, etc.) that does **not** vary per org today.
-Org color/font are applied via inline React styles, computed ad hoc in each
-consuming component (`(withmenu)/layout.tsx`, `OrgMenu.tsx`).
-
-This phase did **not** rewire that into a CSS-custom-property bridge (e.g.
-setting `--brand-primary` at a root element and having Tailwind utilities
-consume it) — that is real, valuable follow-up work, but it touches the
-rendering of every branded surface at once and deserves its own review
-rather than being folded into this pass. What this phase did instead:
-introduced `JELENIUS_BRAND` as the single source of truth for the *default*
-values, so that future token work has one place to read the default from
-instead of scattered hex literals.
+Phase 1 left this as deferred work: Tailwind v4's `@theme` carried only a
+static shadcn/ui token set, and org color/font were applied via inline
+styles computed ad hoc in each consuming component. Phase 2 built the
+missing piece — `resolveOrganizationTheme()` turns org config into
+`ThemeTokens`, exposed as CSS custom properties
+(`--brand-primary`/`--brand-accent`/`--brand-secondary`/`--font-org-sans`)
+that Tailwind's `@theme` maps into ordinary utility classes (`bg-brand`,
+`text-brand-foreground`, `bg-brand-accent`). Full detail, including which
+components were migrated to it (login, app shell, sidebar — per this
+phase's explicit scope) and which weren't yet (course editor, player,
+analytics), lives in `theme-engine.md`; this file's job is the branding
+*data model*, not the token pipeline.
 
 ## Proof: same code, two identities
 
@@ -136,9 +153,19 @@ component changes**:
 | | Jelenius (default) | Colegio Demo |
 |---|---|---|
 | Org name | Jelenius | Colegio Demo |
-| Primary color | `#0B1F3A` (navy) | `#7A1F2B` (maroon) |
+| Primary color | `#0B1930` (navy, exact brand-reference value) | `#7A1F2B` (maroon) |
 | Font | Inter | Merriweather |
 | Logo | Jelenius default icon (fallback) | Jelenius default icon (fallback — no logo uploaded, which is expected and allowed) |
+
+Re-verified after the phase 2 theme engine changes: the same DB-level swap
+still flips the `<title>` (`Home — Jelenius` ↔ `Home — Colegio Demo`) and
+the API's `/orgs/slug/default` response, end to end, confirming the
+org-config → resolver pipeline the new theme engine sits on top of is
+intact. See `theme-engine.md`'s "Known limitation: SSR vs. hydration"
+section for what could and couldn't be confirmed via `curl` alone (no
+browser was available in this environment) regarding the *rendered* color
+itself, as opposed to the name/title, which Next's server-side
+`generateMetadata()` always reflects immediately.
 
 `curl http://localhost:3000/` before/after:
 
