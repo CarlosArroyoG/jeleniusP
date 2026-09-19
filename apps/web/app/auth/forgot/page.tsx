@@ -3,12 +3,13 @@ import { getAuthOrgSlug } from '@services/org/orgResolution'
 import ForgotPasswordClient from './forgot'
 import { Metadata } from 'next'
 import OrgNotFound from '@components/Objects/StyledElements/Error/OrgNotFound'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export async function generateMetadata(): Promise<Metadata> {
   const orgslug = await getAuthOrgSlug()
 
   if (!orgslug) {
-    return { title: 'Forgot Password — LearnHouse' }
+    return { title: `Forgot Password — ${JELENIUS_BRAND.name}` }
   }
 
   let org: any = null
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    title: 'Forgot Password' + ` — ${org?.name || 'LearnHouse'}`,
+    title: 'Forgot Password' + ` — ${org?.name || JELENIUS_BRAND.name}`,
     robots: { index: false, follow: false },
   }
 }

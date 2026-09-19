@@ -5,12 +5,13 @@ import SignUpClient from './signup'
 import { Suspense } from 'react'
 import PageLoading from '@components/Objects/Loaders/PageLoading'
 import OrgNotFound from '@components/Objects/StyledElements/Error/OrgNotFound'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export async function generateMetadata(): Promise<Metadata> {
   const orgslug = await getAuthOrgSlug()
 
   if (!orgslug) {
-    return { title: 'Sign up — LearnHouse' }
+    return { title: `Sign up — ${JELENIUS_BRAND.name}` }
   }
 
   let org: any = null
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    title: 'Sign up' + ` — ${org?.name || 'LearnHouse'}`,
+    title: 'Sign up' + ` — ${org?.name || JELENIUS_BRAND.name}`,
     robots: { index: false, follow: false },
   }
 }

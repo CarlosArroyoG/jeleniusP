@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useAuth } from '@components/Contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { Shield } from 'lucide-react'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export default function AdminLoginPage() {
   const { signIn } = useAuth()
@@ -41,7 +42,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm px-6">
         <div className="flex flex-col items-center mb-8">
           <Shield className="w-10 h-10 text-white/70 mb-3" />
-          <h1 className="text-2xl font-bold text-white">LearnHouse Admin</h1>
+          <h1 className="text-2xl font-bold text-white">{JELENIUS_BRAND.name} Admin</h1>
           <p className="text-white/40 text-sm mt-1">Sign in to continue</p>
         </div>
 

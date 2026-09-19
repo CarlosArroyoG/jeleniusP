@@ -13,6 +13,7 @@ import { getUriWithOrg } from '@services/config/config'
 import { getErrorMessage } from '@services/utils/ts/errorMessage'
 import { useTranslation } from 'react-i18next'
 import AuthLayout from '@components/Auth/AuthLayout'
+import { JELENIUS_BRAND } from '@/lib/brand'
 import FormLayout, {
   FormField,
 } from '@components/Objects/StyledElements/Form/Form'
@@ -64,7 +65,7 @@ function SignUpClient(props: SignUpClientProps) {
     <AuthLayout
       org={props.org}
       welcomeText={t('auth.invited_to_join')}
-      title={t('auth.image_title_signup', { defaultValue: 'Start teaching with LearnHouse.' })}
+      title={t('auth.image_title_signup', { defaultValue: `Start teaching with ${JELENIUS_BRAND.name}.` })}
       subtitle={t('auth.image_subtitle_signup', {
         defaultValue: 'Create your account and launch your first course in minutes.',
       })}

@@ -3,13 +3,14 @@ import { getAuthOrgSlug } from '@services/org/orgResolution'
 import LoginClient from './login'
 import { Metadata } from 'next'
 import OrgNotFound from '@components/Objects/StyledElements/Error/OrgNotFound'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export async function generateMetadata(): Promise<Metadata> {
   const orgslug = await getAuthOrgSlug()
 
   if (!orgslug) {
     // Apex (org-less) login.
-    return { title: 'Login — LearnHouse', robots: { index: false, follow: false } }
+    return { title: `Login — ${JELENIUS_BRAND.name}`, robots: { index: false, follow: false } }
   }
 
   let org: any = null
@@ -19,11 +20,11 @@ export async function generateMetadata(): Promise<Metadata> {
       tags: ['organizations'],
     })
   } catch {
-    // Stale cookie or unknown org — fall back to generic title
+    // Stale cookie or unknown org — fall back to the platform default title
   }
 
   return {
-    title: 'Login' + ` — ${org?.name || 'LearnHouse'}`,
+    title: 'Login' + ` — ${org?.name || JELENIUS_BRAND.name}`,
     robots: { index: false, follow: false },
   }
 }

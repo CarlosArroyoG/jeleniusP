@@ -5,12 +5,13 @@ import { Metadata } from 'next'
 import OrgNotFound from '@components/Objects/StyledElements/Error/OrgNotFound'
 import { Suspense } from 'react'
 import PageLoading from '@components/Objects/Loaders/PageLoading'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export async function generateMetadata(): Promise<Metadata> {
   const orgslug = await getAuthOrgSlug()
 
   if (!orgslug) {
-    return { title: 'Verify Email — LearnHouse' }
+    return { title: `Verify Email — ${JELENIUS_BRAND.name}` }
   }
 
   let org: any = null
@@ -20,11 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
       tags: ['organizations'],
     })
   } catch {
-    // Stale cookie or unknown org — fall back to generic title
+    // Stale cookie or unknown org — fall back to the platform default title
   }
 
   return {
-    title: 'Verify Email' + ` — ${org?.name || 'LearnHouse'}`,
+    title: 'Verify Email' + ` — ${org?.name || JELENIUS_BRAND.name}`,
     robots: { index: false, follow: false },
   }
 }
