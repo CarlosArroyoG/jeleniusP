@@ -251,11 +251,11 @@ export default function CommandPalette() {
                 />
               </div>
               <img
-                src="/lrn-dash.svg"
+                src="/jelenius/jelenius-icon.svg"
                 alt=""
                 aria-hidden="true"
                 draggable={false}
-                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 select-none opacity-90"
+                className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 select-none opacity-90 rounded-lg"
               />
             </div>
 

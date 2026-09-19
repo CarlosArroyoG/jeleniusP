@@ -1,7 +1,21 @@
 import '../styles/globals.css'
 import React from 'react'
+import type { Metadata } from 'next'
 import Providers from '@components/Providers'
 import { Wix_Madefor_Text, Tajawal } from 'next/font/google'
+import { JELENIUS_BRAND } from '@/lib/brand'
+
+// Platform-level fallback metadata — an organization's own title/favicon
+// (set via generateMetadata in app/orgs/[orgslug]/layout.tsx) takes
+// precedence whenever one is configured; this only applies on routes with
+// no org context (the apex/home, /admin, auth error pages, …).
+export const metadata: Metadata = {
+  title: JELENIUS_BRAND.name,
+  description: 'Jelenius — the learning platform for your school.',
+  icons: {
+    icon: JELENIUS_BRAND.favicon,
+  },
+}
 
 const wixMadeforText = Wix_Madefor_Text({
   subsets: ['latin'],

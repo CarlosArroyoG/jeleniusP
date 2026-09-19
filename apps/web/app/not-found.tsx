@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import learnhouseIcon from 'public/black_logo.png'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export default function NotFound() {
   return (
@@ -12,9 +12,9 @@ export default function NotFound() {
         Only pb-20 was ever doing anything. */}
     <div className="pb-20">
         <Image quality={100}
-          width={270}
+          width={100}
           height={100}
-          src={learnhouseIcon}
+          src={JELENIUS_BRAND.icon}
           alt="logo"
         />
         </div>
