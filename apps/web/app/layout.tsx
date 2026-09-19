@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import React from 'react'
 import type { Metadata } from 'next'
 import Providers from '@components/Providers'
-import { Wix_Madefor_Text, Tajawal } from 'next/font/google'
+import { Inter, Tajawal } from 'next/font/google'
 import { JELENIUS_BRAND } from '@/lib/brand'
 
 // Platform-level fallback metadata — an organization's own title/favicon
@@ -17,13 +17,17 @@ export const metadata: Metadata = {
   },
 }
 
-const wixMadeforText = Wix_Madefor_Text({
+// Inter is the Jelenius identity font (jelenius-docs/brand-reference.md).
+// This is the platform *default* only — an organization that has set its
+// own `customization.general.font` still overrides it via the theme engine
+// (lib/theme/resolveOrganizationTheme.ts) on org-scoped pages.
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-default',
 })
 
-// Wix Madefor Text has no Arabic subset, so Arabic would otherwise fall back to
+// Inter has no Arabic subset, so Arabic would otherwise fall back to
 // whatever the OS provides — Geeza Pro, Segoe UI, Noto — and look like a
 // different product on every platform.
 //
@@ -53,7 +57,7 @@ export default function RootLayout({
   // no-JS baseline for crawlers; the script overwrites it for everyone else.
   return (
     <html
-      className={`${wixMadeforText.variable} ${tajawal.variable}`}
+      className={`${inter.variable} ${tajawal.variable}`}
       lang="en"
       suppressHydrationWarning
     >
