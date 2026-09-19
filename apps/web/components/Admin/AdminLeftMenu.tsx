@@ -11,11 +11,22 @@ import { signOut } from '@components/Contexts/AuthContext'
 import { useLHSession } from '@components/Contexts/LHSessionContext'
 import { getUserAvatarMediaDirectory } from '@services/media/media'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 import { BrandIcon } from '@components/Brand/BrandMark'
+import { cn } from '@/lib/utils'
+// Safe with no OrgProvider ancestor: useOrg()'s useContext() falls back to
+// its default (null) rather than throwing, and resolveOrganizationTheme(null)
+// is exactly the Jelenius default — this screen is cross-org (superadmin),
+// so there is no "which school's color" to resolve, but routing it through
+// the same theme engine (rather than hand-picked literals) is what "migrate
+// to the Theme Engine" means for a screen with no org context.
+import { useOrganizationTheme } from '@/lib/theme/useOrganizationTheme'
 
 function AdminTopMenu() {
   const session = useLHSession() as any
+  const pathname = usePathname() || ''
+  const { style: themeVars } = useOrganizationTheme()
 
   async function logOutUI() {
     await signOut({ redirect: true, callbackUrl: '/admin/login' })
@@ -37,7 +48,7 @@ function AdminTopMenu() {
       {/* Fixed menu bar */}
       <div
         className="fixed top-0 start-0 end-0 h-14 bg-black border-b border-white/[0.08] flex items-center text-white px-4 gap-6"
-        style={{ zIndex: 'var(--z-overlay)' }}
+        style={{ zIndex: 'var(--z-overlay)', ...themeVars }}
       >
         {/* Logo */}
         <Link className="flex items-center gap-2 transition-opacity hover:opacity-70 shrink-0" href="/admin">
@@ -49,26 +60,30 @@ function AdminTopMenu() {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-1">
+        <nav aria-label="Admin navigation" className="flex items-center gap-1">
           <NavLink
             href="/admin/organizations"
             icon={<Buildings size={16} weight="fill" />}
             label="Organizations"
+            active={pathname.startsWith('/admin/organizations')}
           />
           <NavLink
             href="/admin/users"
             icon={<Users size={16} weight="fill" />}
             label="Users"
+            active={pathname.startsWith('/admin/users')}
           />
           <NavLink
             href="/admin/analytics"
             icon={<ChartBar size={16} weight="fill" />}
             label="Analytics"
+            active={pathname.startsWith('/admin/analytics')}
           />
           <NavLink
             href="/admin/developers"
             icon={<Key size={16} weight="fill" />}
             label="Developers"
+            active={pathname.startsWith('/admin/developers')}
           />
         </nav>
 
@@ -111,14 +126,21 @@ const NavLink = ({
   href,
   icon,
   label,
+  active,
 }: {
   href: string
   icon: React.ReactNode
   label: string
+  active?: boolean
 }) => {
   return (
-    <Link aria-label={label} href={href}>
-      <div className="flex items-center rounded-lg text-white/50 hover:text-white hover:bg-white/[0.08] transition-all px-3 py-1.5 gap-2">
+    <Link aria-label={label} aria-current={active ? 'page' : undefined} href={href}>
+      <div
+        className={cn(
+          'flex items-center rounded-lg transition-all px-3 py-1.5 gap-2',
+          active ? 'text-white bg-[var(--brand-primary)]/25' : 'text-white/50 hover:text-white hover:bg-white/[0.08]'
+        )}
+      >
         {icon}
         <span className="text-sm font-medium">{label}</span>
       </div>

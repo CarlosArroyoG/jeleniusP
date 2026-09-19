@@ -101,26 +101,26 @@ function DashMobileMenu() {
             <BrandIcon className="h-[18px] w-[18px] rounded-sm opacity-60 hover:opacity-90 transition-opacity" />
           </Link>
           {/* Progressive reveal — more icons as viewport widens */}
-          <PillLink href="/dash/courses" icon={<BookOpen size={18} weight="fill" />} active={isActive('/dash/courses')} className="hidden min-[340px]:flex" />
-          <PillLink href="/dash/assignments" icon={<Files size={18} weight="fill" />} active={isActive('/dash/assignments')} className="hidden min-[390px]:flex" />
-          <PillLink href="/dash/users/settings/users" icon={<Users size={18} weight="fill" />} active={isActive('/dash/users')} className="hidden min-[430px]:flex" />
+          <PillLink href="/dash/courses" icon={<BookOpen size={18} weight="fill" />} active={isActive('/dash/courses')} label={t('courses.courses')} className="hidden min-[340px]:flex" />
+          <PillLink href="/dash/assignments" icon={<Files size={18} weight="fill" />} active={isActive('/dash/assignments')} label={t('common.assignments')} className="hidden min-[390px]:flex" />
+          <PillLink href="/dash/users/settings/users" icon={<Users size={18} weight="fill" />} active={isActive('/dash/users')} label={t('common.users')} className="hidden min-[430px]:flex" />
           {isEnabled('communities') && (
-            <PillLink href="/dash/communities" icon={<ChatsCircle size={18} weight="fill" />} active={isActive('/dash/communities')} className="hidden min-[470px]:flex" />
+            <PillLink href="/dash/communities" icon={<ChatsCircle size={18} weight="fill" />} active={isActive('/dash/communities')} label={t('communities.title')} className="hidden min-[470px]:flex" />
           )}
           {isEnabled('podcasts') && (
-            <PillLink href="/dash/podcasts" icon={<Headphones size={18} weight="fill" />} active={isActive('/dash/podcasts')} className="hidden min-[510px]:flex" />
+            <PillLink href="/dash/podcasts" icon={<Headphones size={18} weight="fill" />} active={isActive('/dash/podcasts')} label={t('podcasts.podcasts')} className="hidden min-[510px]:flex" />
           )}
           {isEnabled('boards') && (
-            <PillLink href="/dash/boards" icon={<ChalkboardSimple size={18} weight="fill" />} active={isActive('/dash/boards')} className="hidden min-[550px]:flex" />
+            <PillLink href="/dash/boards" icon={<ChalkboardSimple size={18} weight="fill" />} active={isActive('/dash/boards')} label={t('common.boards')} className="hidden min-[550px]:flex" />
           )}
           {isEnabled('playgrounds') && (
-            <PillLink href="/dash/playgrounds" icon={<Cube size={18} weight="fill" />} active={isActive('/dash/playgrounds')} className="hidden min-[590px]:flex" />
+            <PillLink href="/dash/playgrounds" icon={<Cube size={18} weight="fill" />} active={isActive('/dash/playgrounds')} label={t('common.playgrounds')} className="hidden min-[590px]:flex" />
           )}
-          <PillLink href="/dash/analytics" icon={<ChartBar size={18} weight="fill" />} active={isActive('/dash/analytics')} className="hidden min-[630px]:flex" />
-          <PillLink href="/dash/org/settings/general" icon={<Buildings size={18} weight="fill" />} active={isActive('/dash/org')} className="hidden min-[670px]:flex" />
-          <PillLink href="/dash/developers/api" icon={<Code size={18} weight="fill" />} active={isActive('/dash/developers')} className="hidden min-[710px]:flex" />
+          <PillLink href="/dash/analytics" icon={<ChartBar size={18} weight="fill" />} active={isActive('/dash/analytics')} label={t('common.analytics')} className="hidden min-[630px]:flex" />
+          <PillLink href="/dash/org/settings/general" icon={<Buildings size={18} weight="fill" />} active={isActive('/dash/org')} label={t('common.organization')} className="hidden min-[670px]:flex" />
+          <PillLink href="/dash/developers/api" icon={<Code size={18} weight="fill" />} active={isActive('/dash/developers')} label={t('common.developers', { defaultValue: 'Developers' })} className="hidden min-[710px]:flex" />
           {isEnabled('payments') && (
-            <PillLink href="/dash/payments/overview" icon={<CurrencyCircleDollar size={18} weight="fill" />} active={isActive('/dash/payments')} className="hidden min-[750px]:flex" />
+            <PillLink href="/dash/payments/overview" icon={<CurrencyCircleDollar size={18} weight="fill" />} active={isActive('/dash/payments')} label={t('common.payments')} className="hidden min-[750px]:flex" />
           )}
 
           <span className="w-px h-4 bg-white/[0.15] mx-1 shrink-0" />
@@ -300,15 +300,20 @@ const PillLink = ({
   href,
   icon,
   active,
+  label,
   className,
 }: {
   href: string
   icon: React.ReactNode
   active: boolean
+  /** Icon-only control — this is its only accessible name, not just a tooltip. */
+  label: string
   className?: string
 }) => (
   <Link
     href={href}
+    aria-label={label}
+    aria-current={active ? 'page' : undefined}
     className={cn(
       'flex items-center justify-center p-2.5 rounded-full transition-all duration-200',
       active ? 'bg-[var(--brand-primary)]/30 text-white' : 'text-white/50 hover:text-white hover:bg-white/[0.08]',
