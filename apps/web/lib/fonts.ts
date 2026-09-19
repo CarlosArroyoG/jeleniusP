@@ -40,7 +40,11 @@ export const CURATED_FONTS = [
   'Work Sans',
 ]
 
-export const DEFAULT_FONT = 'Wix Madefor Text'
+// Jelenius's own identity font (see jelenius-docs/brand-reference.md).
+// Kept in sync with the `Inter` import in app/layout.tsx — that's what's
+// actually loaded, this just tells consumers which curated-list entry is
+// "no override needed".
+export const DEFAULT_FONT = 'Inter'
 
 export function getGoogleFontUrl(fontFamily: string): string {
   const encoded = fontFamily.replace(/ /g, '+')
