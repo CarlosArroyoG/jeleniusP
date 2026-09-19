@@ -3,42 +3,43 @@
 //
 // AuthFooter   — the "By continuing, you agree to … Terms of Service and
 //                Privacy Policy." line shown under the auth forms.
-// CopyrightFooter — the "© {year} LearnHouse, Inc." line for app surfaces
+// CopyrightFooter — the "© {year} Jelenius" line for app surfaces
 //                (the apex /home hub, the onboarding page, …).
 //
 // Legal pages live on the marketing/platform site, so links resolve via
-// getPlatformUrl() with a sensible public fallback.
+// getPlatformUrl(). When no platform URL is configured (default for a
+// self-hosted install with no legal pages published yet), we render the
+// label as plain text instead of guessing at a URL that doesn't exist.
 import React from 'react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { getPlatformUrl } from '@services/config/config'
 
-const TERMS_URL = getPlatformUrl('/terms') || 'https://www.learnhouse.io/terms'
-const PRIVACY_URL = getPlatformUrl('/privacy') || 'https://www.learnhouse.io/privacy'
+const TERMS_URL = getPlatformUrl('/terms')
+const PRIVACY_URL = getPlatformUrl('/privacy')
+
+function LegalLink({ href, children, className }: { href: string | null; children: React.ReactNode; className: string }) {
+  if (!href) return <span className={className}>{children}</span>
+  return (
+    <Link href={href} target="_blank" rel="noopener noreferrer" className={className}>
+      {children}
+    </Link>
+  )
+}
 
 export function AuthFooter({ className = '' }: { className?: string }) {
   const { t } = useTranslation()
   return (
     <div className={`pb-8 pt-6 text-center px-6 ${className}`}>
       <p className="text-[13px] text-black/30 font-medium">
-        {t('auth.terms_text', { defaultValue: "By continuing, you agree to LearnHouse's" })}{' '}
-        <Link
-          href={TERMS_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-black/50 hover:text-black/70 transition-colors"
-        >
+        {t('auth.terms_text', { defaultValue: "By continuing, you agree to Jelenius's" })}{' '}
+        <LegalLink href={TERMS_URL} className="text-black/50 hover:text-black/70 transition-colors">
           {t('auth.terms_of_service', { defaultValue: 'Terms of Service' })}
-        </Link>{' '}
+        </LegalLink>{' '}
         {t('auth.and', { defaultValue: 'and' })}{' '}
-        <Link
-          href={PRIVACY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-black/50 hover:text-black/70 transition-colors"
-        >
+        <LegalLink href={PRIVACY_URL} className="text-black/50 hover:text-black/70 transition-colors">
           {t('auth.privacy_policy', { defaultValue: 'Privacy Policy' })}
-        </Link>
+        </LegalLink>
         .
       </p>
     </div>
@@ -62,25 +63,15 @@ export function CopyrightFooter({
     <footer className={`w-full py-6 px-6 ${className}`}>
       <div className="flex flex-col sm:flex-row items-center justify-center gap-x-5 gap-y-2 text-[13px] font-medium">
         <p className={base}>
-          {t('common.copyright', { defaultValue: '© {{year}} LearnHouse, Inc.', year })}
+          {t('common.copyright', { defaultValue: '© {{year}} Jelenius', year })}
         </p>
         <nav className="flex items-center gap-x-5">
-          <Link
-            href={TERMS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${link} transition-colors`}
-          >
+          <LegalLink href={TERMS_URL} className={`${link} transition-colors`}>
             {t('auth.terms_of_service', { defaultValue: 'Terms of Service' })}
-          </Link>
-          <Link
-            href={PRIVACY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${link} transition-colors`}
-          >
+          </LegalLink>
+          <LegalLink href={PRIVACY_URL} className={`${link} transition-colors`}>
             {t('auth.privacy_policy', { defaultValue: 'Privacy Policy' })}
-          </Link>
+          </LegalLink>
         </nav>
       </div>
     </footer>
