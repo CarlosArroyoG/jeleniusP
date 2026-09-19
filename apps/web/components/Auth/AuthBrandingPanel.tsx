@@ -50,9 +50,10 @@ export default function AuthBrandingPanel({ org, welcomeText, title, subtitle }:
       }
     }
     if (background_type === 'gradient' || !background_image) {
-      // Keep the original black gradient
+      // Jelenius navy gradient — the default look before an org sets its own
+      // auth background (customization.auth_branding.background_*).
       return {
-        background: 'linear-gradient(041.61deg, #202020 7.15%, #000000 90.96%)',
+        background: `linear-gradient(041.61deg, ${JELENIUS_BRAND.secondaryColor} 7.15%, ${JELENIUS_BRAND.primaryColor} 90.96%)`,
       }
     }
     if (background_type === 'custom' && background_image) {
@@ -70,7 +71,7 @@ export default function AuthBrandingPanel({ org, welcomeText, title, subtitle }:
       }
     }
     return {
-      background: 'linear-gradient(041.61deg, #202020 7.15%, #000000 90.96%)',
+      background: `linear-gradient(041.61deg, ${JELENIUS_BRAND.secondaryColor} 7.15%, ${JELENIUS_BRAND.primaryColor} 90.96%)`,
     }
   }
 

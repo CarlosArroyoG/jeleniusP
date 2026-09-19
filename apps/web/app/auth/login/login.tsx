@@ -18,6 +18,7 @@ import AuthLayout from '@components/Auth/AuthLayout'
 import TurnstileWidget, { useTurnstileRequired, verifyTurnstileToken, type TurnstileWidgetHandle } from '@components/Auth/TurnstileWidget'
 import { useLHAnalytics, AnalyticsEvent } from '@services/analytics'
 import { getAllowedAuthMethods } from '@services/auth/authMethods'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 interface LoginClientProps {
   org: any
@@ -439,7 +440,7 @@ const LoginClient = (props: LoginClientProps) => {
     <AuthLayout
       org={props.org}
       welcomeText={t('auth.login_to')}
-      title={t('auth.image_title_login', { defaultValue: 'Welcome back to LearnHouse.' })}
+      title={t('auth.image_title_login', { defaultValue: `Welcome back to ${JELENIUS_BRAND.name}.` })}
       subtitle={t('auth.image_subtitle_login', {
         defaultValue: 'Pick up where you left off — your courses, students, and tools are waiting.',
       })}
@@ -513,7 +514,7 @@ const LoginClient = (props: LoginClientProps) => {
             {mfaToken ? (
               <>
                 {/* Second-factor challenge */}
-                <h1 className="text-[28px] md:text-[32px] font-black text-black tracking-tight leading-tight">
+                <h1 className="text-[28px] md:text-[32px] font-black text-text-secondary tracking-tight leading-tight">
                   {t('auth.mfa_title', { defaultValue: 'Two-step verification' })}
                 </h1>
                 <p className="mt-2 text-black/45 text-[15px] font-medium">
@@ -544,7 +545,7 @@ const LoginClient = (props: LoginClientProps) => {
                     inputMode={useBackupCode ? 'text' : 'numeric'}
                     placeholder={useBackupCode ? 'XXXXX-XXXXX' : '000000'}
                     disabled={mfaSubmitting}
-                    className={`box-border w-full bg-neutral-50 text-black rounded-lg px-4 border inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-black/5 transition-all placeholder:text-black/25 disabled:opacity-50 ${
+                    className={`box-border w-full bg-neutral-50 text-text-secondary rounded-[10px] px-4 border inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-brand-accent/25 focus:border-brand-accent transition-all placeholder:text-black/25 disabled:opacity-50 ${
                       useBackupCode
                         ? 'text-sm tracking-normal'
                         : 'text-lg tracking-[0.4em] font-semibold'
@@ -561,11 +562,11 @@ const LoginClient = (props: LoginClientProps) => {
                   <button
                     type="submit"
                     disabled={mfaSubmitting || !mfaCode.trim()}
-                    className="box-border w-full inline-flex h-[44px] rounded-lg items-center justify-center bg-black hover:bg-black/85 text-white px-[15px] font-bold text-[14px] leading-none mt-4 transition-all disabled:opacity-50"
+                    className="box-border w-full inline-flex h-[44px] rounded-[10px] items-center justify-center bg-brand hover:opacity-90 text-brand-foreground px-[15px] font-bold text-[14px] leading-none mt-4 transition-all disabled:opacity-50"
                   >
                     {mfaSubmitting ? (
                       <span className="flex items-center space-x-2">
-                        <span className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-t-2 border-brand-foreground rounded-full animate-spin" />
                         <span>{t('common.loading')}</span>
                       </span>
                     ) : (
@@ -583,7 +584,7 @@ const LoginClient = (props: LoginClientProps) => {
                       setMfaError('')
                     }}
                     disabled={mfaSubmitting}
-                    className="text-sm text-black font-semibold hover:underline disabled:opacity-50"
+                    className="text-sm text-brand font-semibold hover:underline disabled:opacity-50"
                   >
                     {useBackupCode
                       ? t('auth.mfa_use_authenticator', { defaultValue: 'Use your authenticator app instead' })
@@ -610,7 +611,7 @@ const LoginClient = (props: LoginClientProps) => {
             ) : magicMode ? (
               <>
                 {/* Passwordless "email me a link" step */}
-                <h1 className="text-[28px] md:text-[32px] font-black text-black tracking-tight leading-tight">
+                <h1 className="text-[28px] md:text-[32px] font-black text-text-secondary tracking-tight leading-tight">
                   {t('auth.magic_title', { defaultValue: 'Sign in with a link' })}
                 </h1>
                 {magicSent ? (
@@ -619,7 +620,7 @@ const LoginClient = (props: LoginClientProps) => {
                       <div className="p-3 rounded-2xl bg-green-50 text-green-600">
                         <CheckCircle2 size={28} />
                       </div>
-                      <h2 className="mt-4 text-lg font-bold text-black">
+                      <h2 className="mt-4 text-lg font-bold text-text-secondary">
                         {t('auth.magic_sent_title', { defaultValue: 'Check your email' })}
                       </h2>
                       <p className="mt-2 text-black/45 text-[15px] font-medium max-w-sm">
@@ -667,7 +668,7 @@ const LoginClient = (props: LoginClientProps) => {
                         autoComplete="email"
                         placeholder="you@example.com"
                         disabled={magicSubmitting}
-                        className={`box-border w-full bg-neutral-50 text-black rounded-lg px-4 border inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-black/5 transition-all placeholder:text-black/25 text-sm disabled:opacity-50 ${
+                        className={`box-border w-full bg-neutral-50 text-text-secondary rounded-[10px] px-4 border inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-brand-accent/25 focus:border-brand-accent transition-all placeholder:text-black/25 text-sm disabled:opacity-50 ${
                           magicError
                             ? 'border-red-300 focus:border-red-400'
                             : 'border-neutral-200 focus:border-neutral-400'
@@ -684,11 +685,11 @@ const LoginClient = (props: LoginClientProps) => {
                       <button
                         type="submit"
                         disabled={magicSubmitting || !magicEmail.trim()}
-                        className="box-border w-full inline-flex h-[44px] rounded-lg items-center justify-center bg-black hover:bg-black/85 text-white px-[15px] font-bold text-[14px] leading-none mt-4 transition-all disabled:opacity-50"
+                        className="box-border w-full inline-flex h-[44px] rounded-[10px] items-center justify-center bg-brand hover:opacity-90 text-brand-foreground px-[15px] font-bold text-[14px] leading-none mt-4 transition-all disabled:opacity-50"
                       >
                         {magicSubmitting ? (
                           <span className="flex items-center space-x-2">
-                            <span className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
+                            <span className="w-4 h-4 border-t-2 border-brand-foreground rounded-full animate-spin" />
                             <span>{t('common.loading')}</span>
                           </span>
                         ) : (
@@ -721,7 +722,7 @@ const LoginClient = (props: LoginClientProps) => {
             ) : (
               <>
             {/* Header */}
-            <h1 className="text-[28px] md:text-[32px] font-black text-black tracking-tight leading-tight">{t('auth.welcome_back')}</h1>
+            <h1 className="text-[28px] md:text-[32px] font-black text-text-secondary tracking-tight leading-tight">{t('auth.welcome_back')}</h1>
             <p className="mt-2 text-black/45 text-[15px] font-medium">
               {passwordAllowed
                 ? t('auth.enter_credentials')
@@ -749,7 +750,7 @@ const LoginClient = (props: LoginClientProps) => {
                       onBlur={formik.handleBlur}
                       value={formik.values.email}
                       type="email"
-                      className="box-border w-full bg-neutral-50 text-black rounded-lg px-4 border border-neutral-200 inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-neutral-400 transition-all placeholder:text-black/25 text-sm"
+                      className="box-border w-full bg-neutral-50 text-text-secondary rounded-[10px] px-4 border border-neutral-200 inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-brand-accent/25 focus:border-brand-accent transition-all placeholder:text-black/25 text-sm"
                     />
                   </Form.Control>
                 </FormField>
@@ -765,7 +766,7 @@ const LoginClient = (props: LoginClientProps) => {
                     )}
                     <Link
                       href="/forgot"
-                      className="text-xs text-black/60 hover:text-black font-semibold transition-colors"
+                      className="text-xs text-brand hover:opacity-80 font-semibold transition-colors"
                     >
                       {t('auth.forgot_password')}
                     </Link>
@@ -777,7 +778,7 @@ const LoginClient = (props: LoginClientProps) => {
                       value={formik.values.password}
                       type="password"
                       autoComplete="current-password"
-                      className="box-border w-full bg-neutral-50 text-black rounded-lg px-4 border border-neutral-200 inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-neutral-400 transition-all placeholder:text-black/25 text-sm"
+                      className="box-border w-full bg-neutral-50 text-text-secondary rounded-[10px] px-4 border border-neutral-200 inline-flex h-[44px] appearance-none items-center focus:outline-none focus:ring-2 focus:ring-brand-accent/25 focus:border-brand-accent transition-all placeholder:text-black/25 text-sm"
                     />
                   </Form.Control>
                 </FormField>
@@ -791,11 +792,11 @@ const LoginClient = (props: LoginClientProps) => {
                 <Form.Submit asChild>
                   <button
                     disabled={isSubmitting || (turnstileRequired && !turnstileToken)}
-                    className="box-border w-full inline-flex h-[44px] rounded-lg items-center justify-center bg-black hover:bg-black/85 text-white px-[15px] font-bold text-[14px] leading-none mt-2 transition-all disabled:opacity-50"
+                    className="box-border w-full inline-flex h-[44px] rounded-[10px] items-center justify-center bg-brand hover:opacity-90 text-brand-foreground px-[15px] font-bold text-[14px] leading-none mt-2 transition-all disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center space-x-2">
-                        <span className="w-4 h-4 border-t-2 border-white rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-t-2 border-brand-foreground rounded-full animate-spin" />
                         <span>{t('common.loading')}</span>
                       </span>
                     ) : (
@@ -824,7 +825,7 @@ const LoginClient = (props: LoginClientProps) => {
                 <button
                   onClick={handleGoogleSignIn}
                   disabled={isSubmitting}
-                  className="flex justify-center items-center w-full bg-white hover:bg-neutral-50 text-black space-x-3 font-medium p-3 rounded-lg border border-neutral-200 transition-all text-sm disabled:opacity-50"
+                  className="flex justify-center items-center w-full bg-white hover:bg-neutral-50 text-text-secondary space-x-3 font-medium p-3 rounded-[10px] border border-neutral-200 transition-all text-sm disabled:opacity-50"
                 >
                   <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="" className="w-4 h-4" />
                   <span>{t('auth.sign_in_with_google')}</span>
@@ -835,7 +836,7 @@ const LoginClient = (props: LoginClientProps) => {
                   <button
                     onClick={handleSSOLogin}
                     disabled={ssoLoading}
-                    className="flex justify-center items-center w-full bg-white hover:bg-neutral-50 text-black space-x-3 font-medium p-3 rounded-lg border border-neutral-200 transition-all text-sm disabled:opacity-50"
+                    className="flex justify-center items-center w-full bg-white hover:bg-neutral-50 text-text-secondary space-x-3 font-medium p-3 rounded-[10px] border border-neutral-200 transition-all text-sm disabled:opacity-50"
                   >
                     <Shield size={16} />
                     <span>{ssoLoading ? t('common.loading') : t('auth.sign_in_with_sso')}</span>
@@ -847,7 +848,7 @@ const LoginClient = (props: LoginClientProps) => {
                   type="button"
                   onClick={openMagicMode}
                   disabled={isSubmitting}
-                  className="flex justify-center items-center w-full bg-white hover:bg-neutral-50 text-black space-x-3 font-medium p-3 rounded-lg border border-neutral-200 transition-all text-sm disabled:opacity-50"
+                  className="flex justify-center items-center w-full bg-white hover:bg-neutral-50 text-text-secondary space-x-3 font-medium p-3 rounded-[10px] border border-neutral-200 transition-all text-sm disabled:opacity-50"
                 >
                   <Mail size={16} />
                   <span>{t('auth.magic_send', { defaultValue: 'Email me a login link' })}</span>
@@ -872,7 +873,7 @@ const LoginClient = (props: LoginClientProps) => {
               {/* Sign Up Link */}
               <p className="text-center text-sm text-black/35 mt-6">
                 {t('auth.no_account')}{' '}
-                <Link href="/signup" className="text-black font-semibold hover:underline">
+                <Link href="/signup" className="text-brand font-semibold hover:underline">
                   {t('auth.sign_up')}
                 </Link>
               </p>

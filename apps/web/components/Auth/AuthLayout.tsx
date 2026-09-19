@@ -4,6 +4,7 @@ import LanguageSwitcher from '@components/Utils/LanguageSwitcher'
 import AuthBrandingPanel from '@components/Auth/AuthBrandingPanel'
 import AuthMobileHeader from '@components/Auth/AuthMobileHeader'
 import { AuthFooter } from '@components/Footers/LegalFooters'
+import { useOrganizationTheme } from '@/lib/theme/useOrganizationTheme'
 
 interface AuthLayoutProps {
   org: any
@@ -15,8 +16,17 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ org, welcomeText, title, subtitle, children }: AuthLayoutProps) {
+  // `useOrg()` (inside the hook) reads the same OrgProvider the auth route
+  // layout already wraps this tree in (see app/auth/layout.tsx) — it's null
+  // on the org-less apex, which resolveOrganizationTheme treats as "use the
+  // Jelenius default", same as everywhere else.
+  const { style: themeVars } = useOrganizationTheme()
+
   return (
-    <div className="min-h-screen lg:h-screen bg-white flex flex-col lg:flex-row relative overflow-hidden">
+    <div
+      className="min-h-screen lg:h-screen bg-white flex flex-col lg:flex-row relative overflow-hidden"
+      style={themeVars}
+    >
       {/* Page-level blueprint grid, bottom-anchored */}
       <div
         className="absolute inset-0 pointer-events-none z-0"
