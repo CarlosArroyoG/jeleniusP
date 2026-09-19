@@ -65,10 +65,22 @@ Backing admin UI (already built, reused as-is):
 (color + font), Auth branding (login background/message), Social, Previews
 tabs, at **Dashboard → Organization → Appearance → Branding**.
 
+> **Phase 3:** the Theme sub-tab now also has **secondary color** and
+> **accent color** pickers, right beside the existing primary color picker
+> — same hex-input + swatch pattern, same `Input`/`Button` primitives, no
+> new UI pattern introduced. A small live preview (a sample button using
+> the accent color, a sample badge using the secondary color, both with
+> auto-computed legible text) sits under the existing header vignette so an
+> admin can see the effect of these two fields specifically, which the
+> existing vignette doesn't cover. Backed by two new endpoints,
+> `PUT /orgs/{id}/config/secondary_color` and `.../accent_color`, mirroring
+> the existing `color`/`font` endpoints exactly (see `theme-engine.md`).
+
 **Gaps in what already exists** (worth a future phase, not attempted here):
-no dark-mode logo variant, no secondary/accent color field beyond the single
-`color`, no custom-CSS escape hatch, font limited to a curated Google Fonts
-list (`apps/web/lib/fonts.ts`).
+no dark-mode logo variant, no custom-CSS escape hatch (deliberately — see
+"White-label without arbitrary CSS" below), font limited to a curated
+Google Fonts list (`apps/web/lib/fonts.ts`, though phase 3 added
+Merriweather as the list's first serif option).
 
 ## What Jelenius adds
 
@@ -184,6 +196,23 @@ branding changes by hand.
 
 The instance was returned to Jelenius-default branding afterward, per the
 requirement that Jelenius, not a demo school, is the resting default.
+
+## White-label without arbitrary CSS
+
+Every color field (`color`, `secondary_color`, `accent_color`) is validated
+server-side against a plain `#rrggbb`/`#rgb` hex pattern
+(`normalize_brand_color` in `apps/api/src/services/email/branding.py`,
+reused rather than reimplemented for the org endpoints — see
+`theme-engine.md`) and client-side by the same rule
+(`normalizeHexColor` in `resolveOrganizationTheme.ts`). Neither accepts
+`url()`, `var()`, `calc()`, `javascript:`, or anything else that isn't a
+bare hex triplet — an invalid value is rejected with `422` (write path) or
+silently replaced with the Jelenius default (read/render path), never
+passed through. There is no free-text CSS field anywhere in org branding,
+by design: a school gets tokens (color/secondary/accent/font), not a
+`<style>` tag. Custom CSS is real future-phase territory (per this phase's
+own instructions), not something to sneak in via an unvalidated string
+field.
 
 ## Deployment model this white-label design assumes
 

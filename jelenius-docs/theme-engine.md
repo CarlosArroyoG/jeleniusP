@@ -1,5 +1,24 @@
 # Theme Engine
 
+> **Phase 3 updates (2026-09-19):**
+> - **SSR** — the theme now resolves server-side too, closing the "known
+>   limitation" this doc used to end on. See `ssr-branding.md`.
+> - **Secondary/accent colors** — `ThemeTokens` gained `brandSecondary`/
+>   `brandAccent` as genuinely organization-configurable fields (they were
+>   previously always Jelenius's own — see "What's dynamic vs. static"
+>   below, updated) via two new endpoints,
+>   `PUT /orgs/{id}/config/secondary_color` and `.../accent_color`, mirroring
+>   the existing `color`/`font` ones exactly. `OrganizationConfig`'s JSON
+>   blob gained two optional keys (`secondary_color`, `accent_color`) —
+>   **no PostgreSQL migration**, since `customization.general` is already a
+>   JSON column and both keys default to `""` (absent = old behavior).
+> - **AdminLeftMenu** (superadmin topbar) now runs through
+>   `useOrganizationTheme()` too, for consistency — it has no org context
+>   (superadmin is cross-org), so it always resolves to the Jelenius
+>   default, which is exactly correct for that screen.
+> - **Playwright** (`jelenius-docs/visual-testing.md`) now verifies all of
+>   the above in a real browser, not just via curl/unit tests.
+
 ## What problem this solves
 
 Before this phase, an organization's color/font lived in
@@ -68,12 +87,20 @@ competing one.
   `brandPrimary` and body text on it stays legible.
 - `fontSans` — org's `customization.general.font`, validated against the
   curated Google Fonts list (`lib/fonts.ts`), or `JELENIUS_BRAND.font`.
-- `brandSecondary`, `brandAccent` — **currently always Jelenius's own**
-  (`secondaryColor`/`accentColor`), because `OrganizationConfig` has no
-  secondary/accent color field yet (see `white-label.md`'s "Gaps" section).
-  They're still part of `ThemeTokens` and go through the same resolver so
-  that adding such a field later is a one-line change here, not a hunt
-  through every component that used a hardcoded accent.
+- `brandSecondary` — org's `customization.general.secondary_color` (phase 3),
+  same hex validation as primary, or `JELENIUS_BRAND.secondaryColor`.
+- `brandAccent` — org's `customization.general.accent_color` (phase 3), or
+  `JELENIUS_BRAND.accentColor`.
+- `brandSecondaryForeground`, `brandAccentForeground` — same auto-contrast
+  treatment as `brandPrimaryForeground`, computed independently per field
+  (an org can have a light secondary color and a dark accent color at the
+  same time and both get correct, independent contrast).
+
+All four color fields are optional and independent — a config with only
+`color` set (everything predating phase 3) resolves exactly as it did
+before; `secondary_color`/`accent_color` being absent is indistinguishable
+from being explicitly empty, both fall back to the Jelenius default. See
+`tests/theme-resolve.test.mjs`'s "backward compatibility" describe block.
 
 **Static** (Jelenius design-system constants, not organization-configurable,
 live directly in `globals.css`, no resolver involved): `--surface`,
@@ -158,20 +185,18 @@ Fallback is per-field, not all-or-nothing — see
 "invalid/missing values" describe blocks) for the exact cases this
 guarantees.
 
-## Known limitation: SSR vs. hydration
+## SSR vs. hydration — resolved in phase 3
 
-`OrgContext`'s `useOrg()` fetches the organization via a client-side
-`useQuery` (React Query) — during the server-rendered HTML (what `curl`
-sees, with no JS executed) `org` is not yet populated, so the theme engine
-correctly falls back to the Jelenius default at that point; the actual
-org's color/font apply after client hydration, once the query resolves.
-This is pre-existing behavior (documented in Phase 1's `frontend-audit.md`
-for the same reason org name/color never appeared in raw `curl` output
-there either) — the theme engine does not change it, and fixing it (e.g.
-via a server-side org prefetch) is out of this phase's scope. The org's
-`<title>`/favicon still update correctly in raw SSR HTML because those go
-through Next's separate `generateMetadata()` server-side fetch, not
-`OrgContext`.
+This used to be documented here as a known limitation: `OrgContext`'s
+`useOrg()` fetches client-side, so the raw SSR HTML fell back to the
+Jelenius default and the real org's color/font only applied after
+hydration. **Phase 3 closed this** — see `ssr-branding.md` for the full
+architecture (`getServerOrg()` + `getServerOrgTheme()` +
+`HydrationBoundary`). The short version: `app/orgs/[orgslug]/layout.tsx`
+and `app/auth/layout.tsx` now resolve the org and its theme server-side and
+hand React Query a pre-hydrated cache, so the value in the raw SSR HTML and
+the value after hydration are the same value — verified in a real browser
+by `e2e/ssr-branding.spec.ts`, not just asserted in a unit test.
 
 No browser was available in this environment to visually confirm
 post-hydration rendering — this was verified instead by (a) 36 passing unit

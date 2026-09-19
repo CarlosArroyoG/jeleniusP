@@ -66,6 +66,42 @@ plain-object reads and one hex-color regex match — not something a
 `curl`-level timing could distinguish from noise either way. Treat "no
 significant regression" as the finding, not "measurably faster."
 
+## Phase 3 re-measurement (2026-09-19, after SSR org resolution + secondary/accent + Playwright)
+
+Re-measured again, specifically to check whether resolving the organization
+*server-side* on every request (`getServerOrg()`/`getServerOrgTheme()` —
+see `ssr-branding.md`) added a real cost, since it's strictly more work per
+request than phase 2's client-only resolution (an extra backend API call
+during SSR, memoized per request but still a real network hop to the API).
+
+| Route | Production — cold (server just started) | Production — warm (3 repeated samples) |
+|---|---|---|
+| `/` | 5.96s | 0.040s / 0.018s / 0.018s |
+| `/login` | — | 0.071s / 0.038s / 0.017s |
+| `/courses` | — | 0.054s / 0.018s / 0.052s |
+| `/dash` | — | 0.048s / 0.020s / 0.028s |
+
+**Warm numbers: no regression** — same 0.02–0.07s range as phase 2, despite
+every one of these routes now making a real server→API round-trip for
+`getServerOrg()` on every request (memoized within a request, but not
+across requests — there is no cross-request cache for it, deliberately,
+since org config can change at any time). The dev machine's Postgres/Redis/
+API stack sits on the same box, so that round-trip is sub-millisecond in
+practice; a real production deployment with the API on a different host
+would see a real, if still probably small, addition here — worth
+re-measuring against an actually-remote API before treating "no
+regression" as a permanent conclusion rather than "no regression on this
+topology."
+
+**Cold start: 5.96s vs. phase 2's 1.70s — not treated as a regression.**
+This session had a backend test run and multiple other background
+processes active on the same machine at measurement time (see the
+`jelenius-phase3` git history for what else was running), and cold start is
+exactly the number most sensitive to system load, single-sample noise, and
+this being a genuinely fresh `next start` invocation rather than a reused
+one. Re-measure in isolation before drawing any conclusion from this
+number specifically.
+
 ## Known gaps in this measurement
 
 - No real browser was used, so client-side hydration cost, JS bundle
