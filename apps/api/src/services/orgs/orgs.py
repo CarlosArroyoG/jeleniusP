@@ -28,6 +28,10 @@ from src.services.orgs.uploads import upload_org_logo, upload_org_preview, uploa
 from src.db.organization_config import AuthBrandingConfig, SeoOrgConfig
 from src.core.ee_hooks import is_multi_org_allowed
 from src.services.webhooks.dispatch import dispatch_webhooks
+# Reused rather than reimplemented — the single #rrggbb validator already
+# used for email branding (apps/web/lib/theme/resolveOrganizationTheme.ts's
+# normalizeHexColor is the frontend counterpart; keep both in sync).
+from src.services.email.branding import normalize_brand_color
 
 
 async def _get_org_config_cached(org_id: int, db_session: AsyncSession) -> Optional[OrganizationConfig]:
@@ -1288,13 +1292,31 @@ async def update_org_playgrounds_config(
     )
 
 
-async def update_org_color_config(
+async def _update_org_brand_color_field(
+    field_name: str,
+    label: str,
     request: Request,
     color: str,
     org_id: int,
     current_user: PublicUser | AnonymousUser,
     db_session: AsyncSession,
 ):
+    """Shared body for the primary/secondary/accent color endpoints.
+
+    An empty string clears the field (falls back to the Jelenius default
+    client-side — see resolveOrganizationTheme.ts) without needing a
+    separate "reset" endpoint. Any non-empty value must be a plain
+    #rrggbb/#rgb hex triplet: no url(), var(), calc(), javascript:, or any
+    other CSS/script injection surface, since this value lands directly in
+    an inline style on every branded page.
+    """
+    normalized = "" if color == "" else normalize_brand_color(color)
+    if color != "" and normalized is None:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid {label} color — expected a #rrggbb or #rgb hex value",
+        )
+
     statement = select(Organization).where(Organization.id == org_id)
     org = (await db_session.execute(statement)).scalars().first()
 
@@ -1313,10 +1335,10 @@ async def update_org_color_config(
 
     if _is_v2_config(updated_config):
         updated_config.setdefault("customization", {}).setdefault("general", {})
-        updated_config["customization"]["general"]["color"] = color
+        updated_config["customization"]["general"][field_name] = normalized
     else:
         updated_config.setdefault("general", {"enabled": True, "color": "", "watermark": True})
-        updated_config["general"]["color"] = color
+        updated_config["general"][field_name] = normalized
 
     org_config.config = updated_config
     org_config.update_date = str(datetime.now())
@@ -1325,7 +1347,43 @@ async def update_org_color_config(
     await db_session.commit()
     await db_session.refresh(org_config)
 
-    return {"detail": "Color configuration updated"}
+    return {"detail": f"{label.capitalize()} color configuration updated"}
+
+
+async def update_org_color_config(
+    request: Request,
+    color: str,
+    org_id: int,
+    current_user: PublicUser | AnonymousUser,
+    db_session: AsyncSession,
+):
+    return await _update_org_brand_color_field(
+        "color", "primary", request, color, org_id, current_user, db_session
+    )
+
+
+async def update_org_secondary_color_config(
+    request: Request,
+    secondary_color: str,
+    org_id: int,
+    current_user: PublicUser | AnonymousUser,
+    db_session: AsyncSession,
+):
+    return await _update_org_brand_color_field(
+        "secondary_color", "secondary", request, secondary_color, org_id, current_user, db_session
+    )
+
+
+async def update_org_accent_color_config(
+    request: Request,
+    accent_color: str,
+    org_id: int,
+    current_user: PublicUser | AnonymousUser,
+    db_session: AsyncSession,
+):
+    return await _update_org_brand_color_field(
+        "accent_color", "accent", request, accent_color, org_id, current_user, db_session
+    )
 
 
 async def update_org_footer_text_config(

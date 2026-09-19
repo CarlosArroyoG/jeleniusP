@@ -108,6 +108,32 @@ export async function updateOrgColorConfig(
   return res
 }
 
+export async function updateOrgSecondaryColorConfig(
+  org_id: string,
+  secondary_color: string,
+  access_token: string
+) {
+  const result: any = await fetch(
+    `${getAPIUrl()}orgs/${org_id}/config/secondary_color?secondary_color=${encodeURIComponent(secondary_color)}`,
+    RequestBodyWithAuthHeader('PUT', null, null, access_token)
+  )
+  const res = await errorHandling(result)
+  return res
+}
+
+export async function updateOrgAccentColorConfig(
+  org_id: string,
+  accent_color: string,
+  access_token: string
+) {
+  const result: any = await fetch(
+    `${getAPIUrl()}orgs/${org_id}/config/accent_color?accent_color=${encodeURIComponent(accent_color)}`,
+    RequestBodyWithAuthHeader('PUT', null, null, access_token)
+  )
+  const res = await errorHandling(result)
+  return res
+}
+
 export async function updateOrgFooterTextConfig(
   org_id: string,
   footer_text: string,

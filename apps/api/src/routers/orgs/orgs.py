@@ -53,6 +53,8 @@ from src.services.orgs.orgs import (
     update_org_boards_config,
     update_org_playgrounds_config,
     update_org_color_config,
+    update_org_secondary_color_config,
+    update_org_accent_color_config,
     update_org_font_config,
     update_org_footer_text_config,
     update_org_email_sender_name_config,
@@ -722,6 +724,60 @@ async def api_update_org_color_config(
     """
     return await update_org_color_config(
         request, color, org_id, current_user, db_session
+    )
+
+
+@router.put(
+    "/{org_id}/config/secondary_color",
+    summary="Update organization secondary color",
+    description="Update the organization's secondary branding color.",
+    responses={
+        200: {"description": "Secondary color configuration updated."},
+        401: {"description": "Not authenticated"},
+        403: {"description": "Caller is not an organization administrator"},
+        404: {"description": "Organization not found"},
+        422: {"description": "Invalid color format"},
+    },
+)
+async def api_update_org_secondary_color_config(
+    request: Request,
+    org_id: int,
+    secondary_color: str = "",
+    current_user: PublicUser = Depends(get_current_user),
+    db_session: AsyncSession = Depends(get_db_session),
+):
+    """
+    Update organization secondary color configuration
+    """
+    return await update_org_secondary_color_config(
+        request, secondary_color, org_id, current_user, db_session
+    )
+
+
+@router.put(
+    "/{org_id}/config/accent_color",
+    summary="Update organization accent color",
+    description="Update the organization's accent branding color.",
+    responses={
+        200: {"description": "Accent color configuration updated."},
+        401: {"description": "Not authenticated"},
+        403: {"description": "Caller is not an organization administrator"},
+        404: {"description": "Organization not found"},
+        422: {"description": "Invalid color format"},
+    },
+)
+async def api_update_org_accent_color_config(
+    request: Request,
+    org_id: int,
+    accent_color: str = "",
+    current_user: PublicUser = Depends(get_current_user),
+    db_session: AsyncSession = Depends(get_db_session),
+):
+    """
+    Update organization accent color configuration
+    """
+    return await update_org_accent_color_config(
+        request, accent_color, org_id, current_user, db_session
     )
 
 

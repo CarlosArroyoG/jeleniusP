@@ -2625,6 +2625,10 @@
         "theme": {
           "color_title": "اللون الأساسي",
           "color_desc": "يلوّن الترويسة العامة وخلفية الصفحة خلفها. اتركه فارغًا للترويسة البيضاء البسيطة.",
+          "secondary_color_title": "Secondary color",
+          "secondary_color_desc": "A supporting color for headings and secondary UI accents. Leave it empty to use Jelenius's default.",
+          "accent_color_title": "Accent color",
+          "accent_color_desc": "Used for focus rings, links, and small interactive highlights. Leave it empty to use Jelenius's default.",
           "no_color": "بدون لون",
           "clear": "مسح",
           "font_title": "الخط",
@@ -2634,6 +2638,8 @@
           "all_fonts": "عرض النتائج من كل خطوط Google",
           "default": "افتراضي",
           "preview": "معاينة مباشرة",
+          "preview_button": "Sample button",
+          "preview_badge": "Sample badge",
           "note": "تُطبَّق التغييرات على صفحاتك العامة بعد الحفظ."
         },
         "auth": {

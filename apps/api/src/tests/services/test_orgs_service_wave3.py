@@ -35,6 +35,8 @@ from src.services.orgs.orgs import (
     update_org_ai_config,
     update_org_auth_branding_config,
     update_org_color_config,
+    update_org_secondary_color_config,
+    update_org_accent_color_config,
     update_org_folders_config,
     update_org_communities_config,
     update_org_courses_config,
@@ -472,6 +474,8 @@ class TestOrgCreationAndListingWave3:
             (update_org_boards_config, (True,)),
             (update_org_playgrounds_config, (True,)),
             (update_org_color_config, ("#123456",)),
+            (update_org_secondary_color_config, ("#172033",)),
+            (update_org_accent_color_config, ("#19B7A5",)),
             (update_org_footer_text_config, ("Footer",)),
             (update_org_font_config, ("Inter",)),
             (update_org_watermark_config, (True,)),
@@ -560,6 +564,8 @@ class TestOrgCreationAndListingWave3:
                 (update_org_folders_config, (True,)),
                 (update_org_boards_config, (True,)),
                 (update_org_color_config, ("#abcdef",)),
+                (update_org_secondary_color_config, ("#172033",)),
+                (update_org_accent_color_config, ("#19b7a5",)),
                 (update_org_footer_text_config, ("Footer",)),
                 (update_org_font_config, ("Manrope",)),
                 (update_org_watermark_config, (True,)),
@@ -1080,6 +1086,102 @@ class TestOrgConfigBranchesWave3:
         assert stored.config["admin_toggles"]["ai"]["copilot_enabled"] is False
         assert stored.config["admin_toggles"]["communities"]["disabled"] is False
         assert stored.config["admin_toggles"]["payments"]["disabled"] is True
+
+
+class TestOrgSecondaryAccentColorWave3:
+    """Coverage for the secondary/accent brand-color endpoints added alongside
+    the existing `color` field — same hex validation, same v1/v2 config-shape
+    handling, backward compatible with configs that predate these fields."""
+
+    @pytest.mark.asyncio
+    async def test_valid_secondary_and_accent_colors_persist_independently(
+        self, mock_request, db, org, admin_user,
+    ):
+        await _make_org_config(
+            db, org,
+            {"config_version": "2.0", "plan": "free", "customization": {"general": {"color": "#0B1930"}}},
+        )
+        with patch("src.services.orgs.orgs.rbac_check", new_callable=AsyncMock, return_value=True):
+            await update_org_secondary_color_config(mock_request, "#172033", org.id, admin_user, db)
+            await update_org_accent_color_config(mock_request, "#19B7A5", org.id, admin_user, db)
+
+        stored = (await db.execute(
+            select(OrganizationConfig).where(OrganizationConfig.org_id == org.id)
+        )).scalars().first()
+        general = stored.config["customization"]["general"]
+        # Normalized to lowercase, and the untouched primary color survives
+        # both writes unchanged — these three fields are independent.
+        assert general["secondary_color"] == "#172033"
+        assert general["accent_color"] == "#19b7a5"
+        assert general["color"] == "#0B1930"
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "func,bad_value",
+        [
+            (update_org_secondary_color_config, "javascript:alert(1)"),
+            (update_org_secondary_color_config, "url(evil.com)"),
+            (update_org_secondary_color_config, "#12345"),
+            (update_org_accent_color_config, "var(--evil)"),
+            (update_org_accent_color_config, "calc(1px + 1px)"),
+            (update_org_accent_color_config, "not-a-color"),
+        ],
+    )
+    async def test_invalid_hex_values_are_rejected_with_422_not_silently_stored(
+        self, mock_request, db, org, admin_user, func, bad_value,
+    ):
+        await _make_org_config(
+            db, org,
+            {"config_version": "2.0", "plan": "free", "customization": {"general": {}}},
+        )
+        with patch("src.services.orgs.orgs.rbac_check", new_callable=AsyncMock, return_value=True):
+            with pytest.raises(HTTPException) as exc_info:
+                await func(mock_request, bad_value, org.id, admin_user, db)
+        assert exc_info.value.status_code == 422
+
+        # The rejected value must never have been written.
+        stored = (await db.execute(
+            select(OrganizationConfig).where(OrganizationConfig.org_id == org.id)
+        )).scalars().first()
+        general = stored.config["customization"]["general"]
+        assert bad_value not in general.values()
+
+    @pytest.mark.asyncio
+    async def test_empty_string_clears_a_previously_set_secondary_color(
+        self, mock_request, db, org, admin_user,
+    ):
+        await _make_org_config(
+            db, org,
+            {"config_version": "2.0", "plan": "free", "customization": {"general": {"secondary_color": "#172033"}}},
+        )
+        with patch("src.services.orgs.orgs.rbac_check", new_callable=AsyncMock, return_value=True):
+            await update_org_secondary_color_config(mock_request, "", org.id, admin_user, db)
+
+        stored = (await db.execute(
+            select(OrganizationConfig).where(OrganizationConfig.org_id == org.id)
+        )).scalars().first()
+        assert stored.config["customization"]["general"]["secondary_color"] == ""
+
+    @pytest.mark.asyncio
+    async def test_backward_compatible_v1_config_shape(
+        self, mock_request, db, org, admin_user,
+    ):
+        """A config saved before secondary/accent existed (v1 shape, no
+        `customization` wrapper at all) must still accept the new fields
+        without needing a migration."""
+        await _make_org_config(
+            db, org,
+            {"general": {"enabled": True, "color": "#0B1F3A", "watermark": True}},
+        )
+        with patch("src.services.orgs.orgs.rbac_check", new_callable=AsyncMock, return_value=True):
+            await update_org_secondary_color_config(mock_request, "#172033", org.id, admin_user, db)
+
+        stored = (await db.execute(
+            select(OrganizationConfig).where(OrganizationConfig.org_id == org.id)
+        )).scalars().first()
+        assert stored.config["general"]["secondary_color"] == "#172033"
+        # The pre-existing primary color is untouched by the v1 code path.
+        assert stored.config["general"]["color"] == "#0B1F3A"
 
 
 class TestOrgRbacWave3:

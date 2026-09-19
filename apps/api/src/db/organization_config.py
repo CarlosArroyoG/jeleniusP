@@ -216,6 +216,12 @@ class AuthBrandingConfig(BaseModel):
 
 class GeneralCustomization(BaseModel):
     color: str = ""
+    # Optional — empty means "fall back to the platform's own secondary/
+    # accent brand color" (see apps/web/lib/theme/resolveOrganizationTheme.ts).
+    # Added alongside `color`, not replacing it: existing configs that only
+    # ever set `color` keep working unchanged.
+    secondary_color: str = ""
+    accent_color: str = ""
     footer_text: str = ""
     favicon_image: str = ""
     # Square variant of the logo for the places that render the brand in a
