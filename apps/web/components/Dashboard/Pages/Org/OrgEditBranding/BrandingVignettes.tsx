@@ -17,6 +17,7 @@ import {
 import { SiFacebook, SiInstagram, SiX, SiYoutube } from '@icons-pack/react-simple-icons'
 import { cn } from '@/lib/utils'
 import { hexToRgba, isLightHex } from './BrandingShared'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 /**
  * Every vignette is a hand-drawn miniature of a real LearnHouse surface,
@@ -124,7 +125,7 @@ export function PublicHeaderVignette({ wideUrl, name, primaryColor, font, label,
             {wideUrl ? (
               <img src={wideUrl} alt="" className="h-full w-auto max-w-[110px] object-contain rounded-sm" />
             ) : (
-              <span className={cn('font-semibold truncate', ink, large ? 'text-sm' : 'text-[9px]')}>{name || 'LearnHouse'}</span>
+              <span className={cn('font-semibold truncate', ink, large ? 'text-sm' : 'text-[9px]')}>{name || JELENIUS_BRAND.name}</span>
             )}
           </span>
           <span className="flex items-center gap-1.5">
@@ -217,7 +218,7 @@ export function LoginPanelVignette({
               className={cn('ring-1 ring-inset ring-white/10', large ? 'h-16 w-16 rounded-2xl' : 'h-9 w-9 rounded-lg')}
               insetClassName={large ? 'p-2' : 'p-1'}
             />
-            <span className={cn('font-black tracking-tight leading-tight', large ? 'text-lg' : 'text-[9px]')}>{name || 'LearnHouse'}</span>
+            <span className={cn('font-black tracking-tight leading-tight', large ? 'text-lg' : 'text-[9px]')}>{name || JELENIUS_BRAND.name}</span>
             {welcome && (
               <span className={cn('leading-snug', large ? 'text-xs max-w-[220px]' : 'text-[7px] max-w-[110px] line-clamp-2', light ? 'text-white/70' : 'text-gray-600')}>
                 {welcome}

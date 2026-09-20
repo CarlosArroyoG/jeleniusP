@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { CourseContext, CourseDispatchContext } from '@components/Contexts/CourseContext'
 import { useActivity } from '@/hooks/queries/useActivity'
 import { useCourseMeta } from '@/hooks/queries/useCourses'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 const Canva = lazy(() => import('@components/Objects/Activities/DynamicCanva/DynamicCanva'))
 const VideoActivity = lazy(() => import('@components/Objects/Activities/Video/Video'))
@@ -168,8 +169,8 @@ function EmbedActivityClient({ activityId, courseuuid, orgslug, bgcolor }: Embed
         <div className="bg-white rounded-2xl nice-shadow p-8 max-w-md w-full text-center">
           <div className="mb-6">
             <Image
-              src="/learnhouse_bigicon.png"
-              alt="LearnHouse"
+              src={JELENIUS_BRAND.icon}
+              alt={JELENIUS_BRAND.name}
               width={64}
               height={64}
               className="mx-auto"
@@ -277,8 +278,8 @@ function PoweredByBadge({ activityUrl }: { activityUrl: string }) {
         className="bg-white/80 backdrop-blur-lg rounded-2xl p-2 light-shadow block cursor-pointer"
       >
         <Image
-          src="/lrn.svg"
-          alt="LearnHouse"
+          src={JELENIUS_BRAND.icon}
+          alt={JELENIUS_BRAND.name}
           width={20}
           height={20}
         />

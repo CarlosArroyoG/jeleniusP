@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion, type Transition, type TargetAndTransition } from 'motion/react'
 import {
@@ -24,6 +23,7 @@ import { queryKeys } from '@/lib/query/keys'
 import { startPlaygroundSession, iteratePlayground } from '@services/playgrounds/generator'
 import { updatePlayground, Playground } from '@services/playgrounds/playgrounds'
 import { useLHAnalytics, AnalyticsEvent } from '@services/analytics'
+import { BrandIcon } from '@components/Brand/BrandMark'
 
 interface Course {
   course_uuid: string
@@ -68,7 +68,7 @@ const EditorLearnHouseLogo = () => {
         animate={animation.animate}
         transition={animation.transition}
       >
-        <Image src="/lrn.svg" alt="LearnHouse" width={14} height={14} className="invert" />
+        <BrandIcon className="w-3.5 h-3.5" />
       </motion.div>
     </div>
   )

@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 import { getOrganizationContextInfo } from '@services/organizations/orgs'
 import Copilot from './copilot'
 import { getServerSession } from '@/lib/auth/server'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 type MetadataProps = {
   params: Promise<{ orgslug: string }>
@@ -19,7 +20,7 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
   }, access_token)
   return {
     title: 'Copilot — ' + org.name,
-    description: 'Chat with AI about your courses using LearnHouse Copilot.',
+    description: `Chat with AI about your courses using ${JELENIUS_BRAND.name} Copilot.`,
   }
 }
 

@@ -30,6 +30,7 @@ import { RequestBodyWithAuthHeader, getResponseMetadata } from '@services/utils/
 import * as Yup from 'yup'
 import { useTranslation } from 'react-i18next'
 import AccountDangerZone from '@components/Objects/Account/subpages/AccountDangerZone'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 const validationSchema = Yup.object().shape({
   old_password: Yup.string().required('validation.required'),
@@ -226,7 +227,7 @@ function TwoFactorAuthSection() {
 
   const downloadBackupCodes = () => {
     const header = t('user.settings.security.mfa.codes_file_header', {
-      defaultValue: 'LearnHouse two-factor backup codes. Each code can be used once.',
+      defaultValue: `${JELENIUS_BRAND.name} two-factor backup codes. Each code can be used once.`,
     })
     const blob = new Blob([`${header}\n\n${backupCodes.join('\n')}\n`], {
       type: 'text/plain;charset=utf-8',

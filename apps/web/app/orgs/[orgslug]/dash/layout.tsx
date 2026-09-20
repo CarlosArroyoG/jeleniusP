@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
 import React from 'react'
 import ClientAdminLayout from './ClientAdminLayout'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export const metadata: Metadata = {
-  title: 'LearnHouse Dashboard',
+  title: `${JELENIUS_BRAND.name} Dashboard`,
 }
 
 async function DashboardLayout(

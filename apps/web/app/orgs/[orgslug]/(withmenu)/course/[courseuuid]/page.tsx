@@ -7,6 +7,7 @@ import { getCourseThumbnailMediaDirectory, getOrgOgImageMediaDirectory } from '@
 import { getServerSession } from '@/lib/auth/server'
 import { getOrgSeoConfig, buildPageTitle } from '@/lib/seo/utils'
 import { getServerCanonicalUrl } from '@/lib/seo/utils.server'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 
 type MetadataProps = {
@@ -36,8 +37,8 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
 
   if (!courseResult) {
     return {
-      title: `Course — ${org?.name || 'LearnHouse'}`,
-      description: 'View this course on LearnHouse',
+      title: `Course — ${org?.name || JELENIUS_BRAND.name}`,
+      description: `View this course on ${org?.name || JELENIUS_BRAND.name}`,
     }
   }
   const course_meta = courseResult

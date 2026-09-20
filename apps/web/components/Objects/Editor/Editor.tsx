@@ -41,6 +41,7 @@ import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import ToolTip from '@components/Objects/StyledElements/Tooltip/Tooltip'
 import Link from 'next/link'
+import { BrandIcon } from '@components/Brand/BrandMark'
 import { getCourseThumbnailMediaDirectory } from '@services/media/media'
 import { getLinkExtension } from './EditorConf'
 import WebPreview from './Extensions/WebPreview/WebPreview'
@@ -718,13 +719,7 @@ const EditorLearnHouseLogo = () => {
         animate={animation.animate}
         transition={animation.transition}
       >
-        <Image
-          src="/lrn.svg"
-          alt="LearnHouse"
-          width={14}
-          height={14}
-          className="invert"
-        />
+        <BrandIcon className="w-3.5 h-3.5" />
       </motion.div>
     </div>
   )

@@ -67,6 +67,7 @@ import {
   type PricesResponse,
 } from '../_billing/plans'
 import { fetchPrices } from '../billing/_lib/billingClient'
+import { BrandIcon } from '@components/Brand/BrandMark'
 import PricingCards from './_components/PricingCards'
 import PlanSummaryCard from './_components/PlanSummaryCard'
 
@@ -976,8 +977,7 @@ export default function CreateNewOrgPage() {
             </Link>
             <div className="flex justify-center">
               <Link href="/home">
-                { }
-                <img src="/lrn.svg" alt="LearnHouse" width={40} height={40} className="opacity-90" />
+                <BrandIcon className="w-10 h-10 opacity-90" />
               </Link>
             </div>
             <div className="flex justify-end">
