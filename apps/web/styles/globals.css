@@ -214,6 +214,13 @@
   --color-warning: hsl(var(--warning));
 
   --radius-xl: 1.25rem;
+
+  /* Card system — from the Jelenius brand reference (jelenius-docs/brand-reference.md):
+     radius 22-24px, shadow tinted with the brand navy rather than neutral gray.
+     Structural design-system constants, not organization-configurable (same
+     reasoning as --color-surface above). */
+  --radius-card: 1.5rem;
+  --shadow-card: 0 24px 70px rgba(11, 25, 48, 0.12);
 }
 
 /*
