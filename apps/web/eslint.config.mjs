@@ -23,6 +23,18 @@ const LTR_LOCKED = [
 ];
 
 export default [
+    {
+        // Playwright's own build output (HTML report, trace viewer bundles,
+        // test-results screenshots/videos) — never source code, and the
+        // bundled trace-viewer JS trips hundreds of unrelated errors if
+        // linted. Mirrors the same paths .gitignore already excludes.
+        ignores: [
+            "playwright-report/**",
+            "test-results/**",
+            "blob-report/**",
+            "playwright/.cache/**",
+        ],
+    },
     js.configs.recommended,
     ...nextConfig,
     {

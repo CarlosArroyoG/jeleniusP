@@ -8,6 +8,7 @@
     "dev-https": "next dev --experimental-https -p 443",
     "build": "next build",
     "start": "next start",
+    "start:standalone": "node -e \"const fs=require('fs'); fs.cpSync('.next/static','.next/standalone/.next/static',{recursive:true}); fs.cpSync('public','.next/standalone/public',{recursive:true}); if (fs.existsSync('.env.local')) fs.cpSync('.env.local','.next/standalone/.env.local')\" && node .next/standalone/server.js",
     "lint": "eslint . || true",
     "lint:fix": "eslint --fix . || true",
     "lint:strict": "eslint",

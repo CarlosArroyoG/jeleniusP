@@ -10,14 +10,23 @@ dotenv.config({ path: path.resolve(__dirname, '.env.test.local') })
 /**
  * Browser QA for the white-label theme engine — see jelenius-docs/visual-testing.md.
  *
- * Runs against a production build + production server (not `next dev`),
- * per the phase instructions: dev-mode Turbopack cold-compile times are not
- * representative of anything a real user or a visual regression baseline
- * should be judged against. Playwright starts and owns this server itself
- * (see `webServer` below) — a developer never needs to have anything
- * running manually beyond the existing `npx learnhouse dev` backend stack
- * (API/Postgres/Redis), which this config does NOT start; it must already
- * be up (see jelenius-docs/visual-testing.md's prerequisites).
+ * Runs against a production build + the REAL production server entry point
+ * (`node .next/standalone/server.js`, via `bun run start:standalone`) — not
+ * `next dev`, and, since phase 3.1, not `next start` either. next.config
+ * sets `output: 'standalone'` for the actual Coolify/Docker deployment
+ * (see Dockerfile/docker-entrypoint.sh/server-wrapper.js), and Next.js
+ * itself warns that `next start` does not work correctly with standalone
+ * output — phase 3.1 found this the hard way as intermittent
+ * "destination stream closed early" request failures under `next start`,
+ * which had gone unnoticed in earlier phases because most requests still
+ * happened to succeed. `start:standalone` runs the exact server.js the
+ * production image runs, so this suite now tests the same code path that
+ * actually serves the demo, not a coincidentally-similar one. Playwright
+ * starts and owns this server itself (see `webServer` below) — a developer
+ * never needs to have anything running manually beyond the existing
+ * `npx learnhouse dev` backend stack (API/Postgres/Redis), which this
+ * config does NOT start; it must already be up (see
+ * jelenius-docs/visual-testing.md's prerequisites).
  */
 export default defineConfig({
   testDir: './e2e',
@@ -59,9 +68,10 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'bun run build && bun run start -p 3010',
+    command: 'bun run build && bun run start:standalone',
     url: 'http://localhost:3010',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    env: { PORT: '3010' },
   },
 })
