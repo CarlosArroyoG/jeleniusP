@@ -69,10 +69,28 @@ npx playwright test --project=chromium-desktop   # one viewport only
 npx playwright show-report                        # open the last HTML report
 ```
 
-`playwright.config.ts` starts a **production build**
-(`bun run build && bun run start -p 3010`), not `next dev` — dev-mode
-Turbopack cold-compile times are not representative of what a visual
-regression baseline should be judged against (see
+`playwright.config.ts` starts a **production build against the real
+production server entry point** (`bun run build && bun run
+start:standalone`, i.e. `node .next/standalone/server.js`), not `next dev`
+and, since phase 3.1, not `next start` either.
+
+**Why not `next start`:** this project's `next.config` sets `output:
+'standalone'` for the actual Coolify/Docker deployment (see `Dockerfile` /
+`docker-entrypoint.sh` / `server-wrapper.js`, which run exactly
+`server-wrapper.js` → `require('./server.js')`). Next.js explicitly warns
+that `next start` does not work correctly with standalone output, and phase
+3.1 found this the hard way: intermittent `Error: The destination stream
+closed early` request failures under `next start`, which had gone unnoticed
+in phase 3 because most requests still happened to succeed by chance. The
+`start:standalone` script (`package.json`) copies `.next/static` and
+`public` into `.next/standalone/` (the two things the standalone output
+doesn't include by default when run outside Docker) and then runs
+`server.js` directly — the same binary Coolify runs, so this suite now
+tests the actual deployed code path rather than a coincidentally-similar
+one.
+
+Dev-mode Turbopack cold-compile times are still not representative of what
+a visual regression baseline should be judged against (see
 `performance-baseline.md`'s own warning about the same confusion).
 `reuseExistingServer: !process.env.CI` means a server left running from a
 previous local run is reused rather than rebuilt — kill it (or run with
@@ -93,8 +111,11 @@ for a suite this size.
 | `e2e/ssr-branding.spec.ts` | The org's brand color is in the raw SSR HTML (no JS), and stays the same value before/after hydration in a real browser — see `ssr-branding.md`. |
 | `e2e/network.spec.ts` | Loading `/` or `/login` makes zero client-side requests to `/orgs/slug/*` — the hydrated data is used as-is. |
 | `e2e/login.spec.ts` | Logo, org name, inputs, submit button visible; visible focus state; no horizontal overflow; primary button isn't the old hardcoded black. Runs on both `chromium-desktop` (1440×900) and `chromium-mobile` (390×844) automatically — one spec, two projects. |
-| `e2e/white-label.spec.ts` | Jelenius baseline + a Colegio Demo fixture (see below) rendering *different* branding through the *same* components, with before/after screenshots. |
+| `e2e/white-label.spec.ts` | Jelenius baseline + a Colegio Demo fixture (see below) rendering *different* branding through the *same* components on login, dashboard, and catalog, with before/after screenshots. |
 | `e2e/accessibility.spec.ts` | Keyboard reachability, labeled form fields, accessible names on the sidebar's nav controls (desktop links, mobile icon buttons) — a regression check, not a WCAG audit (explicitly out of this phase's scope). |
+| `e2e/dashboard-catalog.spec.ts` (phase 3.1) | Dashboard and catalog at both viewports: no horizontal overflow, cards reflow, the new Card primitive actually renders with a non-zero border-radius (proving the token wired up, not just present in CSS). |
+| `e2e/dark-mode.spec.ts` (phase 3.1) | Forces the `.dark` class (no live toggle exists — see `theme-engine.md`'s "Dark mode" section) and checks login/dashboard/catalog resolve dark `--surface`/`--background` instead of hardcoded white, with no overflow. |
+| `e2e/smoke.spec.ts` (phase 3.1) | Login→logout, student catalog, course player route, instructor dashboard, course list→editor route, org settings, superadmin login — routing/render/auth regression only, not feature testing. Explicitly includes the course editor and player routes per section 20: confirm they load, not that they're redesigned. |
 
 ## The Colegio Demo fixture
 
@@ -143,6 +164,17 @@ Two deliberate choices to keep these stable:
   varies run to run.
 - **Full-page for login**, since that page has no comparably variable
   content.
+
+**Phase 3.1** added `jelenius-dashboard-primary-button.png` /
+`colegio-demo-dashboard-primary-button.png` (the "Create Course" button
+alone — stable, data-independent, and exactly what the new Button `brand`
+variant touches) but deliberately did **not** add a catalog grid snapshot:
+the dev org's seeded courses are real content (thumbnails, authors, dates)
+independent of branding, so a pixel diff there would flag content drift,
+not a branding regression — see `e2e/white-label.spec.ts`'s comment at the
+catalog test. Catalog/dashboard responsiveness is instead covered by the
+non-snapshot assertions in `dashboard-catalog.spec.ts` (overflow, reflow,
+computed border-radius).
 
 No regions are masked/ignored to force a pass — if a login screenshot ever
 becomes flaky, the right fix is finding what's actually non-deterministic

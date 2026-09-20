@@ -19,6 +19,103 @@
 > - **Playwright** (`jelenius-docs/visual-testing.md`) now verifies all of
 >   the above in a real browser, not just via curl/unit tests.
 
+> **Phase 3.1 updates (2026-09-19) — demo readiness:**
+> - **Card system** — new design tokens `--radius-card` (24px) and
+>   `--shadow-card` (`0 24px 70px rgba(11,25,48,.12)`, brand-navy-tinted per
+>   `brand-reference.md`, not neutral gray) feed a new `Card` primitive
+>   (`components/ui/card.tsx`, `default`/`interactive`/`muted` variants,
+>   `cva`-based like the existing `Button`/`Alert`). Migrated onto it: all
+>   six dashboard-home widgets, `CourseThumbnail` (catalog + dashboard course
+>   cards), `TrailCourseCard` (student "My Courses"), and the catalog's empty
+>   states. See "Card system" below.
+> - **Button** gained a `brand` variant (`bg-brand text-brand-foreground`) —
+>   opt-in, not the default, to avoid repainting every existing Button call
+>   site app-wide. Used for the dashboard's primary "Create Course" action
+>   and the catalog's sign-in CTA, replacing hardcoded `bg-gray-900
+>   text-white`.
+> - **Badge** gained `brand`/`success`/`warning`/`neutral` variants, used to
+>   replace ad hoc pill `<span>`s (published/draft, unverified, plan tier,
+>   course status) — see "Brand vs. semantic color" below for which is which.
+> - New `EmptyState` primitive (`components/ui/empty-state.tsx`) —
+>   icon/title/description/action — replacing five independent ad hoc empty
+>   states in the dashboard and catalog.
+> - **Dark mode** was independently verified this phase (forced `.dark`
+>   class via Playwright — see the important caveat in "Dark mode" below:
+>   there is still no user-facing toggle).
+> - **Testing infrastructure fix**: `playwright.config.ts` was running
+>   against `next start`, which Next.js explicitly does not support with
+>   this project's `output: 'standalone'` config — it caused intermittent
+>   "destination stream closed early" request failures that had gone
+>   unnoticed in phase 3 (most requests happened to still succeed). Phase 3.1
+>   switched it to `bun run start:standalone` (`node .next/standalone/server.js`,
+>   the exact entry point `docker-entrypoint.sh`/`server-wrapper.js` run in
+>   production), so this suite now tests the real deployed code path.
+
+## Card system
+
+```
+--radius-card: 1.5rem;                              /* 24px */
+--shadow-card: 0 24px 70px rgba(11, 25, 48, 0.12);   /* brand-navy tint */
+```
+
+Both are structural Jelenius design-system constants (like `--color-surface`),
+not organization-configurable — same reasoning as the rest of "What's dynamic
+vs. static" below. Tailwind v4 auto-generates `rounded-card`/`shadow-card`
+utilities from these theme keys (confirmed in the built CSS output — see
+`visual-testing.md`).
+
+`Card` (`components/ui/card.tsx`) variants:
+- `default` — `bg-surface` + `shadow-card` + a subtle `border-strong`
+  outline. The base card everywhere.
+- `interactive` — adds a hover lift (`-translate-y-0.5` + a stronger
+  shadow), for cards that are also links (course cards, the
+  content-overview tiles).
+- `muted` — `bg-surface-muted`, no shadow — used for the catalog's
+  dashed-border empty-state box.
+
+`bg-surface` (not `bg-white`) is the actual fix that makes dark mode work for
+cards at all — see "Dark mode" below.
+
+## Brand vs. semantic color
+
+A recurring mistake this phase's audit found in the pre-existing code: using
+a fixed decorative color (teal, green) for something that was actually
+either (a) the org's own brand accent, which must stay dynamic, or (b) a
+true semantic state (success/warning/danger), which must NOT shift with an
+org's brand color choice. Both now route through tokens instead of literal
+Tailwind color utilities:
+
+| Use | Token | Example |
+|---|---|---|
+| Org's own accent, non-critical UI highlight | `text-brand-accent` / `bg-brand-accent` | "Start Learning" link hover, in-progress course progress bar |
+| Task genuinely succeeded | `bg-success` / `text-success` | Published course badge, 100% course completion, usage under 70% |
+| Needs attention, not yet broken | `bg-warning` / `text-warning` | Unverified member badge, pending certificate, usage 70-90% |
+| Failed / destructive | `bg-destructive` / `text-destructive` | Usage over 90%, "limit reached", "no credits remaining" |
+| Non-semantic tier/category label | `bg-surface-muted` (Badge `neutral`) | Draft course, role badge, member count |
+
+The one deliberately-untouched case: `UsageOverview`'s per-plan tier colors
+(free/oss/standard/pro/enterprise) stay their existing hand-picked palette —
+that's a business/billing distinction, not a brand-vs-semantic one, and
+billing is out of this phase's scope.
+
+## Dark mode
+
+**There is no user-facing dark-mode toggle anywhere in this app.** The
+`.dark { ... }` CSS custom properties in `globals.css` have existed since
+earlier phases, but nothing in the client ever adds a `.dark` class to the
+document, and `globals.css`'s own `@media (prefers-color-scheme: dark)`
+block actively pins `body` to light colors regardless of OS preference —
+so OS-level dark mode doesn't organically activate anything either.
+
+Phase 3.1 verified the token wiring is at least *correct*, by forcing the
+`.dark` class via Playwright (`e2e/dark-mode.spec.ts`) and confirming
+`bg-surface`-based cards (this phase's Card primitive) pick up the dark
+`--surface` value instead of staying hardcoded white, on login, dashboard,
+and catalog. This proves "if a toggle is added later, the card system
+already works," not "users can switch to dark mode today." Adding an actual
+toggle is out of this phase's scope (see `demo-readiness.md`'s "next phase"
+recommendations).
+
 ## What problem this solves
 
 Before this phase, an organization's color/font lived in

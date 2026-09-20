@@ -82,6 +82,16 @@ no dark-mode logo variant, no custom-CSS escape hatch (deliberately — see
 Google Fonts list (`apps/web/lib/fonts.ts`, though phase 3 added
 Merriweather as the list's first serif option).
 
+> **Phase 3.1:** the branding *data model* and admin UI above are
+> unchanged — this phase's work was entirely on the *consuming* side
+> (dashboard cards, course catalog cards, buttons, badges now render through
+> a shared token-based Card/Button/Badge system instead of hardcoded
+> `bg-white`/`bg-gray-900`/one-off pill `<span>`s). See `theme-engine.md`'s
+> "Card system" and "Brand vs. semantic color" sections. Re-verified with a
+> real Colegio Demo pass on the dashboard and course catalog, not just
+> login — same components, no branching, per the white-label proof pattern
+> already established below.
+
 ## What Jelenius adds
 
 ### `JELENIUS_BRAND` — the platform default (`apps/web/lib/brand.ts`)
