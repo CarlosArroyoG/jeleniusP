@@ -102,6 +102,43 @@ this being a genuinely fresh `next start` invocation rather than a reused
 one. Re-measure in isolation before drawing any conclusion from this
 number specifically.
 
+## Phase 3.1 re-measurement (2026-09-19, after the card/button/badge system + production-server fix)
+
+Re-measured warm navigation (`curl -w`, 3 samples/route) against the
+**corrected** production server — `bun run start:standalone`
+(`node .next/standalone/server.js`), not `next start`, which phase 3.1
+discovered doesn't work correctly against this project's
+`output: 'standalone'` build (see `theme-engine.md`/`visual-testing.md` for
+the full story). This means phase 3's own numbers above were measured
+against a subtly wrong server binary — not necessarily wrong values, but
+not the same thing this phase's numbers were measured against either.
+
+| Route | Warm (3 samples) |
+|---|---|
+| `/` | 0.249s / 0.218s / 0.218s |
+| `/login` | 0.219s / 0.228s / 0.214s |
+| `/courses` | 0.230s / 0.216s / 0.226s |
+| `/dash` | 0.214s / 0.218s / 0.211s |
+
+**Higher than phase 3's 0.02–0.07s range — regression status:
+INCONCLUSIVE, not a confirmed "no."** Two confounding factors, either of
+which could fully explain the difference on their own:
+
+1. This is genuinely a different server binary than phase 3 measured
+   (`server.js` directly vs. `next start`) — its baseline performance
+   characteristics were never established before this phase, so there is
+   no clean prior number to diff against.
+2. This measurement was taken at the end of an unusually long, heavy
+   session (a full Playwright suite, multiple browser instances, and a
+   backend dev server had all been running for hours on the same ~15.8 GB
+   machine — see "Known gaps" below, a pre-existing constraint noted since
+   phase 1).
+
+Recommendation for whoever picks this up next: re-measure
+`start:standalone` warm navigation on a freshly booted dev machine, with
+nothing else running, before treating either the phase 3 or phase 3.1
+number as the real baseline going forward.
+
 ## Known gaps in this measurement
 
 - No real browser was used, so client-side hydration cost, JS bundle
