@@ -19,6 +19,8 @@ import { getCommunities } from '@services/communities/communities'
 import { getBoards } from '@services/boards/boards'
 import { getOrgCourses } from '@services/courses/courses'
 import { getOrgPodcasts } from '@services/podcasts/podcasts'
+import { Card, cardVariants } from '@components/ui/card'
+import { cn } from '@/lib/utils'
 
 export default function ContentOverview() {
   const { t } = useTranslation()
@@ -147,17 +149,14 @@ export default function ContentOverview() {
     return (
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className="bg-white rounded-xl nice-shadow px-5 py-4 animate-pulse"
-          >
+          <Card key={i} padding="none" className="px-5 py-4 animate-pulse">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-6 h-6 bg-gray-100 rounded-lg" />
               <div className="h-2.5 bg-gray-100 rounded w-16" />
             </div>
             <div className="h-7 bg-gray-100 rounded w-10 mb-1.5" />
             <div className="h-2 bg-gray-50 rounded w-24" />
-          </div>
+          </Card>
         ))}
       </div>
     )
@@ -175,7 +174,7 @@ export default function ContentOverview() {
         <Link
           key={card.label}
           href={card.href}
-          className="bg-white rounded-xl nice-shadow px-5 py-4 hover:bg-gray-50 transition-colors group"
+          className={cn(cardVariants({ variant: 'interactive', padding: 'none' }), 'px-5 py-4 hover:bg-surface-muted group')}
         >
           <div className="flex items-center gap-2 mb-2">
             <div className={`p-1.5 rounded-lg ${card.iconBg}`}>

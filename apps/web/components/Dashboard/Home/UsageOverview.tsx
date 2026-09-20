@@ -20,6 +20,8 @@ import { getAPIUrl } from '@services/config/config'
 import { OrgUsageResponse, getOrgUsage } from '@services/orgs/usage'
 import { apiFetch } from '@services/utils/ts/requests'
 import { usePlan } from '@components/Hooks/usePlan'
+import { Card } from '@components/ui/card'
+import { Badge } from '@components/ui/badge'
 
 interface AICreditsSummary {
   plan: string
@@ -40,11 +42,11 @@ const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 function getBarColor(usage: number, limit: number | 'unlimited'): string {
-  if (limit === 'unlimited') return 'bg-green-500'
+  if (limit === 'unlimited') return 'bg-success'
   const pct = (usage / (limit as number)) * 100
-  if (pct > 90) return 'bg-red-500'
-  if (pct > 70) return 'bg-amber-500'
-  return 'bg-green-500'
+  if (pct > 90) return 'bg-destructive'
+  if (pct > 70) return 'bg-warning'
+  return 'bg-success'
 }
 
 function getBarPercent(usage: number, limit: number | 'unlimited'): number {
@@ -130,14 +132,12 @@ export default function UsageOverview() {
   return (
     <div className="space-y-6">
       {/* Usage card */}
-      <div className="bg-white rounded-xl nice-shadow p-5">
+      <Card>
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-sm font-semibold text-gray-700">{t('dashboard.home.plan_and_usage')}</h3>
-          <span
-            className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full capitalize ${planStyle.bg} ${planStyle.text}`}
-          >
+          <h3 className="text-sm font-semibold text-text-secondary">{t('dashboard.home.plan_and_usage')}</h3>
+          <Badge variant="outline" className={`capitalize ${planStyle.bg} ${planStyle.text} border-transparent`}>
             {plan === 'oss' ? 'OSS' : plan}
-          </span>
+          </Badge>
         </div>
 
         {isLoading ? (
@@ -186,7 +186,7 @@ export default function UsageOverview() {
                     />
                   </div>
                   {!isUnlimited && meter.limit_reached && (
-                    <p className="text-[10px] text-red-500 mt-1">
+                    <p className="text-[10px] text-destructive mt-1">
                       {t('dashboard.home.limit_reached')}
                     </p>
                   )}
@@ -214,11 +214,11 @@ export default function UsageOverview() {
             <AICreditsSection credits={aiCredits} />
           </>
         )}
-      </div>
+      </Card>
 
       {/* Features card */}
-      <div className="bg-white rounded-xl nice-shadow p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">
+      <Card>
+        <h3 className="text-sm font-semibold text-text-secondary mb-4">
           {t('dashboard.home.features')}
         </h3>
         <div className="space-y-2.5">
@@ -230,7 +230,7 @@ export default function UsageOverview() {
               <div className="flex items-center gap-2.5">
                 <div
                   className={`w-1.5 h-1.5 rounded-full ${
-                    feature.enabled ? 'bg-green-500' : 'bg-gray-300'
+                    feature.enabled ? 'bg-success' : 'bg-gray-300'
                   }`}
                 />
                 <feature.icon
@@ -263,7 +263,7 @@ export default function UsageOverview() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
@@ -292,9 +292,9 @@ function AICreditsSection({ credits }: { credits: AICreditsSummary }) {
   const barColor = isUnlimited
     ? 'bg-violet-500'
     : percent > 90
-      ? 'bg-red-500'
+      ? 'bg-destructive'
       : percent > 70
-        ? 'bg-amber-500'
+        ? 'bg-warning'
         : 'bg-violet-500'
 
   return (
@@ -319,7 +319,7 @@ function AICreditsSection({ credits }: { credits: AICreditsSummary }) {
       ) : remaining !== null && remaining > 0 ? (
         <p className="text-[10px] text-gray-300 mt-1">{remaining} {t('dashboard.home.remaining')}</p>
       ) : remaining !== null && remaining <= 0 ? (
-        <p className="text-[10px] text-red-500 mt-1">{t('dashboard.home.no_credits_remaining')}</p>
+        <p className="text-[10px] text-destructive mt-1">{t('dashboard.home.no_credits_remaining')}</p>
       ) : null}
       {credits.purchased_credits > 0 && (
         <p className="text-[10px] text-gray-300 mt-0.5">

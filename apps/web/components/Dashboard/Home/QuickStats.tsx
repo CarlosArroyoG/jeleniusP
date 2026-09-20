@@ -14,6 +14,8 @@ import {
   useAnalyticsStatus,
 } from '@components/Dashboard/Analytics/useAnalyticsDashboard'
 import { AnimatedNumber } from '@components/Dashboard/Analytics/Course/CourseWidgetCard'
+import { Card } from '@components/ui/card'
+import { EmptyState } from '@components/ui/empty-state'
 
 export default function QuickStats() {
   const { t } = useTranslation()
@@ -22,7 +24,7 @@ export default function QuickStats() {
 
   if (statusLoading) {
     return (
-      <div className="bg-white rounded-xl nice-shadow p-5 animate-pulse">
+      <Card className="animate-pulse">
         <div className="flex items-center justify-between mb-4">
           <div className="h-3.5 bg-gray-100 rounded w-24" />
           <div className="h-3 bg-gray-100 rounded w-20" />
@@ -38,31 +40,27 @@ export default function QuickStats() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     )
   }
 
   if (!isConfigured) {
     return (
-      <div className="bg-white rounded-xl nice-shadow p-5">
-        <div className="flex flex-col items-center justify-center py-6 text-center">
-          <div className="p-2.5 rounded-full bg-gray-100 mb-2.5">
-            <ChartBar size={18} weight="duotone" className="text-gray-400" />
-          </div>
-          <h3 className="text-xs font-semibold text-gray-600 mb-1">
-            {t('dashboard.home.analytics')}
-          </h3>
-          <p className="text-[11px] text-gray-400 mb-3 max-w-[200px]">
-            {t('dashboard.home.enable_analytics_description')}
-          </p>
-          <Link
-            href="/dash/analytics"
-            className="text-[11px] font-medium text-blue-600 hover:text-blue-700"
-          >
-            {t('dashboard.home.enable')} &rarr;
-          </Link>
-        </div>
-      </div>
+      <Card>
+        <EmptyState
+          icon={<ChartBar size={18} weight="duotone" />}
+          title={t('dashboard.home.analytics')}
+          description={t('dashboard.home.enable_analytics_description')}
+          action={
+            <Link
+              href="/dash/analytics"
+              className="text-[11px] font-medium text-brand hover:opacity-80"
+            >
+              {t('dashboard.home.enable')} &rarr;
+            </Link>
+          }
+        />
+      </Card>
     )
   }
 
@@ -127,12 +125,12 @@ function QuickStatsContent() {
   ]
 
   return (
-    <div className="bg-white rounded-xl nice-shadow p-5">
+    <Card>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-700">{t('dashboard.home.quick_stats')}</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">{t('dashboard.home.quick_stats')}</h3>
         <Link
           href="/dash/analytics"
-          className="text-[11px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-[11px] font-medium text-text-secondary/70 hover:text-text-secondary transition-colors"
         >
           {t('dashboard.home.full_analytics')} &rarr;
         </Link>
@@ -152,6 +150,6 @@ function QuickStatsContent() {
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

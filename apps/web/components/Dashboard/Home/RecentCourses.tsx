@@ -11,6 +11,9 @@ import { getCourseThumbnailMediaDirectory } from '@services/media/media'
 import { getOrgCourses } from '@services/courses/courses'
 import { SafeImage } from '@components/Objects/SafeImage'
 import { BookOpen, PlusCircle, Clock } from '@phosphor-icons/react'
+import { Card } from '@components/ui/card'
+import { Badge } from '@components/ui/badge'
+import { EmptyState } from '@components/ui/empty-state'
 
 export default function RecentCourses() {
   const { t, i18n } = useTranslation()
@@ -31,28 +34,28 @@ export default function RecentCourses() {
   const draftCount = courses.filter((c: any) => !c.published).length
 
   return (
-    <div className="bg-white rounded-xl nice-shadow overflow-hidden">
+    <Card padding="none" className="overflow-hidden">
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-gray-700">
+          <h3 className="text-sm font-semibold text-text-secondary">
             {t('dashboard.home.recent_courses')}
           </h3>
           {courses.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-600">
+              <Badge variant="success" className="text-[10px] px-2 py-0.5">
                 {publishedCount} {t('dashboard.home.published')}
-              </span>
+              </Badge>
               {draftCount > 0 && (
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                <Badge variant="neutral" className="text-[10px] px-2 py-0.5">
                   {draftCount} {t('dashboard.home.draft')}
-                </span>
+                </Badge>
               )}
             </div>
           )}
         </div>
         <Link
           href="/dash/courses"
-          className="text-[11px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-[11px] font-medium text-text-secondary/70 hover:text-text-secondary transition-colors"
         >
           {t('dashboard.home.view_all')} &rarr;
         </Link>
@@ -71,25 +74,19 @@ export default function RecentCourses() {
           ))}
         </div>
       ) : courses.length === 0 ? (
-        <div className="px-5 pb-5">
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="p-3 rounded-full bg-gray-100 mb-3">
-              <BookOpen
-                size={20}
-                weight="duotone"
-                className="text-gray-400"
-              />
-            </div>
-            <p className="text-xs text-gray-400 mb-3">{t('dashboard.home.no_courses_yet')}</p>
+        <EmptyState
+          icon={<BookOpen size={20} weight="duotone" />}
+          title={t('dashboard.home.no_courses_yet')}
+          action={
             <Link
               href="/dash/courses?new=true"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:opacity-80"
             >
               <PlusCircle size={14} weight="bold" />
               {t('dashboard.home.create_your_first_course')}
             </Link>
-          </div>
-        </div>
+          }
+        />
       ) : (
         <div className="divide-y divide-gray-50">
           {courses.slice(0, 8).map((course: any) => {
@@ -151,20 +148,17 @@ export default function RecentCourses() {
                     )}
                   </div>
                 </div>
-                <span
-                  className={`text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 ${
-                    course.published
-                      ? 'bg-green-50 text-green-600'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}
+                <Badge
+                  variant={course.published ? 'success' : 'neutral'}
+                  className="text-[10px] px-2 py-0.5 shrink-0"
                 >
                   {course.published ? t('dashboard.home.published') : t('dashboard.home.draft')}
-                </span>
+                </Badge>
               </Link>
             )
           })}
         </div>
       )}
-    </div>
+    </Card>
   )
 }
