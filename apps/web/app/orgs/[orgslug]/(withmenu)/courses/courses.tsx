@@ -22,6 +22,9 @@ import { useCourses } from '@/hooks/queries/useCourses'
 import { useLHAnalytics, AnalyticsEvent } from '@services/analytics'
 import CatalogPagination, { useCatalogPagination } from '@components/Objects/Catalog/CatalogPagination'
 import { asArray } from '@services/utils/ts/requests'
+import { Card } from '@components/ui/card'
+import { Button } from '@components/ui/button'
+import { EmptyState } from '@components/ui/empty-state'
 
 interface CourseProps {
   orgslug: string
@@ -286,71 +289,71 @@ function Courses(props: CourseProps) {
               </div>
             ))}
             {filteredCourses.length === 0 && searchQuery && (
-              <div className="col-span-full flex flex-col justify-center items-center py-12 px-4">
-                <Search className="w-12 h-12 text-gray-300 mb-4" />
-                <h2 className="text-xl font-semibold text-gray-600 mb-2">
-                  {t('courses.no_search_results')}
-                </h2>
-                <p className="text-gray-400">
-                  {t('courses.try_different_search')}
-                </p>
+              <div className="col-span-full">
+                <EmptyState
+                  icon={<Search className="w-8 h-8" strokeWidth={1.5} />}
+                  title={t('courses.no_search_results')}
+                  description={t('courses.try_different_search')}
+                />
               </div>
             )}
             {allCourses.length === 0 && !searchQuery && (
-              <div className="col-span-full flex flex-col justify-center items-center py-12 px-4 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/30">
-                <div className="p-4 bg-white rounded-full nice-shadow mb-4">
-                  {isAuthenticated ? (
-                    <BookCopy className="w-8 h-8 text-gray-300" strokeWidth={1.5} />
-                  ) : (
-                    <LogIn className="w-8 h-8 text-gray-300" strokeWidth={1.5} />
-                  )}
-                </div>
-                <h1 className="text-xl font-bold text-gray-600 mb-2">
-                  {isAuthenticated
-                    ? t('courses.no_courses')
-                    : t('courses.sign_in_to_see_courses', 'Log in to see your courses')}
-                </h1>
-                <p className="text-md text-gray-400 mb-6 text-center max-w-xs">
-                  {!isAuthenticated ? (
-                    t(
-                      'courses.sign_in_to_see_courses_description',
-                      'Courses in this academy may only be visible once you are signed in.',
-                    )
-                  ) : isUserAdmin ? (
-                    t('courses.create_courses_placeholder')
-                  ) : (
-                    t('courses.no_courses_available')
-                  )}
-                </p>
+              <Card
+                variant="muted"
+                padding="lg"
+                className="col-span-full border-2 border-dashed border-border-strong"
+              >
                 {/* An anonymous visitor sees an empty list whenever the org has no
                     PUBLIC courses — the API filters non-public ones out rather than
                     erroring, so "no courses" and "not signed in" are indistinguishable
                     from here. Prompt for sign-in instead of implying the academy is
                     empty. */}
-                {!isAuthenticated && (
-                  <Link
-                    href={getUriWithOrg(orgslug, '/login')}
-                    className="inline-flex items-center gap-2 justify-center px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
-                  >
-                    <LogIn size={16} />
-                    {t('auth.sign_in', 'Sign in')}
-                  </Link>
-                )}
-                {isAuthenticated && isUserAdmin && (
-                  <div className="mt-4">
-                    <AuthenticatedClientElement
-                      action="create"
-                      ressourceType="courses"
-                      checkMethod="roles"
-                      orgId={org?.id}
-                    >
-                      <button onClick={() => setNewCourseModal(true)}>
-                        <NewCourseButton />
-                      </button>
-                    </AuthenticatedClientElement>
-                  </div>
-                )}
-              </div>
+                <EmptyState
+                  icon={
+                    isAuthenticated ? (
+                      <BookCopy className="w-8 h-8" strokeWidth={1.5} />
+                    ) : (
+                      <LogIn className="w-8 h-8" strokeWidth={1.5} />
+                    )
+                  }
+                  title={
+                    isAuthenticated
+                      ? t('courses.no_courses')
+                      : t('courses.sign_in_to_see_courses', 'Log in to see your courses')
+                  }
+                  description={
+                    !isAuthenticated
+                      ? t(
+                          'courses.sign_in_to_see_courses_description',
+                          'Courses in this academy may only be visible once you are signed in.',
+                        )
+                      : isUserAdmin
+                        ? t('courses.create_courses_placeholder')
+                        : t('courses.no_courses_available')
+                  }
+                  action={
+                    !isAuthenticated ? (
+                      <Button asChild variant="brand">
+                        <Link href={getUriWithOrg(orgslug, '/login')}>
+                          <LogIn size={16} />
+                          {t('auth.sign_in', 'Sign in')}
+                        </Link>
+                      </Button>
+                    ) : isAuthenticated && isUserAdmin ? (
+                      <AuthenticatedClientElement
+                        action="create"
+                        ressourceType="courses"
+                        checkMethod="roles"
+                        orgId={org?.id}
+                      >
+                        <button onClick={() => setNewCourseModal(true)}>
+                          <NewCourseButton />
+                        </button>
+                      </AuthenticatedClientElement>
+                    ) : undefined
+                  }
+                />
+              </Card>
             )}
           </div>
 

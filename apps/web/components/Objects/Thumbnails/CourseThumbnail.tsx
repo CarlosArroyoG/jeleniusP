@@ -27,6 +27,9 @@ import {
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/lib/format'
 import { useLHAnalytics, AnalyticsEvent } from '@services/analytics'
+import { cardVariants } from '@components/ui/card'
+import { Badge } from '@components/ui/badge'
+import { cn } from '@/lib/utils'
 
 type Course = {
   course_uuid: string
@@ -155,7 +158,14 @@ function CourseThumbnail({ course, orgslug, customLink, isDashboard = false, isS
   const courseLink = customLink ? customLink : getUriWithOrg(orgslug, `/course/${removeCoursePrefix(course.course_uuid)}`)
 
   return (
-    <div onMouseEnter={handleMouseEnter} className={`group relative flex flex-col bg-white rounded-xl nice-shadow overflow-hidden w-full transition-all duration-300 hover:scale-[1.01] ${isSelected ? 'ring-2 ring-black ring-offset-2' : ''}`}>
+    <div
+      onMouseEnter={handleMouseEnter}
+      className={cn(
+        cardVariants({ variant: 'interactive', padding: 'none' }),
+        'group relative flex flex-col overflow-hidden w-full',
+        isSelected && 'ring-2 ring-black ring-offset-2'
+      )}
+    >
       {/* Selection checkbox - visible on hover or when selected (dashboard only) */}
       {isDashboard && onToggleSelect && (
         <button
@@ -202,15 +212,12 @@ function CourseThumbnail({ course, orgslug, customLink, isDashboard = false, isS
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
         {isDashboard && (
           <div className="absolute bottom-2 start-2">
-            {course.published ? (
-              <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-green-100 text-green-700 rounded-full">
-                {t('courses.published')}
-              </span>
-            ) : (
-              <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-yellow-100 text-yellow-700 rounded-full">
-                {t('courses.unpublished')}
-              </span>
-            )}
+            <Badge
+              variant={course.published ? 'success' : 'warning'}
+              className="text-[10px] uppercase tracking-wide"
+            >
+              {course.published ? t('courses.published') : t('courses.unpublished')}
+            </Badge>
           </div>
         )}
       </Link>
@@ -275,7 +282,7 @@ function CourseThumbnail({ course, orgslug, customLink, isDashboard = false, isS
             prefetch={false}
             href={courseLink}
             onClick={handleCardOpen}
-            className="text-[10px] font-bold text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-wider"
+            className="text-[10px] font-bold text-gray-400 hover:text-brand-accent transition-colors uppercase tracking-wider"
           >
             {t('courses.start_learning')}
           </Link>

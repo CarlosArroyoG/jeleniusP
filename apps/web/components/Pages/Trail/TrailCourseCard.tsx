@@ -22,6 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu"
+import { cardVariants } from '@components/ui/card'
+import { cn } from '@/lib/utils'
 
 interface TrailCourseCardProps {
   course: any
@@ -109,7 +111,10 @@ function TrailCourseCard(props: TrailCourseCardProps) {
   const courseLink = getUriWithOrg(props.orgslug, '/course/' + courseid)
 
   return (
-    <div className="group relative flex flex-col bg-white rounded-xl nice-shadow overflow-hidden w-full transition-all duration-300 hover:scale-[1.01]" onMouseEnter={handleMouseEnter}>
+    <div
+      className={cn(cardVariants({ variant: 'interactive', padding: 'none' }), 'group relative flex flex-col overflow-hidden w-full')}
+      onMouseEnter={handleMouseEnter}
+    >
       {/* Dropdown Menu */}
       <div className="absolute top-2 end-2 z-20">
         <DropdownMenu>
@@ -160,7 +165,7 @@ function TrailCourseCard(props: TrailCourseCardProps) {
         {/* Progress overlay */}
         <div className="absolute bottom-0 start-0 end-0 h-1.5 bg-gray-200/80">
           <div
-            className={`h-full ${course_progress === 100 ? 'bg-green-500' : 'bg-teal-500'}`}
+            className={`h-full ${course_progress === 100 ? 'bg-success' : 'bg-brand-accent'}`}
             style={{ width: `${course_progress}%` }}
           />
         </div>
@@ -176,7 +181,7 @@ function TrailCourseCard(props: TrailCourseCardProps) {
         </Link>
 
         <div className="flex items-center gap-2 text-sm">
-          <span className={`font-semibold ${course_progress === 100 ? 'text-green-600' : 'text-teal-600'}`}>
+          <span className={`font-semibold ${course_progress === 100 ? 'text-success' : 'text-brand-accent'}`}>
             {course_progress}%
           </span>
           <span className="text-gray-400 text-xs">
@@ -193,12 +198,12 @@ function TrailCourseCard(props: TrailCourseCardProps) {
                 <span className="text-[10px] font-bold uppercase tracking-wider">{t('common.loading')}</span>
               </div>
             ) : showCertificateUI && courseCertificate ? (
-              <div className="flex items-center gap-1.5 text-yellow-600">
+              <div className="flex items-center gap-1.5 text-warning">
                 <Award size={12} />
                 <span className="text-[10px] font-bold uppercase tracking-wider">{t('certificate.certificate')}</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-green-600">
+              <div className="flex items-center gap-1.5 text-success">
                 <Award size={12} />
                 <span className="text-[10px] font-bold uppercase tracking-wider">{t('common.completed')}</span>
               </div>
@@ -215,7 +220,7 @@ function TrailCourseCard(props: TrailCourseCardProps) {
               href={getUriWithOrg(props.orgslug, `/certificates/${courseCertificate.certificate_user.user_certification_uuid}/verify`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider"
+              className="inline-flex items-center gap-1 text-[10px] font-bold text-brand-accent hover:opacity-80 uppercase tracking-wider"
             >
               {t('certificate.verify')}
               <ExternalLink className="w-3 h-3" />
@@ -223,7 +228,7 @@ function TrailCourseCard(props: TrailCourseCardProps) {
           ) : (
             <Link
               href={courseLink}
-              className="text-[10px] font-bold text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-wider"
+              className="text-[10px] font-bold text-gray-400 hover:text-brand-accent transition-colors uppercase tracking-wider"
             >
               {t('courses.continue_learning')}
             </Link>
