@@ -41,19 +41,31 @@ test.describe('Smoke — auth', () => {
     // menu (components/ui/hover-menu.tsx); mobile (DashMobileMenu) puts it
     // behind a tap-opened drawer ("Open menu" toggle). Neither exposes it as
     // an immediately-visible button, so open whichever affordance exists
-    // before looking for it.
+    // before looking for it. waitFor (not count(), which doesn't auto-wait)
+    // since the sidebar can still be hydrating right after navigation.
     const openMenuButton = page.getByRole('button', { name: /open menu/i }).locator('visible=true').first()
-    if (await openMenuButton.count() > 0) {
+    const sidebar = page.locator('nav[aria-label*="avigation" i]:visible').first()
+    const userMenuTrigger = sidebar.locator('button', { hasText: ADMIN_EMAIL }).first()
+    const opened = await Promise.race([
+      openMenuButton.waitFor({ state: 'visible', timeout: 10_000 }).then(() => 'menu' as const),
+      userMenuTrigger.waitFor({ state: 'visible', timeout: 10_000 }).then(() => 'user' as const),
+    ]).catch(() => null)
+    if (opened === 'menu') {
       await openMenuButton.click()
-    } else {
-      const sidebar = page.locator('nav[aria-label*="avigation" i]:visible').first()
-      const userMenuTrigger = sidebar.locator('button', { hasText: ADMIN_EMAIL }).first()
-      if (await userMenuTrigger.count() === 0) {
-        test.skip(true, 'Could not find the account menu trigger — markup may have changed.')
-      }
+    } else if (opened === 'user') {
       await userMenuTrigger.hover()
+    } else {
+      test.skip(true, 'Could not find the account menu trigger — markup may have changed.')
     }
-    const logout = page.getByText(/sign out|log ?out/i).locator('visible=true').first()
+    // Desktop's item (HoverMenuItem) is a <div onClick> with visible text
+    // ("Sign out"); mobile's is a <button aria-label> with only an icon, no
+    // text node — neither getByText() nor getByRole('button') alone
+    // matches both, so check either.
+    const logout = page
+      .getByText(/sign out|log ?out/i)
+      .or(page.getByRole('button', { name: /sign out|log ?out/i }))
+      .locator('visible=true')
+      .first()
     await expect(logout).toBeVisible({ timeout: 5_000 })
     await logout.click()
     await page.waitForURL(/\/login|\/$/, { timeout: 10_000 })
@@ -72,7 +84,13 @@ test.describe('Smoke — student surfaces', () => {
   test('course player route loads for a real published course', async ({ page }) => {
     await page.goto('/courses')
     const firstCourseLink = page.locator('a[href*="/course/"]').locator('visible=true').first()
-    if (await firstCourseLink.count() === 0) {
+    // The catalog is a client component that fetches courses after mount —
+    // count() doesn't auto-wait like click()/toBeVisible() do, so it can
+    // read 0 before the fetch resolves. Wait for either a real course link
+    // or the empty state before deciding there's nothing to test.
+    try {
+      await firstCourseLink.waitFor({ state: 'visible', timeout: 10_000 })
+    } catch {
       test.skip(true, 'No public courses in this dev org to open — nothing to smoke-test here.')
     }
     const errors: string[] = []
@@ -103,7 +121,9 @@ test.describe('Smoke — instructor/admin surfaces', () => {
     // Open the editor for whatever course is first in the (admin) list —
     // section 20: confirm it loads, do not redesign or edit content.
     const editLink = page.locator('a[href*="/dash/courses/course/"]').first()
-    if (await editLink.count() === 0) {
+    try {
+      await editLink.waitFor({ state: 'visible', timeout: 10_000 })
+    } catch {
       test.skip(true, 'No courses in this dev org to open the editor for.')
     }
     await editLink.click()
