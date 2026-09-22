@@ -134,12 +134,18 @@ def _validate_content_path(file_path: str) -> str | None:
         return None
     # Canonicalize via os.path.realpath (resolves symlinks, normalizes) and verify containment.
     # realpath is used deliberately: it is a recognized path-injection sanitizer.
-    base_real = os.path.realpath(str(Path("content")))
-    full_real = os.path.realpath(os.path.join(base_real, normalized))
-    if not full_real.startswith(base_real + os.sep):
+    base_real = os.path.realpath(str(Path("content"))).replace('\\', '/')
+    full_candidate = f"{base_real.rstrip('/')}/{normalized.lstrip('/')}"
+    full_real = os.path.realpath(full_candidate).replace('\\', '/')
+    base_parts = Path(base_real).parts
+    full_parts = Path(full_real).parts
+    if len(full_parts) < len(base_parts) or full_parts[:len(base_parts)] != base_parts:
         return None
-    # Return the validated relative path
-    return os.path.relpath(full_real, base_real)
+    # Return the validated relative path using POSIX separators so the API serves
+    # a stable URL/path format regardless of the host OS. Windows normally returns
+    # backslashes from relpath(), which breaks a path like "orgs/abc/file.txt".
+    relative_path = os.path.relpath(full_real.replace('/', os.sep), base_real.replace('/', os.sep))
+    return relative_path.replace('\\', '/')
 
 
 async def _check_content_access(
