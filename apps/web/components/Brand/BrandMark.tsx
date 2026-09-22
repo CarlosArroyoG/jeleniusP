@@ -1,6 +1,5 @@
 'use client'
 import React from 'react'
-import Image from 'next/image'
 import { JELENIUS_BRAND } from '@/lib/brand'
 
 /**
@@ -20,14 +19,22 @@ export function BrandWordmark({
   style?: React.CSSProperties
 }) {
   return (
-    <Image
-      src={JELENIUS_BRAND.wordmark}
-      alt={`${JELENIUS_BRAND.name} logo`}
-      width={width}
-      height={height}
-      style={{ height: 'auto', ...style }}
-      className={className}
-    />
+    <span
+      role="img"
+      aria-label={`${JELENIUS_BRAND.name} logo`}
+      className={`inline-flex items-center gap-2.5 overflow-visible ${className || ''}`}
+      style={{ height, width, ...style }}
+    >
+      <img
+        src={JELENIUS_BRAND.icon}
+        alt=""
+        aria-hidden="true"
+        className="h-full w-auto shrink-0 rounded-[23%]"
+      />
+      <span className="whitespace-nowrap text-[0.8em] font-extrabold leading-none tracking-[0.18em]">
+        {JELENIUS_BRAND.name.toUpperCase()}
+      </span>
+    </span>
   )
 }
 
