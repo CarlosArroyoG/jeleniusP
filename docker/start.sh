@@ -4,6 +4,12 @@
 export PYTHONUNBUFFERED=1
 export PYTHONIOENCODING=utf-8
 
+# Nginx owns the public port 80. Keep Next.js on its internal upstream port
+# even if the deployment platform injects a generic PORT value.
+export PORT=8000
+export LEARNHOUSE_PORT=9000
+export COLLAB_PORT=4000
+
 # Wait for database and redis if connection strings point to external services
 # (In docker-compose, depends_on handles this, but useful for standalone)
 if [ -n "$LEARNHOUSE_SQL_CONNECTION_STRING" ]; then
