@@ -118,4 +118,7 @@ ENV PORT=8000 LEARNHOUSE_PORT=9000 COLLAB_PORT=4000 HOSTNAME=0.0.0.0 LEARNHOUSE_
 
 EXPOSE 80 9000 4000
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl --fail --silent --show-error http://localhost/api/v1/health || exit 1
+
 CMD ["sh", "/app/start.sh"]
