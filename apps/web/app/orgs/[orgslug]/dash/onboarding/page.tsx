@@ -7,6 +7,7 @@ import { useOnboarding } from '@components/Hooks/useOnboarding'
 import { useOrg } from '@components/Contexts/OrgContext'
 import { getUriWithOrg } from '@services/config/config'
 import OnboardingSteps from '@components/Dashboard/Onboarding/OnboardingSteps'
+import { JELENIUS_BRAND } from '@/lib/brand'
 
 export default function OnboardingPage() {
   const { t } = useTranslation()
@@ -19,8 +20,7 @@ export default function OnboardingPage() {
   return (
     <div className="flex w-full">
       <div className="w-full px-4 sm:px-10 tracking-tighter flex flex-col space-y-6 pb-16">
-        {/* Header — inspired by the sidebar onboarding box, in light mode:
-            violet label, blueprint-grid pattern, neon purple progress. */}
+        {/* Header — uses the Jelenius palette while keeping the existing layout. */}
         <div className="relative overflow-hidden -mx-4 sm:-mx-10 px-4 sm:px-10 pt-6 pb-1">
           {/* Blueprint grid — purple, fading down */}
           <div
@@ -73,7 +73,7 @@ export default function OnboardingPage() {
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${progress * 100}%`,
-                    background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%)',
+                    background: `linear-gradient(90deg, ${JELENIUS_BRAND.primaryColor} 0%, ${JELENIUS_BRAND.accentColor} 55%, ${JELENIUS_BRAND.tertiaryColor} 100%)`,
                     boxShadow: '0 0 8px rgba(139,92,246,0.55), 0 0 2px rgba(99,102,241,0.8)',
                   }}
                 />

@@ -1,6 +1,7 @@
 'use client'
 import { useOrg } from '@components/Contexts/OrgContext'
 import { signOut } from '@components/Contexts/AuthContext'
+import { JELENIUS_BRAND } from '@/lib/brand'
 import {
   House,
   BookOpen,
@@ -292,7 +293,7 @@ function DashLeftMenu() {
             <motion.div
               className="absolute -bottom-px start-0 h-[2px] rounded-e-full"
               style={{
-                background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%)',
+                        background: `linear-gradient(90deg, ${JELENIUS_BRAND.primaryColor} 0%, ${JELENIUS_BRAND.accentColor} 55%, ${JELENIUS_BRAND.tertiaryColor} 100%)`,
                 boxShadow:
                   '0 0 6px rgba(139,92,246,0.85), 0 0 14px rgba(168,85,247,0.55), 0 0 2px rgba(99,102,241,0.9)',
               }}

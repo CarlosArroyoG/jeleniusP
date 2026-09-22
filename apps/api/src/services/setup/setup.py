@@ -550,6 +550,13 @@ async def install_create_organization(org_object: OrganizationCreate, db_session
         plan="free",
     )
 
+    # New organizations inherit the platform identity until an administrator
+    # chooses institution-specific branding in the dashboard.
+    org_config.customization.general.color = "#0B1930"
+    org_config.customization.general.secondary_color = "#172033"
+    org_config.customization.general.accent_color = "#19B7A5"
+    org_config.customization.general.font = "Inter"
+
     org_config = json.loads(org_config.model_dump_json())
 
     # OrgSettings
