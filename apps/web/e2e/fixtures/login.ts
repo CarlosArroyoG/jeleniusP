@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
 
 /**
  * Fills and submits the real login form, then follows through to the org
@@ -6,7 +6,37 @@ import type { Page } from '@playwright/test'
  * shortcut. A superadmin lands on the "Your Organizations" hub (`/home`)
  * first, not `/dash` directly, so this clicks into the org card.
  */
+/**
+ * The API rate-limits logins (30 / 5 min / IP) and the suite signs in as admin in many tests
+ * across two projects — a real UI login per test used to trip that limit and surface as an
+ * intermittent 401/429. The FIRST call in a run performs the real login (so the auth flow
+ * stays covered); its session (cookies + localStorage) is cached for the run and re-applied
+ * to later contexts. If a cached session is no longer accepted, it falls back to a real login.
+ */
+let cachedSession: Awaited<ReturnType<BrowserContext['storageState']>> | null = null
+
+async function reuseCachedSession(page: Page): Promise<boolean> {
+  if (!cachedSession) return false
+  const ctx = page.context()
+  await ctx.addCookies(cachedSession.cookies)
+  const origins = cachedSession.origins
+  if (origins.length) {
+    await ctx.addInitScript((saved) => {
+      const mine = saved.find((o) => o.origin === location.origin)
+      if (mine) for (const { name, value } of mine.localStorage) localStorage.setItem(name, value)
+    }, origins)
+  }
+  await page.goto('/dash')
+  const ok = await page.waitForURL(/\/dash/, { timeout: 10_000 }).then(() => true).catch(() => false)
+  if (!ok) cachedSession = null
+  return ok
+}
+
 export async function loginAsAdmin(page: Page, email: string, password: string): Promise<void> {
+  if (await reuseCachedSession(page)) {
+    await dismissWelcomeModalIfPresent(page)
+    return
+  }
   await page.goto('/login')
   await page.getByLabel(/email/i).fill(email)
   await page.getByLabel(/password/i).fill(password)
@@ -21,6 +51,7 @@ export async function loginAsAdmin(page: Page, email: string, password: string):
     await page.waitForURL(/\/dash/, { timeout: 15_000 })
   }
   await dismissWelcomeModalIfPresent(page)
+  cachedSession = await page.context().storageState()
 }
 
 /**

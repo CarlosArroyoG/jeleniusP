@@ -32,6 +32,26 @@ export const COLEGIO_DEMO_BRANDING = {
   font: 'Merriweather',
 }
 
+// A real school identity, used as a test fixture ONLY: colors read from https://www.fdonbosco.org/
+// (see jelenius-docs/school-brand-example-donbosco.md). It exercises "same code, different
+// OrganizationConfig" — no product code knows about this school.
+export const DON_BOSCO_BRANDING = {
+  name: 'Fundación Don Bosco',
+  color: '#162562',
+  secondary_color: '#00001e',
+  accent_color: '#ff9d2f',
+  font: 'Open Sans',
+}
+
+// The example from the task brief: a hypothetical school nobody special-cases.
+export const UNIVERSIDAD_ROJA_BRANDING = {
+  name: 'Universidad Roja',
+  color: '#A32035',
+  secondary_color: '#541622',
+  accent_color: '#E7B84B',
+  font: 'Merriweather',
+}
+
 if (!ADMIN_PASSWORD) {
   // Fail loudly and specifically rather than letting every test in the
   // suite fail with an opaque 401/undefined-token error. See
@@ -44,19 +64,43 @@ if (!ADMIN_PASSWORD) {
   )
 }
 
-let cachedToken: string | null = null
+let cachedToken: { value: string; expiresAt: number } | null = null
 
-export async function getAdminToken(request: APIRequestContext): Promise<string> {
-  if (cachedToken) return cachedToken
-  const res = await request.post(`${API_URL}/auth/login`, {
-    form: { username: ADMIN_EMAIL, password: ADMIN_PASSWORD as string },
-  })
-  if (!res.ok()) {
-    throw new Error(`Admin login failed for the e2e fixture (${res.status()}) — is the dev backend running and is PLAYWRIGHT_ADMIN_PASSWORD correct?`)
+/** `exp` (ms) of a JWT, or 0 when it cannot be read. */
+function jwtExpiryMs(jwt: string): number {
+  try {
+    const payload = JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString('utf8'))
+    return typeof payload.exp === 'number' ? payload.exp * 1000 : 0
+  } catch {
+    return 0
   }
-  const body = await res.json()
-  cachedToken = body.tokens.access_token
-  return cachedToken as string
+}
+
+/**
+ * An admin API token. The token is short-lived: it used to be cached forever, so a long
+ * suite eventually sent an expired one and a fixture write failed with a 401 that looked
+ * like a product bug. It is now refreshed a minute before it expires (and the login is
+ * retried once on 429 — the API rate-limits logins, see fixtures/login.ts).
+ */
+export async function getAdminToken(request: APIRequestContext): Promise<string> {
+  if (cachedToken && cachedToken.expiresAt - Date.now() > 60_000) return cachedToken.value
+  for (let attempt = 0; ; attempt++) {
+    const res = await request.post(`${API_URL}/auth/login`, {
+      form: { username: ADMIN_EMAIL, password: ADMIN_PASSWORD as string },
+    })
+    if (res.status() === 429 && attempt < 1) {
+      const retryAfter = Number(res.headers()['retry-after']) || 30
+      await new Promise((r) => setTimeout(r, Math.min(retryAfter, 60) * 1000))
+      continue
+    }
+    if (!res.ok()) {
+      throw new Error(`Admin login failed for the e2e fixture (${res.status()}) — is the dev backend running and is PLAYWRIGHT_ADMIN_PASSWORD correct?`)
+    }
+    const body = await res.json()
+    const value = body.tokens.access_token as string
+    cachedToken = { value, expiresAt: jwtExpiryMs(value) || Date.now() + 4 * 60_000 }
+    return value
+  }
 }
 
 export interface Branding {

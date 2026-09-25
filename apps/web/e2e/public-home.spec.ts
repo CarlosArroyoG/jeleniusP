@@ -47,9 +47,11 @@ test.describe('Public home (signed out) — Jelenius branding', () => {
       await expect(header.getByRole('link', { name: /library|biblioteca|communit|comunidad|playground|store|tienda/i })).toHaveCount(0)
       await expect(header.locator('input')).toHaveCount(0) // no global LMS search
 
-      // Sign up CTA uses the organization's brand color, not hardcoded black
+      // The header itself is the primary (app-header token); its Sign up CTA is the accent
+      // (a primary button would vanish on a primary header) — neither is a hardcoded black.
+      expect(await bg(header)).toBe(hexToRgb(JELENIUS_DEFAULT_BRANDING.color))
       const signupBg = await bg(signup)
-      expect(signupBg).toBe(hexToRgb(JELENIUS_DEFAULT_BRANDING.color))
+      expect(signupBg).toBe(hexToRgb(JELENIUS_DEFAULT_BRANDING.accent_color))
       expect(BLACKS).not.toContain(signupBg)
     })
   })
@@ -143,13 +145,14 @@ test.describe('Public home — school-branded (Colegio Demo)', () => {
         const school = hexToRgb(COLEGIO_DEMO_BRANDING.color)
 
         const signup = header.getByRole('link', { name: /sign ?up|registr/i })
-        expect(await bg(signup)).toBe(school)
+        expect(await bg(header)).toBe(school)
+        expect(await bg(signup)).toBe(hexToRgb(COLEGIO_DEMO_BRANDING.accent_color))
         expect(await bg(page.getByTestId('public-hero-cta'))).toBe(school)
 
         // The org name is the logo text when there is no uploaded logo
         await expect(header.getByText(COLEGIO_DEMO_BRANDING.name)).toBeVisible()
         // The Jelenius default color must not leak into the school's page
-        expect(await bg(signup)).not.toBe(hexToRgb(JELENIUS_DEFAULT_BRANDING.color))
+        expect(await bg(signup)).not.toBe(hexToRgb(JELENIUS_DEFAULT_BRANDING.accent_color))
 
         const font = await page.locator('.lh-org-font-root').first().evaluate((el) => getComputedStyle(el).fontFamily)
         expect(font).toContain(COLEGIO_DEMO_BRANDING.font)
