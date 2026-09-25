@@ -10,11 +10,8 @@ import { OrgMFAPolicyGate } from '@components/Objects/Banners/OrgMFAPolicyGate'
 import { PodcastPlayerProvider } from '@components/Contexts/PodcastPlayerContext'
 import dynamic from 'next/dynamic'
 const PodcastPlayer = dynamic(() => import('@components/Objects/Podcasts/PodcastPlayer'), { ssr: false })
-import Image from 'next/image'
 import { PageViewTracker } from '@components/Analytics/PageViewTracker'
-import { JELENIUS_BRAND } from '@/lib/brand'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { usePlan } from '@components/Hooks/usePlan'
 import { getGoogleFontUrl, DEFAULT_FONT } from '@/lib/fonts'
 import { useOrganizationTheme } from '@/lib/theme/useOrganizationTheme'
 
@@ -27,28 +24,19 @@ const hexToRgba = (hex: string, alpha: number): string => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
+// Single, discreet platform notice. The org's own footer text (if any) goes
+// first; the "Made with Jelenius" credit is rendered by <Watermark /> — the one
+// place that decides (per deployment mode / plan / admin toggle) whether it
+// shows — so there is exactly one Jelenius element in the footer.
 function OrgFooter() {
   const org = useOrg() as any
   const footerText = org?.config?.config?.customization?.general?.footer_text || org?.config?.config?.general?.footer_text || ''
-  const plan = usePlan()
-  const watermarkConfig = org?.config?.config?.customization?.general?.watermark ?? org?.config?.config?.general?.watermark
-  const isFree = plan === 'free'
-  const showWatermark = isFree || watermarkConfig !== false
 
   return (
     <footer className="w-full py-8 mt-12">
-      <div className="flex flex-col items-center justify-center space-y-4">
-        {footerText && <p className="text-sm text-gray-500">{footerText}</p>}
-        {showWatermark && (
-          <Image
-            src={JELENIUS_BRAND.icon}
-            alt={JELENIUS_BRAND.name}
-            width={24}
-            height={24}
-            style={{ height: 'auto' }}
-            className="opacity-15 rounded-md"
-          />
-        )}
+      <div className="flex flex-col items-center justify-center space-y-3">
+        {footerText && <p className="text-sm text-text-secondary">{footerText}</p>}
+        <Watermark />
       </div>
     </footer>
   )
@@ -126,7 +114,6 @@ function LayoutContent({ children, orgslug }: { children: ReactNode; orgslug: st
         {children}
       </div>
       {!isFullBleedPage && !chromeless && <OrgFooter />}
-      {!isFullBleedPage && !chromeless && <Watermark />}
     </div>
   )
 }

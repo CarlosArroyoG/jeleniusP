@@ -228,14 +228,14 @@ function CourseThumbnail({ course, orgslug, customLink, isDashboard = false, isS
             prefetch={false}
             href={courseLink}
             onClick={handleCardOpen}
-            className="text-base font-bold text-gray-900 leading-tight hover:text-black transition-colors line-clamp-1"
+            className="text-base font-bold text-foreground leading-tight hover:text-brand transition-colors line-clamp-1"
            dir="auto">
             {course.name}
           </Link>
         </div>
         
         {course.description && (
-          <p className="text-[11px] text-gray-500 line-clamp-2 min-h-[1.5rem]">
+          <p className="text-xs text-text-secondary line-clamp-2 min-h-[2rem]">
             {course.description}
           </p>
         )}
@@ -282,7 +282,7 @@ function CourseThumbnail({ course, orgslug, customLink, isDashboard = false, isS
             prefetch={false}
             href={courseLink}
             onClick={handleCardOpen}
-            className="text-[10px] font-bold text-gray-400 hover:text-brand-accent transition-colors uppercase tracking-wider"
+            className="text-[10px] font-bold text-brand hover:text-brand-accent transition-colors uppercase tracking-wider"
           >
             {t('courses.start_learning')}
           </Link>

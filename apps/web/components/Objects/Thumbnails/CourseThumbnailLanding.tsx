@@ -139,7 +139,7 @@ const CourseThumbnailLanding: React.FC<PropsType> = ({ course, orgslug, customLi
     : '/empty_thumbnail.png'
 
   return (
-    <div className="relative flex flex-col bg-white rounded-xl nice-shadow overflow-hidden min-w-[280px] w-full max-w-sm shrink-0 m-2">
+    <div className="relative flex flex-col bg-surface text-foreground rounded-xl shadow-card outline outline-1 outline-border-strong/60 overflow-hidden min-w-[280px] w-full max-w-sm shrink-0 m-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
       <AdminEditOptions
         course={course}
         orgslug={orgslug}
@@ -153,8 +153,8 @@ const CourseThumbnailLanding: React.FC<PropsType> = ({ course, orgslug, customLi
       </Link>
       <div className='flex flex-col w-full p-4 space-y-3'>
         <div className="space-y-2">
-          <h2 className="font-bold text-gray-800 leading-tight text-base min-h-[2.75rem] line-clamp-2" dir="auto">{course.name}</h2>
-          <p className='text-xs text-gray-700 leading-normal min-h-[3.75rem] line-clamp-3'>{course.description}</p>
+          <h2 className="font-bold text-foreground leading-tight text-base min-h-[2.75rem] line-clamp-2" dir="auto">{course.name}</h2>
+          <p className='text-xs text-text-secondary leading-normal min-h-[3.75rem] line-clamp-3'>{course.description}</p>
         </div>
         
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -202,7 +202,7 @@ const CourseThumbnailLanding: React.FC<PropsType> = ({ course, orgslug, customLi
         <Link 
           prefetch 
           href={customLink ? customLink : getUriWithOrg(orgslug, `/course/${removeCoursePrefix(course.course_uuid)}`)}
-          className="inline-flex items-center justify-center w-full px-3 py-1.5 bg-black text-white text-xs font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center justify-center w-full px-3 py-2 bg-brand text-brand-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-opacity"
         >
           {t('courses.start_learning')}
         </Link>

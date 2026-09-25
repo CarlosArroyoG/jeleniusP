@@ -23,11 +23,12 @@ function Watermark() {
     if (!showWatermark) return null
 
     return (
-        <div className='fixed bottom-8 end-8 z-50'>
-            <div className="flex items-center bg-white/80 backdrop-blur-lg text-gray-700 rounded-2xl p-2 light-shadow text-xs px-5 font-semibold space-x-2">
-                <p>{t('common.made_with')}</p>
-                <Image unoptimized src={JELENIUS_BRAND.wordmark} alt={JELENIUS_BRAND.name} quality={100} width={95} height={29} />
-            </div>
+        <div
+            data-testid="platform-credit"
+            className="inline-flex items-center gap-2 text-xs font-medium text-text-secondary/70"
+        >
+            <span>{t('common.made_with')}</span>
+            <Image unoptimized src={JELENIUS_BRAND.wordmark} alt={JELENIUS_BRAND.name} quality={100} width={80} height={24} className="opacity-70" />
         </div>
     )
 }

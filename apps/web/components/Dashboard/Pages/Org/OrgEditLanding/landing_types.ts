@@ -41,6 +41,8 @@ export interface LandingUsers {
   description: string;
   image_url: string;
   username?: string;
+  /** Optional link (e.g. to a bio page). Renders a "view more" link on the public card. */
+  link?: string;
 }
 
 export interface LandingPeople {
