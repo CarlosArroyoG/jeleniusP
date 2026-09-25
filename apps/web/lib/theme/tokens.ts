@@ -1,3 +1,5 @@
+import type { NavigationTokens } from './navigationTokens'
+
 /**
  * The subset of the Jelenius design system that an organization can
  * actually override today (see `resolveOrganizationTheme`). Everything else
@@ -23,6 +25,12 @@ export interface ThemeTokens {
   brandAccentForeground: string
   /** Org's `customization.general.font` (validated against the curated Google Fonts list), or Inter. */
   fontSans: string
+  /**
+   * Application (navigation) tokens derived from the brand colors above by
+   * `deriveNavigationTokens` — the single mapping of brand → header / sidebar /
+   * active / hover / mobile nav. Written as `--app-*` CSS variables.
+   */
+  navigation: NavigationTokens
 }
 
 /** CSS custom-property names the theme engine writes to and Tailwind's `@theme` reads from. */
@@ -34,4 +42,4 @@ export const THEME_CSS_VARS = {
   brandAccent: '--brand-accent',
   brandAccentForeground: '--brand-accent-foreground',
   fontSans: '--font-org-sans',
-} as const satisfies Record<keyof ThemeTokens, string>
+} as const satisfies Record<Exclude<keyof ThemeTokens, 'navigation'>, string>

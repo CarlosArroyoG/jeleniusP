@@ -193,18 +193,6 @@
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
 
-  /* Jelenius theme engine — see lib/theme/resolveOrganizationTheme.ts.
-     brand-* are set at runtime (inline style on the org-branded wrapper) from
-     the organization's own color/font; the defaults below are the Jelenius
-     identity and are what renders before that wrapper mounts, or when there
-     is no org context at all (e.g. /admin). Never a LearnHouse default. */
-  --color-brand: var(--brand-primary);
-  --color-brand-foreground: var(--brand-primary-foreground);
-  --color-brand-secondary: var(--brand-secondary);
-  --color-brand-secondary-foreground: var(--brand-secondary-foreground);
-  --color-brand-accent: var(--brand-accent);
-  --color-brand-accent-foreground: var(--brand-accent-foreground);
-
   /* Static Jelenius design-system tokens — not organization-configurable. */
   --color-surface: hsl(var(--surface));
   --color-surface-muted: hsl(var(--surface-muted));
@@ -221,6 +209,50 @@
      reasoning as --color-surface above). */
   --radius-card: 1.5rem;
   --shadow-card: 0 24px 70px rgba(11, 25, 48, 0.12);
+}
+
+/*
+  Runtime (organization) theme tokens — see lib/theme/resolveOrganizationTheme.ts.
+
+  These MUST be `@theme inline`. In a plain `@theme { --color-brand: var(--brand-primary) }`
+  Tailwind v4 emits `--color-brand: var(--brand-primary)` on :root and the utility reads
+  `var(--color-brand)`. Custom properties inherit their *computed* value, so
+  --color-brand is resolved once against :root's --brand-primary (the Jelenius default)
+  and every descendant inherits that resolved navy — an organization's own
+  --brand-primary set on a wrapper element never reaches `bg-brand`. With `inline`,
+  the utility itself emits `background-color: var(--brand-primary)`, which is
+  resolved where it is used, so it follows the nearest wrapper's override.
+  See jelenius-docs/theme-engine.md ("Why @theme inline").
+
+  Only tokens that are set per organization at runtime live here; the static design-system
+  tokens stay in the plain @theme block above. --brand-* / --app-* are full hex values.
+*/
+@theme inline {
+  --color-brand: var(--brand-primary);
+  --color-brand-foreground: var(--brand-primary-foreground);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-secondary-foreground: var(--brand-secondary-foreground);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
+
+  /* Application (navigation) tokens — derived from the brand tokens in
+     lib/theme/navigationTokens.ts. Use these, never a brand color directly,
+     to paint header / sidebar / mobile nav / active + hover states. */
+  --color-app-header: var(--app-header-bg);
+  --color-app-header-foreground: var(--app-header-fg);
+  --color-app-header-muted: var(--app-header-fg-muted);
+  --color-app-header-hover: var(--app-header-hover-bg);
+  --color-app-header-border: var(--app-header-border);
+  --color-app-sidebar: var(--app-sidebar-bg);
+  --color-app-sidebar-foreground: var(--app-sidebar-fg);
+  --color-app-sidebar-muted: var(--app-sidebar-fg-muted);
+  --color-app-nav-border: var(--app-nav-border);
+  --color-app-nav-hover: var(--app-nav-hover-bg);
+  --color-app-nav-hover-foreground: var(--app-nav-hover-fg);
+  --color-app-nav-active: var(--app-nav-active-bg);
+  --color-app-nav-active-foreground: var(--app-nav-active-fg);
+  --color-app-mobile-nav: var(--app-mobile-nav-bg);
+  --color-app-mobile-nav-foreground: var(--app-mobile-nav-fg);
 }
 
 /*
@@ -444,6 +476,24 @@
     --brand-secondary-foreground: #ffffff;
     --brand-accent: #19B7A5;
     --brand-accent-foreground: #0B1930;
+
+    /* Application (navigation) token defaults = deriveNavigationTokens(Jelenius).
+       tests/theme-navigation.test.mjs fails if these drift from the derivation. */
+    --app-header-bg: #0B1930;
+    --app-header-fg: #ffffff;
+    --app-header-fg-muted: #b6bac1;
+    --app-header-hover-bg: #2d394d;
+    --app-header-border: #374255;
+    --app-sidebar-bg: #172033;
+    --app-sidebar-fg: #ffffff;
+    --app-sidebar-fg-muted: #b9bcc2;
+    --app-nav-border: #373f50;
+    --app-nav-hover-bg: #2e3647;
+    --app-nav-hover-fg: #ffffff;
+    --app-nav-active-bg: #19B7A5;
+    --app-nav-active-fg: #0B1930;
+    --app-mobile-nav-bg: #172033;
+    --app-mobile-nav-fg: #ffffff;
 
     /* Static Jelenius design-system tokens — HSL triplets, same convention
        as --background/--border above. Not organization-configurable. */
