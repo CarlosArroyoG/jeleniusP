@@ -81,7 +81,7 @@ function LandingClassic({ courses, orgslug, org_id }: LandingClassicProps) {
                 {!isAuthenticated && (
                   <Link
                     href={getUriWithOrg(orgslug, '/login')}
-                    className="inline-flex items-center gap-2 justify-center px-4 py-2 bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+                    className="inline-flex items-center gap-2 justify-center px-4 py-2 bg-brand text-brand-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
                   >
                     <LogIn size={16} />
                     {t('auth.sign_in', 'Sign in')}

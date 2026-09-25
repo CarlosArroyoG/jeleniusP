@@ -128,7 +128,7 @@ describe('renderer source guards', () => {
 
   test('course cards use the brand CTA, not a black button', () => {
     const thumb = read('components/Objects/Thumbnails/CourseThumbnailLanding.tsx')
-    expect(thumb).toContain('bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)]')
+    expect(thumb).toContain('bg-brand text-brand-foreground')
     expect(thumb).not.toMatch(/bg-black/)
   })
 })

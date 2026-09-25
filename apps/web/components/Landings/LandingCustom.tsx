@@ -104,10 +104,10 @@ function LandingCustom({ landing, orgslug }: LandingCustomProps) {
                           data-testid={index === 0 ? 'public-hero-cta' : 'public-hero-cta-secondary'}
                           data-variant={style.variant}
                           className={cn(
-                            'inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-bold shadow-sm transition-all hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]',
-                            style.variant === 'brand' && 'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)]',
+                            'inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-bold shadow-sm transition-all hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+                            style.variant === 'brand' && 'bg-brand text-brand-foreground',
                             style.variant === 'brand-outline' &&
-                              'border border-[var(--brand-primary)] text-[var(--brand-primary)] bg-transparent shadow-none hover:bg-[var(--brand-primary)]/10'
+                              'border border-brand text-brand bg-transparent shadow-none hover:bg-brand/10'
                           )}
                           style={
                             style.variant === 'custom'
@@ -169,9 +169,9 @@ function LandingCustom({ landing, orgslug }: LandingCustomProps) {
                           href={button.link}
                           className={cn(
                             'inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-bold shadow-xs transition-opacity hover:opacity-90',
-                            style.variant === 'brand' && 'bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)]',
+                            style.variant === 'brand' && 'bg-brand text-brand-foreground',
                             style.variant === 'brand-outline' &&
-                              'border border-[var(--brand-primary)] text-[var(--brand-primary)] bg-transparent shadow-none hover:bg-[var(--brand-primary)]/10'
+                              'border border-brand text-brand bg-transparent shadow-none hover:bg-brand/10'
                           )}
                           style={
                             style.variant === 'custom'
@@ -268,7 +268,7 @@ function LandingCustom({ landing, orgslug }: LandingCustomProps) {
                     {person.link && (
                       <a
                         href={person.link}
-                        className="mt-auto pt-2 text-sm font-semibold text-[var(--brand-primary)] hover:underline"
+                        className="mt-auto pt-2 text-sm font-semibold text-brand hover:underline"
                       >
                         {t('public_home.view_more', { defaultValue: 'View more' })} →
                       </a>

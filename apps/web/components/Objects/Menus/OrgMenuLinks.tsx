@@ -5,6 +5,7 @@ import { menuIcon } from '@components/Objects/Menus/menuIcons'
 import Link from 'next/link'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { usePathname } from 'next/navigation'
 import { getMenuColorClasses } from '@services/utils/ts/colorUtils'
 
 type Builtin = { feature: string; link: string; labelKey: string; Icon: any }
@@ -24,6 +25,7 @@ const DEFAULT_ORDER = ['courses', 'library', 'podcasts', 'communities', 'playgro
 function MenuLinks(props: { orgslug: string; primaryColor?: string }) {
   const { t } = useTranslation()
   const org = useOrg() as any
+  const pathname = usePathname() || ''
   const colors = getMenuColorClasses(props.primaryColor || '')
 
   const rf = org?.config?.config?.resolved_features
@@ -69,15 +71,21 @@ function MenuLinks(props: { orgslug: string; primaryColor?: string }) {
     <div className="ps-1">
       <ul className="flex space-x-5">
         {rendered.map((it) => {
+          const path = it.external ? '' : new URL(it.href, 'http://x').pathname.replace(/\/+$/, '')
+          const active = !!path && (pathname === path || pathname.startsWith(path + '/'))
           const content = (
-            <li className={`flex space-x-2 items-center ${colors.text} font-semibold`}>
+            <li
+              className={`flex space-x-2 items-center rounded-lg px-2 py-1.5 transition-colors font-semibold ${colors.text} ${colors.hoverBg} ${
+                active ? 'bg-app-header-hover' : ''
+              }`}
+            >
               <it.Icon size={20} weight="fill" /> <span>{it.label}</span>
             </li>
           )
           return it.external ? (
             <a key={it.key} href={it.href} target="_blank" rel="noopener noreferrer">{content}</a>
           ) : (
-            <Link key={it.key} href={it.href}>{content}</Link>
+            <Link key={it.key} href={it.href} aria-current={active ? 'page' : undefined}>{content}</Link>
           )
         })}
       </ul>

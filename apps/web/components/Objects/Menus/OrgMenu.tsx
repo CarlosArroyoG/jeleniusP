@@ -8,8 +8,7 @@ import { getUriWithOrg } from '@services/config/config'
 import { fetchRAGChatSessions, RAGChatSession } from '@services/ai/ai'
 import { HeaderProfileBox } from '@components/Security/HeaderProfileBox'
 import MenuLinks from './OrgMenuLinks'
-import { getOrgLogoMediaDirectory } from '@services/media/media'
-import { BrandWordmark } from '@components/Brand/BrandMark'
+import { OrgHeaderLogo } from '@components/Objects/Menus/OrgHeaderLogo'
 import { useLHSession } from '@components/Contexts/LHSessionContext'
 import { useOrg } from '@components/Contexts/OrgContext'
 import { SearchBar } from '@components/Objects/Search/SearchBar'
@@ -154,30 +153,16 @@ export const OrgMenu = (props: any) => {
       <div className="backdrop-blur-lg h-[60px] blur-3xl" style={{ zIndex: 'var(--z-behind)', marginTop: topOffset }}></div>
       <nav
         aria-label="Top navigation"
-        className="backdrop-blur-lg fixed start-0 end-0 h-[60px]"
+        className="backdrop-blur-lg fixed start-0 end-0 h-[60px] bg-app-header text-app-header-foreground border-b border-app-header-border"
         style={{
           zIndex: 'var(--z-nav)',
-          backgroundColor: primaryColor,
           top: topOffset
         }}
       >
         <div className="flex items-center justify-between w-full max-w-(--breakpoint-2xl) mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center space-x-5 md:w-auto w-full">
             <div className="logo flex md:w-auto w-full justify-center">
-              <Link href={getUriWithOrg(orgslug, '/')}>
-                <div className="flex w-auto h-9 rounded-md items-center m-auto py-1 justify-center">
-                  {org?.logo_image ? (
-                    <img
-                      src={`${getOrgLogoMediaDirectory(org.org_uuid, org?.logo_image)}`}
-                      alt={org?.name || 'Organization logo'}
-                      style={{ width: 'auto', height: '100%' }}
-                      className="rounded-md"
-                    />
-                  ) : (
-                    <BrandWordmark style={{ filter: colors.logoFilter }} />
-                  )}
-                </div>
-              </Link>
+              <OrgHeaderLogo orgslug={orgslug} />
             </div>
             <div className="hidden md:flex">
               <MenuLinks orgslug={orgslug} primaryColor={primaryColor} />
@@ -356,7 +341,7 @@ export const OrgMenu = (props: any) => {
         </div>
       </nav>
       <div
-        className={`fixed inset-x-0 bg-white/80 backdrop-blur-lg md:hidden shadow-lg transition-all duration-300 ease-in-out ${
+        className={`fixed inset-x-0 bg-app-header text-app-header-foreground border-b border-app-header-border md:hidden shadow-lg transition-all duration-300 ease-in-out ${
           isMenuOpen ? 'opacity-100' : '-top-full opacity-0'
         }`}
         style={{
@@ -367,13 +352,13 @@ export const OrgMenu = (props: any) => {
         <div className="flex flex-col px-4 py-3 space-y-4 justify-center items-center">
           {/* Mobile Search */}
           <div className="w-full px-2">
-            <SearchBar orgslug={orgslug} isMobile={true} />
+            <SearchBar orgslug={orgslug} isMobile={true} primaryColor={primaryColor} />
           </div>
           <div className='py-4'>
-            <MenuLinks orgslug={orgslug} />
+            <MenuLinks orgslug={orgslug} primaryColor={primaryColor} />
           </div>
-          <div className="border-t border-gray-200">
-            <HeaderProfileBox />
+          <div className="border-t border-app-header-border">
+            <HeaderProfileBox primaryColor={primaryColor} />
           </div>
         </div>
       </div>

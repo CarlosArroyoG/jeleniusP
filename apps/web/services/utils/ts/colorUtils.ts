@@ -30,14 +30,19 @@ export function isLightColor(hex: string): boolean {
 }
 
 /**
- * Tailwind class sets for menu elements on a dynamic primary-color background.
+ * Tailwind class sets for header controls (links, icon buttons, search, profile).
  *
- * - No primaryColor → default gray theme
- * - Dark primaryColor → white foreground
- * - Light primaryColor → dark foreground with subtle overlays
+ * All colors come from the application navigation tokens
+ * (`--app-header-*`, see lib/theme/navigationTokens.ts), so they follow the
+ * organization's brand AND its computed foreground — nothing here assumes a
+ * dark or a light header.
+ *
+ * `onHeader` — pass a truthy value (callers historically pass the org's primary
+ * color) when the control sits on the header surface. With no value the controls
+ * sit on a neutral light surface (e.g. a page body) and get neutral classes.
  */
-export function getMenuColorClasses(primaryColor: string) {
-  if (!primaryColor) {
+export function getMenuColorClasses(onHeader: string | boolean = '') {
+  if (!onHeader) {
     return {
       text: 'text-gray-700',
       textMuted: 'text-gray-500',
@@ -45,49 +50,26 @@ export function getMenuColorClasses(primaryColor: string) {
       iconBtn: 'hover:bg-gray-100 text-gray-600',
       searchBg:
         'bg-white text-black placeholder:text-black/40 focus:ring-black/5 focus:border-black/20 nice-shadow',
-      searchIcon:
-        'text-black/40 group-focus-within:text-black/60',
-      signUpBtn: 'bg-black text-white hover:bg-gray-800',
+      searchIcon: 'text-black/40 group-focus-within:text-black/60',
+      signUpBtn: 'bg-brand text-brand-foreground hover:opacity-90',
       profileHover: 'hover:bg-gray-50',
       profileName: 'text-gray-900',
       profileMuted: 'text-gray-500',
-      logoFilter: 'none',
-    }
-  }
-
-  const light = isLightColor(primaryColor)
-
-  if (light) {
-    return {
-      text: 'text-gray-900',
-      textMuted: 'text-gray-700',
-      hoverBg: 'hover:bg-black/10',
-      iconBtn: 'hover:bg-black/10 text-gray-800',
-      searchBg:
-        'bg-black/10 text-gray-900 placeholder:text-gray-600 focus:ring-black/10 focus:border-black/20',
-      searchIcon:
-        'text-gray-600 group-focus-within:text-gray-800',
-      signUpBtn: 'bg-gray-900 text-white hover:bg-gray-800',
-      profileHover: 'hover:bg-black/10',
-      profileName: 'text-gray-900',
-      profileMuted: 'text-gray-700',
-      logoFilter: 'none',
     }
   }
 
   return {
-    text: 'text-white',
-    textMuted: 'text-white/70',
-    hoverBg: 'hover:bg-white/10',
-    iconBtn: 'hover:bg-white/10 text-white',
+    text: 'text-app-header-foreground',
+    textMuted: 'text-app-header-muted',
+    hoverBg: 'hover:bg-app-header-hover',
+    iconBtn: 'hover:bg-app-header-hover text-app-header-foreground',
     searchBg:
-      'bg-white/20 text-white placeholder:text-white/60 focus:ring-white/20 focus:border-white/30',
-    searchIcon:
-      'text-white/60 group-focus-within:text-white/80',
-    signUpBtn: 'bg-white text-gray-900 hover:bg-gray-100',
-    profileHover: 'hover:bg-white/10',
-    profileName: 'text-white',
-    profileMuted: 'text-white/70',
-    logoFilter: 'brightness(0) invert(1)',
+      'bg-app-header-foreground/15 text-app-header-foreground placeholder:text-app-header-muted focus:ring-app-header-foreground/25 focus:border-app-header-foreground/40',
+    searchIcon: 'text-app-header-muted group-focus-within:text-app-header-foreground',
+    // The header's CTA is the accent (a brand-primary button would vanish on a brand-primary header).
+    signUpBtn: 'bg-app-nav-active text-app-nav-active-foreground hover:opacity-90',
+    profileHover: 'hover:bg-app-header-hover',
+    profileName: 'text-app-header-foreground',
+    profileMuted: 'text-app-header-muted',
   }
 }

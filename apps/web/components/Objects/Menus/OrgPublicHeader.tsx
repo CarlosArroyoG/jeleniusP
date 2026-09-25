@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next'
 import { List, X } from '@phosphor-icons/react'
 import { useOrg } from '@components/Contexts/OrgContext'
 import { getUriWithOrg } from '@services/config/config'
-import { getOrgLogoMediaDirectory } from '@services/media/media'
-import { BrandIcon } from '@components/Brand/BrandMark'
 import LanguageSwitcher from '@components/Utils/LanguageSwitcher'
+import OrgHeaderLogo from '@components/Objects/Menus/OrgHeaderLogo'
 import { buildPublicNav, PublicNavItem } from '@/lib/publicNav'
+import { getMenuColorClasses } from '@services/utils/ts/colorUtils'
 import { cn } from '@/lib/utils'
 
 export const PUBLIC_HEADER_HEIGHT = 60
@@ -18,16 +18,18 @@ export const PUBLIC_HEADER_HEIGHT = 60
  * Simplified header for visitors who are NOT signed in. The full LMS shell
  * (`OrgMenu`) keeps rendering for authenticated users.
  *
- * Colors come from the organization theme tokens (`bg-[var(--brand-primary)]`,
- * `text-[var(--brand-primary-foreground)]`, `surface`, `border`) that the (withmenu) layout
- * already injects on its wrapper, so a school's branding applies without any
- * per-school code here.
+ * It paints from the SAME application navigation tokens as the authenticated
+ * header (`bg-app-header`, `text-app-header-foreground`, …), so a school's
+ * public site and its LMS share one identity and one mapping — nothing here
+ * decides "header = primary": that lives in lib/theme/navigationTokens.ts.
  */
 export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; topOffset?: number }) {
   const { t } = useTranslation()
   const org = useOrg() as any
   const pathname = usePathname() || ''
   const [open, setOpen] = useState(false)
+  // Controls sit on the header surface → header-token classes (see getMenuColorClasses).
+  const colors = getMenuColorClasses(true)
 
   const config = org?.config?.config
   const rf = config?.resolved_features
@@ -38,7 +40,6 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
     landing: config?.customization?.landing || config?.landing,
   })
 
-  const homeHref = getUriWithOrg(orgslug, '/')
   const isActive = (item: PublicNavItem) => {
     if (item.external || item.href.includes('#')) return false
     let path = item.href
@@ -53,12 +54,14 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
     return target === current || (item.key !== 'home' && current.startsWith(target + '/'))
   }
 
+  // Active = filled state + underline marker + heavier weight (not colour alone).
   const linkClass = (active: boolean) =>
     cn(
-      'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
+      'relative rounded-lg px-3 py-2 text-sm transition-colors',
+      colors.hoverBg,
       active
-        ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
-        : 'text-text-secondary hover:text-foreground hover:bg-surface-muted'
+        ? 'bg-app-header-hover font-bold text-app-header-foreground after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:rounded-full after:bg-app-nav-active'
+        : 'font-semibold text-app-header-muted hover:text-app-header-foreground'
     )
 
   const renderLink = (item: PublicNavItem, onClick?: () => void) => {
@@ -93,7 +96,9 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
       href={getUriWithOrg(orgslug, '/login')}
       onClick={onClick}
       className={cn(
-        'rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted',
+        'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
+        colors.text,
+        colors.hoverBg,
         className
       )}
     >
@@ -106,7 +111,8 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
       href={getUriWithOrg(orgslug, '/signup')}
       onClick={onClick}
       className={cn(
-        'rounded-lg bg-[var(--brand-primary)] px-4 py-2 text-sm font-bold text-[var(--brand-primary-foreground)] shadow-sm transition-opacity hover:opacity-90',
+        'rounded-lg px-4 py-2 text-sm font-bold shadow-sm transition-opacity',
+        colors.signUpBtn,
         className
       )}
     >
@@ -119,7 +125,7 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
       <div aria-hidden="true" style={{ height: PUBLIC_HEADER_HEIGHT, marginTop: topOffset }} />
       <header
         data-testid="public-header"
-        className="fixed start-0 end-0 border-b border-border bg-surface/90 backdrop-blur-lg"
+        className="fixed start-0 end-0 border-b border-app-header-border bg-app-header text-app-header-foreground"
         style={{ zIndex: 'var(--z-nav)', top: topOffset, height: PUBLIC_HEADER_HEIGHT }}
       >
         <nav
@@ -127,33 +133,19 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
           className="mx-auto flex h-full w-full max-w-(--breakpoint-2xl) items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
         >
           <div className="flex min-w-0 items-center gap-6">
-            <Link href={homeHref} className="flex h-9 min-w-0 items-center gap-2.5" data-testid="public-header-logo">
-              {org?.logo_image ? (
-                <img
-                  src={getOrgLogoMediaDirectory(org.org_uuid, org.logo_image)}
-                  alt={org?.name || 'Organization logo'}
-                  style={{ width: 'auto', height: '100%' }}
-                  className="rounded-md py-0.5"
-                />
-              ) : (
-                <>
-                  <BrandIcon className="h-8 w-8 shrink-0 rounded-lg" />
-                  <span className="truncate text-base font-bold text-foreground">{org?.name}</span>
-                </>
-              )}
-            </Link>
+            <OrgHeaderLogo orgslug={orgslug} testId="public-header-logo" />
             <div className="hidden items-center gap-1 md:flex">{items.map((item) => renderLink(item))}</div>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
             <div className="hidden sm:block">
-              <LanguageSwitcher />
+              <LanguageSwitcher primaryColor="header" />
             </div>
             {loginButton('hidden md:inline-flex')}
             {signupButton()}
             <button
               type="button"
-              className="rounded-lg p-2 text-foreground transition-colors hover:bg-surface-muted md:hidden"
+              className={cn('rounded-lg p-2 transition-colors md:hidden', colors.iconBtn)}
               aria-expanded={open}
               aria-controls="public-header-menu"
               aria-label={
@@ -171,13 +163,13 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
         {open && (
           <div
             id="public-header-menu"
-            className="absolute start-0 end-0 top-full border-b border-border bg-surface shadow-lg md:hidden"
+            className="absolute start-0 end-0 top-full border-b border-app-header-border bg-app-header text-app-header-foreground shadow-lg md:hidden"
           >
             <div className="flex flex-col gap-1 px-4 py-3">
               {items.map((item) => renderLink(item, () => setOpen(false)))}
-              <div className="mt-2 flex items-center justify-between gap-2 border-t border-border pt-3">
+              <div className="mt-2 flex items-center justify-between gap-2 border-t border-app-header-border pt-3">
                 {loginButton('', () => setOpen(false))}
-                <LanguageSwitcher />
+                <LanguageSwitcher primaryColor="header" />
               </div>
             </div>
           </div>

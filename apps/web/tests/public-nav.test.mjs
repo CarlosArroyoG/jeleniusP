@@ -135,8 +135,8 @@ describe('shell separation (source-level guards)', () => {
   })
 
   test('the public header is themed by tokens — no hardcoded black / gray', () => {
-    expect(publicHeader).toContain('bg-[var(--brand-primary)]')
-    expect(publicHeader).toContain('text-[var(--brand-primary-foreground)]')
+    expect(publicHeader).toContain('bg-app-header')
+    expect(publicHeader).toContain('text-app-header-foreground')
     expect(publicHeader).not.toMatch(/bg-black|bg-gray-9|text-black|#000\b|#111|#0f0f10/)
   })
 })
