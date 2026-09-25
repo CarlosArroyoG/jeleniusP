@@ -18,8 +18,8 @@ export const PUBLIC_HEADER_HEIGHT = 60
  * Simplified header for visitors who are NOT signed in. The full LMS shell
  * (`OrgMenu`) keeps rendering for authenticated users.
  *
- * Colors come from the organization theme tokens (`bg-brand`,
- * `text-brand-foreground`, `surface`, `border`) that the (withmenu) layout
+ * Colors come from the organization theme tokens (`bg-[var(--brand-primary)]`,
+ * `text-[var(--brand-primary-foreground)]`, `surface`, `border`) that the (withmenu) layout
  * already injects on its wrapper, so a school's branding applies without any
  * per-school code here.
  */
@@ -57,7 +57,7 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
     cn(
       'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
       active
-        ? 'text-brand bg-brand/10'
+        ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
         : 'text-text-secondary hover:text-foreground hover:bg-surface-muted'
     )
 
@@ -106,7 +106,7 @@ export function OrgPublicHeader({ orgslug, topOffset = 0 }: { orgslug: string; t
       href={getUriWithOrg(orgslug, '/signup')}
       onClick={onClick}
       className={cn(
-        'rounded-lg bg-brand px-4 py-2 text-sm font-bold text-brand-foreground shadow-sm transition-opacity hover:opacity-90',
+        'rounded-lg bg-[var(--brand-primary)] px-4 py-2 text-sm font-bold text-[var(--brand-primary-foreground)] shadow-sm transition-opacity hover:opacity-90',
         className
       )}
     >
