@@ -4292,7 +4292,14 @@
         "supported_formats": "Admite JPG, PNG, WebP y GIF",
         "viewer_title": "Visor de imágenes",
         "expand_image": "Expandir imagen",
-        "download_image": "Descargar imagen"
+        "download_image": "Descargar imagen",
+        "size_label": "Tamaño de la imagen",
+        "size_small": "Pequeña",
+        "size_medium": "Mediana",
+        "size_large": "Grande",
+        "size_full": "Ancho completo",
+        "alt_label": "Descripción de la imagen (texto alternativo)",
+        "alt_placeholder": "Describe la imagen para accesibilidad (opcional)"
       },
       "video_block": {
         "uploading": "Cargando video...",

@@ -2622,3 +2622,12 @@
   display: block;
 }
 
+/* Image block (Dynamic Pages): percentage presets (25/50/75/100%) collapse to the
+   full content width on narrow screens, so a 25% / 50% image never becomes a
+   thumbnail on a phone. Legacy pixel-width images (no data-image-preset) are
+   untouched. The image is always height:auto, so the aspect ratio is preserved. */
+@media (max-width: 639px) {
+  .lh-image-frame[data-image-preset] {
+    width: 100% !important;
+  }
+}

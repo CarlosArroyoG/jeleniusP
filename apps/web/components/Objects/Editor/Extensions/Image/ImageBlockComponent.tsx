@@ -13,6 +13,14 @@ import { constructAcceptValue } from '@/lib/constants';
 import Modal from '@components/Objects/StyledElements/Modal/Modal'
 import { useTranslation } from 'react-i18next'
 import AIImageButton from '@components/Objects/AI/AIImageButton'
+import {
+  IMAGE_WIDTH_PRESETS,
+  ImageWidthPreset,
+  alignmentItemsClass,
+  imageFrameStyle,
+  resolveImageAlt,
+  resolveImageWidth,
+} from '@/lib/imageBlock'
 
 const SUPPORTED_FILES = constructAcceptValue(['jpg', 'png', 'webp', 'gif'])
 const UNSPLASH_UTM = '?utm_source=LearnHouse&utm_medium=referral'
@@ -196,28 +204,41 @@ function ImageBlockComponent(props: any) {
 
   useEffect(() => {}, [course, org])
 
-  const getItemsAlignmentClass = () => {
-    switch (alignment) {
-      case 'left':
-        return 'items-start';
-      case 'right':
-        return 'items-end';
-      default:
-        return 'items-center';
-    }
-  };
+  const getItemsAlignmentClass = () => alignmentItemsClass(alignment)
+
+  // Width: a percentage preset when set, otherwise the legacy pixel width.
+  const widthAttrs = { widthPreset: props.node.attrs.widthPreset, size: imageSize }
+  const resolvedWidth = resolveImageWidth(widthAttrs)
+  const frameStyle = imageFrameStyle(widthAttrs)
+  const imageAlt = resolveImageAlt(props.node.attrs)
+
+  const handleWidthPreset = (preset: ImageWidthPreset) => {
+    props.updateAttributes({ widthPreset: preset })
+  }
+
+  const presetLabel = (preset: ImageWidthPreset) =>
+    ({
+      '25': t('editor.blocks.image_block.size_small'),
+      '50': t('editor.blocks.image_block.size_medium'),
+      '75': t('editor.blocks.image_block.size_large'),
+      '100': t('editor.blocks.image_block.size_full'),
+    })[preset]
 
   // Activity view mode - show only the image without block wrapper
   if (!isEditable && imageUrl) {
-    const viewFrameStyle: React.CSSProperties = { width: imageSize.width, maxWidth: '100%' };
+    const viewFrameStyle: React.CSSProperties = frameStyle;
     return (
       <>
         <NodeViewWrapper className="block-image w-full">
           <div className={`w-full flex flex-col ${getItemsAlignmentClass()}`}>
-            <div className="relative group" style={viewFrameStyle}>
+            <div
+              className="lh-image-frame relative group"
+              style={viewFrameStyle}
+              data-image-preset={resolvedWidth.preset ?? undefined}
+            >
               <img
                 src={imageUrl}
-                alt=""
+                alt={imageAlt}
                 className="rounded-lg max-w-full h-auto w-full"
               />
               <div className="absolute top-2 end-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -257,7 +278,7 @@ function ImageBlockComponent(props: any) {
             <div className="w-full flex flex-col items-center justify-center">
               <img
                 src={imageUrl}
-                alt=""
+                alt={imageAlt}
                 className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-lg"
               />
               {unsplashCredit}
@@ -278,12 +299,78 @@ function ImageBlockComponent(props: any) {
       <NodeViewWrapper className="block-image w-full">
         <div className="bg-neutral-50 rounded-xl px-5 py-4 nice-shadow transition-all ease-linear">
           {/* Header */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
             {/* eslint-disable-next-line jsx-a11y/alt-text -- `Image` is a phosphor-icons icon, not an <img> element */}
             <Image weight="duotone" className="text-neutral-400" size={16} />
             <span className="uppercase tracking-widest text-xs font-bold text-neutral-400">
               {t('editor.blocks.image')}
             </span>
+
+            {/* Size + alignment controls (kept out of the image itself so they stay usable on small images) */}
+            {imageUrl && isEditable && (
+              <div className="ms-auto flex flex-wrap items-center gap-2" data-testid="image-block-controls">
+                <div
+                  role="group"
+                  aria-label={t('editor.blocks.image_block.size_label')}
+                  className="flex items-center gap-0.5 bg-white rounded-lg p-1 border border-neutral-200"
+                >
+                  {IMAGE_WIDTH_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => handleWidthPreset(preset)}
+                      aria-pressed={resolvedWidth.preset === preset}
+                      title={`${presetLabel(preset)} (${preset}%)`}
+                      data-testid={`image-size-${preset}`}
+                      className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-colors outline-none ${resolvedWidth.preset === preset ? 'bg-neutral-800 text-white' : 'hover:bg-neutral-100 text-neutral-600'}`}
+                    >
+                      {preset}%
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-0.5 bg-white rounded-lg p-1 border border-neutral-200">
+                  <button
+                    type="button"
+                    onClick={() => handleAlignmentChange('left')}
+                    aria-pressed={alignment === 'left'}
+                    data-testid="image-align-left"
+                    className={`p-1.5 rounded-md transition-colors outline-none ${alignment === 'left' ? 'bg-neutral-200 text-neutral-700' : 'hover:bg-neutral-100 text-neutral-500'}`}
+                    title={t('editor.blocks.common.align_left')}
+                  >
+                    <TextAlignLeft weight="duotone" size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAlignmentChange('center')}
+                    aria-pressed={alignment === 'center'}
+                    data-testid="image-align-center"
+                    className={`p-1.5 rounded-md transition-colors outline-none ${alignment === 'center' ? 'bg-neutral-200 text-neutral-700' : 'hover:bg-neutral-100 text-neutral-500'}`}
+                    title={t('editor.blocks.common.align_center')}
+                  >
+                    <TextAlignCenter weight="duotone" size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAlignmentChange('right')}
+                    aria-pressed={alignment === 'right'}
+                    data-testid="image-align-right"
+                    className={`p-1.5 rounded-md transition-colors outline-none ${alignment === 'right' ? 'bg-neutral-200 text-neutral-700' : 'hover:bg-neutral-100 text-neutral-500'}`}
+                    title={t('editor.blocks.common.align_right')}
+                  >
+                    <TextAlignRight weight="duotone" size={14} />
+                  </button>
+                  <div className="w-px h-4 bg-neutral-200 mx-0.5"></div>
+                  <button
+                    type="button"
+                    onClick={handleExpand}
+                    className="p-1.5 rounded-md hover:bg-neutral-100 text-neutral-500 transition-colors outline-none"
+                    title={t('editor.blocks.image_block.expand_image')}
+                  >
+                    <ArrowsOut weight="duotone" size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Upload Zone - shown when no image */}
@@ -363,7 +450,12 @@ function ImageBlockComponent(props: any) {
           {imageUrl && isEditable && (
             <div className={`w-full flex flex-col ${getItemsAlignmentClass()}`}>
               <Resizable
-                defaultSize={{ width: imageSize.width, height: '100%' }}
+                className="lh-image-frame"
+                data-image-preset={resolvedWidth.preset ?? undefined}
+                size={{
+                  width: resolvedWidth.mode === 'preset' ? resolvedWidth.widthCss : imageSize.width,
+                  height: 'auto',
+                }}
                 handleStyles={{
                   right: {
                     position: 'unset',
@@ -380,69 +472,50 @@ function ImageBlockComponent(props: any) {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: '100%',
                   maxWidth: '100%',
                 }}
                 maxWidth="100%"
-                minWidth={200}
+                minWidth={80}
                 enable={{ right: true }}
-                onResizeStop={(e, direction, ref, d) => {
-                  const newWidth = Math.min(imageSize.width + d.width, ref.parentElement?.clientWidth || 1000);
+                onResizeStop={(e, direction, ref) => {
+                  // Free-dragging switches back to an exact pixel width (and drops any preset).
+                  const newWidth = Math.round(
+                    Math.min(ref.offsetWidth, ref.parentElement?.clientWidth || 1000)
+                  )
                   props.updateAttributes({
                     size: {
                       width: newWidth,
                     },
+                    widthPreset: null,
                   })
                   setImageSize({
                     width: newWidth,
                   })
                 }}
               >
-                <div className="relative">
+                <div className="relative w-full">
                   <img
                     src={imageUrl || ''}
-                    alt=""
+                    alt={imageAlt}
                     className="rounded-lg nice-shadow max-w-full h-auto"
                     style={{ width: '100%' }}
                   />
-                  <div className="absolute top-2 end-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 opacity-80 hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleAlignmentChange('left')}
-                      className={`p-1.5 rounded-md transition-colors outline-none ${alignment === 'left' ? 'bg-neutral-200 text-neutral-700' : 'hover:bg-neutral-100 text-neutral-500'}`}
-                      title={t('editor.blocks.common.align_left')}
-                    >
-                      <TextAlignLeft weight="duotone" size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleAlignmentChange('center')}
-                      className={`p-1.5 rounded-md transition-colors outline-none ${alignment === 'center' ? 'bg-neutral-200 text-neutral-700' : 'hover:bg-neutral-100 text-neutral-500'}`}
-                      title={t('editor.blocks.common.align_center')}
-                    >
-                      <TextAlignCenter weight="duotone" size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleAlignmentChange('right')}
-                      className={`p-1.5 rounded-md transition-colors outline-none ${alignment === 'right' ? 'bg-neutral-200 text-neutral-700' : 'hover:bg-neutral-100 text-neutral-500'}`}
-                      title={t('editor.blocks.common.align_right')}
-                    >
-                      <TextAlignRight weight="duotone" size={14} />
-                    </button>
-                    <div className="w-px h-4 bg-neutral-200 mx-0.5"></div>
-                    <button
-                      onClick={handleExpand}
-                      className="p-1.5 rounded-md hover:bg-neutral-100 text-neutral-500 transition-colors outline-none"
-                      title={t('editor.blocks.image_block.expand_image')}
-                    >
-                      <ArrowsOut weight="duotone" size={14} />
-                    </button>
-                  </div>
                 </div>
               </Resizable>
               {unsplashCredit && (
-                <div style={{ width: imageSize.width, maxWidth: '100%' }}>
+                <div style={frameStyle}>
                   {unsplashCredit}
                 </div>
               )}
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) => props.updateAttributes({ alt: e.target.value })}
+                placeholder={t('editor.blocks.image_block.alt_placeholder')}
+                aria-label={t('editor.blocks.image_block.alt_label')}
+                data-testid="image-alt-input"
+                className="mt-2 w-full max-w-md rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700 placeholder:text-neutral-400 outline-none focus:border-neutral-400"
+              />
             </div>
           )}
 
@@ -460,7 +533,7 @@ function ImageBlockComponent(props: any) {
             <div className="w-full flex flex-col items-center justify-center">
               <img
                 src={imageUrl}
-                alt=""
+                alt={imageAlt}
                 className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-lg"
               />
               {unsplashCredit}

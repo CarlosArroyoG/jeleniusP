@@ -203,7 +203,7 @@ function PMNode({ node, ctx }: { node: any; ctx: RendererCtx }): React.ReactElem
         <div className={`flex ${justify} my-2`}>
           <img
             src={src}
-            alt=""
+            alt={typeof node.attrs?.alt === 'string' ? node.attrs.alt : ''}
             loading="lazy"
             className="rounded-md max-w-full h-auto border border-gray-100"
             style={{ maxHeight: 180 }}

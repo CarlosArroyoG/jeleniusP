@@ -23,6 +23,14 @@ export default Node.create({
       alignment: {
         default: 'center',
       },
+      // Percentage width preset ('25' | '50' | '75' | '100'). null = legacy
+      // behaviour (the pixel width stored in `size`), so old content is unchanged.
+      widthPreset: {
+        default: null,
+      },
+      alt: {
+        default: '',
+      },
       unsplash_url: {
         default: null,
       },
