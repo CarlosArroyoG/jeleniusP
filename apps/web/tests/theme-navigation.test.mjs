@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import fs from 'node:fs'
 import path from 'node:path'
 import { JELENIUS_BRAND } from '../lib/brand.ts'
-import { MIN_TEXT_CONTRAST, contrastRatio, mixColors, pickForeground } from '../lib/theme/color.ts'
+import { MIN_TEXT_CONTRAST, contrastRatio, pickForeground } from '../lib/theme/color.ts'
 import {
   NAVIGATION_CSS_VARS,
   deriveNavigationTokens,
