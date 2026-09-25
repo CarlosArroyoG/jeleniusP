@@ -1,5 +1,5 @@
 import type { APIRequestContext } from '@playwright/test'
-import { getAdminToken } from './org-branding'
+import { adminApi } from './org-branding'
 
 /**
  * Seed helpers for the public-home and Dynamic-Page image specs. Like
@@ -23,10 +23,6 @@ export function svgImage(label: string, color = '#3b82f6', width = 1600, height 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 }
 
-async function authHeaders(request: APIRequestContext) {
-  return { Authorization: `Bearer ${await getAdminToken(request)}` }
-}
-
 async function readLanding(request: APIRequestContext): Promise<any> {
   const res = await request.get(`${API_URL}/orgs/slug/${ORG_SLUG}`)
   if (!res.ok()) throw new Error(`Could not read the org for the e2e fixture (${res.status()})`)
@@ -35,10 +31,7 @@ async function readLanding(request: APIRequestContext): Promise<any> {
 }
 
 async function writeLanding(request: APIRequestContext, landing: any): Promise<void> {
-  const res = await request.put(`${API_URL}/orgs/${ORG_ID}/landing`, {
-    headers: await authHeaders(request),
-    data: landing,
-  })
+  const res = await adminApi(request, 'PUT', `${API_URL}/orgs/${ORG_ID}/landing`, { data: landing })
   if (!res.ok()) throw new Error(`Failed to set the org landing (${res.status()}): ${await res.text()}`)
   // The API caches org config; poll the read-back instead of sleeping.
   const wanted = JSON.stringify(landing)
@@ -147,10 +140,7 @@ export function imageSizingDoc() {
 
 /** Creates a course > chapter > Dynamic Page (TYPE_DYNAMIC) with `content`, and returns a cleanup. */
 export async function seedDynamicPage(request: APIRequestContext, content: any): Promise<SeededDynamicPage> {
-  const headers = await authHeaders(request)
-
-  const courseRes = await request.post(`${API_URL}/courses/?org_id=${ORG_ID}`, {
-    headers,
+  const courseRes = await adminApi(request, 'POST', `${API_URL}/courses/?org_id=${ORG_ID}`, {
     multipart: {
       name: `e2e image sizing ${Date.now()}`,
       description: 'Created by the Playwright image-sizing spec; removed afterwards.',
@@ -164,21 +154,21 @@ export async function seedDynamicPage(request: APIRequestContext, content: any):
   const course = await courseRes.json()
 
   const cleanup = async () => {
-    await request.delete(`${API_URL}/courses/${course.course_uuid}`, { headers }).catch(() => {})
+    await adminApi(request, 'DELETE', `${API_URL}/courses/${course.course_uuid}`).catch(() => {})
   }
 
   try {
-    const chapterRes = await request.post(`${API_URL}/chapters/`, {
-      headers,
+    const chapterRes = await adminApi(request, 'POST', `${API_URL}/chapters/`, {
       data: { name: 'Chapter 1', description: '', course_id: course.id, org_id: Number(ORG_ID) },
     })
     if (!chapterRes.ok()) throw new Error(`Failed to create the e2e chapter (${chapterRes.status()}): ${await chapterRes.text()}`)
     const chapter = await chapterRes.json()
 
-    const activityRes = await request.post(
+    const activityRes = await adminApi(
+      request,
+      'POST',
       `${API_URL}/activities/?coursechapter_id=${chapter.id}&org_id=${ORG_ID}`,
       {
-        headers,
         data: {
           name: 'Dynamic page',
           activity_type: 'TYPE_DYNAMIC',
@@ -193,8 +183,7 @@ export async function seedDynamicPage(request: APIRequestContext, content: any):
     const activity = await activityRes.json()
 
     // Creation may ignore `content`; write it explicitly through the update endpoint too.
-    const updateRes = await request.put(`${API_URL}/activities/${activity.activity_uuid}`, {
-      headers,
+    const updateRes = await adminApi(request, 'PUT', `${API_URL}/activities/${activity.activity_uuid}`, {
       data: { content, published: true },
     })
     if (!updateRes.ok()) throw new Error(`Failed to set the e2e activity content (${updateRes.status()}): ${await updateRes.text()}`)

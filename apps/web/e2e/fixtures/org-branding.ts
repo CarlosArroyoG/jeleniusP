@@ -76,11 +76,14 @@ function jwtExpiryMs(jwt: string): number {
   }
 }
 
+/** Forget the cached admin token (it was rejected — see `adminApi`). */
+export function dropAdminToken(): void {
+  cachedToken = null
+}
+
 /**
- * An admin API token. The token is short-lived: it used to be cached forever, so a long
- * suite eventually sent an expired one and a fixture write failed with a 401 that looked
- * like a product bug. It is now refreshed a minute before it expires (and the login is
- * retried once on 429 — the API rate-limits logins, see fixtures/login.ts).
+ * An admin API token, logging in again when there is none. The login is retried once on 429
+ * (the API rate-limits logins, see fixtures/login.ts).
  */
 export async function getAdminToken(request: APIRequestContext): Promise<string> {
   if (cachedToken && cachedToken.expiresAt - Date.now() > 60_000) return cachedToken.value
@@ -100,6 +103,39 @@ export async function getAdminToken(request: APIRequestContext): Promise<string>
     const value = body.tokens.access_token as string
     cachedToken = { value, expiresAt: jwtExpiryMs(value) || Date.now() + 4 * 60_000 }
     return value
+  }
+}
+
+type ApiOptions = Parameters<APIRequestContext['fetch']>[1]
+
+/**
+ * Authenticated admin API call that survives token revocation.
+ *
+ * ROOT CAUSE of the intermittent `401 Could not validate credentials` in fixture writes: the API
+ * revokes ALL of a user's tokens issued before a logout (`revoke_user_sessions_before`,
+ * apps/api/src/security/auth.py). smoke.spec logs the admin out through the UI, which silently
+ * invalidated the fixture's cached token; the next spec's first write (ssr-branding) got a 401 even
+ * though the token was fresh and unexpired. A 401 therefore drops the cached token, logs in again and
+ * retries once.
+ */
+export async function adminApi(
+  request: APIRequestContext,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  url: string,
+  options: ApiOptions = {}
+) {
+  for (let attempt = 0; ; attempt++) {
+    const token = await getAdminToken(request)
+    const res = await request.fetch(url, {
+      ...options,
+      method,
+      headers: { ...(options?.headers || {}), Authorization: `Bearer ${token}` },
+    })
+    if (res.status() === 401 && attempt < 1) {
+      dropAdminToken()
+      continue
+    }
+    return res
   }
 }
 
@@ -133,11 +169,7 @@ export async function readOrgBranding(request: APIRequestContext): Promise<Brand
  * `withOrgBranding` below for the common pattern).
  */
 export async function setOrgBranding(request: APIRequestContext, branding: Branding): Promise<void> {
-  const token = await getAdminToken(request)
-  const authHeaders = { Authorization: `Bearer ${token}` }
-
-  const nameRes = await request.put(`${API_URL}/orgs/${ORG_ID}`, {
-    headers: authHeaders,
+  const nameRes = await adminApi(request, 'PUT', `${API_URL}/orgs/${ORG_ID}`, {
     data: { name: branding.name },
   })
   if (!nameRes.ok()) throw new Error(`Failed to set org name (${nameRes.status()}): ${await nameRes.text()}`)
@@ -148,9 +180,7 @@ export async function setOrgBranding(request: APIRequestContext, branding: Brand
     ['accent_color', branding.accent_color],
     ['font', branding.font],
   ] as const) {
-    const res = await request.put(`${API_URL}/orgs/${ORG_ID}/config/${param}?${param}=${encodeURIComponent(value)}`, {
-      headers: authHeaders,
-    })
+    const res = await adminApi(request, 'PUT', `${API_URL}/orgs/${ORG_ID}/config/${param}?${param}=${encodeURIComponent(value)}`)
     if (!res.ok()) throw new Error(`Failed to set org ${param} (${res.status()}): ${await res.text()}`)
   }
 

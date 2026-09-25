@@ -191,3 +191,30 @@ whole point of a visual regression suite.
 verified end-to-end (see `ssr-branding.md`) — Playwright's `page.on('request', …)`
 observes exactly what the phase's own §40 asked for: organization requests
 per initial load, from a real browser, not a guess from reading the code.
+
+## Authenticated branding suite (phase 4) and the login flakiness
+
+`e2e/authenticated-branding.spec.ts` runs the **same build** against three OrganizationConfigs —
+Jelenius, Colegio Demo and a config-only Fundación Don Bosco fixture — plus a hypothetical
+"Universidad Roja", and asserts from `getComputedStyle` (not just screenshots) that the header is the
+primary, the sidebar the secondary, the active item the accent, hover the derived tint, foregrounds
+the resolver's, the font the school's, and that the raw server HTML already carries `--brand-*` /
+`--app-*` for `/` and `/login`. Because it checks computed values, a `bg-brand` stuck to the Jelenius
+default (the old `@theme` bug) fails for every non-Jelenius organization.
+
+### The intermittent 401 — root cause and fix
+
+Two independent causes were behind failures that looked like product bugs:
+
+1. **Logout revokes the fixture's API token (401).** The API revokes *all* of a user's tokens issued
+   before a logout (`revoke_user_sessions_before`, `apps/api/src/security/auth.py`). `smoke.spec.ts`
+   signs the admin out through the UI, which silently invalidated the fixture's cached token — even
+   though it was fresh (access tokens live 8 h) — so the very next spec's first fixture write
+   (`ssr-branding`, alphabetically right after `smoke`) failed with
+   `401 Could not validate credentials`. Every fixture call now goes through `adminApi()`, which on a
+   401 drops the cached token, logs in again and retries once.
+2. **Login rate limit (429).** The API allows 30 logins / 5 min / IP. Each admin test did a real UI login;
+   across two projects that trips the limit. `loginAsAdmin()` now performs the real login once per run
+   (so the auth flow stays covered), caches the session (cookies + localStorage) and re-applies it to later
+   contexts, falling back to a real login if it is rejected; the API-token login retries once on 429.
+   `dynamic-image.spec.ts` signs in once per project. Production rate limiting is unchanged.

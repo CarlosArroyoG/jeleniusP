@@ -9,7 +9,7 @@ schema or any API.
 
 | Visitor | Header | Where |
 |---|---|---|
-| Not signed in (`session.status === 'unauthenticated'`) | `OrgPublicHeader` — logo, Home, Courses, school-configured links, Log in, brand-colored Sign up | `components/Objects/Menus/OrgPublicHeader.tsx` |
+| Not signed in (`session.status === 'unauthenticated'`) | `OrgPublicHeader` — logo, Home, Courses, school-configured links, Log in, accent-colored Sign up — painted from the shared navigation tokens | `components/Objects/Menus/OrgPublicHeader.tsx` |
 | Signed in | `OrgMenu` full LMS shell — unchanged | `components/Objects/Menus/OrgMenu.tsx` |
 
 `OrgMenu` hands off to `OrgPublicHeader` right before it would render the LMS
@@ -29,27 +29,23 @@ treating "unknown" as public would flash the wrong header at signed-in users.
   Store, global LMS search. Those are application surfaces; they stay in the
   authenticated shell.
 
-## 2. Branding: use runtime variables, not `bg-brand`
+## 2. Branding: the global semantic theme
 
-The org wrapper in `app/orgs/[orgslug]/(withmenu)/layout.tsx` sets
-`--brand-primary` / `--brand-primary-foreground` / … inline. The public
-components reference those variables directly:
-`bg-[var(--brand-primary)]`, `text-[var(--brand-primary-foreground)]`,
-`border-[var(--brand-primary)]`, plus the static tokens `surface`,
-`surface-muted`, `text-secondary`, `foreground`, `border`, `shadow-card`,
-`rounded-xl`.
+The public header and sections use the same runtime tokens as the rest of the LMS
+(`bg-app-header`, `text-app-header-foreground`, `bg-brand`, `text-brand-foreground`, `surface`,
+`text-secondary`, `border`, `shadow-card`, `rounded-xl`). The org wrapper in
+`app/orgs/[orgslug]/layout.tsx` sets `--brand-*` and `--app-*` inline in the server HTML.
 
-> **Known issue (pre-existing, not changed here).** `styles/globals.css`
-> declares `--color-brand: var(--brand-primary)` inside a plain `@theme { … }`.
-> Tailwind v4 resolves that `var()` at `:root`, so the `bg-brand` /
-> `text-brand-foreground` utilities always render the *default* navy — an
-> organization's runtime override on the wrapper never reaches them. Found
-> because a Colegio Demo e2e showed a navy Sign up button under a `#7A1F35`
-> `--brand-primary`. The public components therefore use the arbitrary-value
-> form above. A repo-wide fix is `@theme inline { … }` for the `--color-brand*`
-> entries; it was deliberately **not** done in this change because it would
-> also recolor every existing `bg-brand` usage and shift the white-label
-> screenshot baselines.
+> **History.** This document previously recorded a known issue: `bg-brand` always rendered the
+> default navy because `--color-brand: var(--brand-primary)` sat in a plain `@theme` block, and the
+> public components worked around it with `bg-[var(--brand-primary)]`. That was fixed at the root
+> (`@theme inline`, see `theme-engine.md` → "Why `@theme inline`") and the workarounds were
+> removed. The public header now paints from the **navigation tokens** shared with the
+> authenticated header (primary background, accent Sign up CTA, active link = filled + underline).
+>
+> Remaining direct `var(--brand-*)` in public code, with the reason: `lib/publicHero.ts`
+> (`color-mix(in srgb, var(--brand-primary) 9%, hsl(var(--surface)))` for the hero's soft tint) — a
+> CSS gradient expression that has no utility-class form, and it reads the runtime variable.
 
 ## 3. Hero (`components/Landings/LandingCustom.tsx`, case `'hero'`)
 

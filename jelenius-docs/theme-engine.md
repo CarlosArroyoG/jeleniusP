@@ -211,38 +211,75 @@ logo/nombre/primary color/font."
 
 ## Tailwind v4 integration
 
-No `tailwind.config.js` was introduced — this project configures Tailwind
-v4 entirely through `@theme` in `globals.css`, and the new tokens follow
-that exact existing convention:
+No `tailwind.config.js` — Tailwind v4 is configured entirely in `styles/globals.css`, with
+**two** theme blocks:
 
 ```css
+/* static design-system tokens */
 @theme {
-  --color-brand: var(--brand-primary);
-  --color-brand-foreground: var(--brand-primary-foreground);
-  --color-brand-secondary: var(--brand-secondary);
-  --color-brand-accent: var(--brand-accent);
   --color-surface: hsl(var(--surface));
   --color-surface-muted: hsl(var(--surface-muted));
   --color-text-secondary: hsl(var(--text-secondary));
   --color-border-strong: hsl(var(--border-strong));
-  --color-success: hsl(var(--success));
-  --color-warning: hsl(var(--warning));
   --radius-xl: 1.25rem;
+  /* … */
+}
+
+/* per-organization tokens, set at runtime */
+@theme inline {
+  --color-brand: var(--brand-primary);
+  --color-brand-foreground: var(--brand-primary-foreground);
+  --color-brand-secondary: var(--brand-secondary);   /* + -foreground */
+  --color-brand-accent: var(--brand-accent);         /* + -foreground */
+  --color-app-header: var(--app-header-bg);          /* + the other --app-* tokens */
+  /* … */
 }
 ```
 
-This makes `bg-brand`, `text-brand-foreground`, `bg-brand-accent`,
-`text-text-secondary`, `bg-surface-muted`, `rounded-xl`, etc. available as
-ordinary Tailwind utility classes anywhere in the app. Because `--brand-*`
-are plain CSS custom properties (not Tailwind config values baked in at
-build time), overriding them on any ancestor element at runtime — which is
-exactly what `useOrganizationTheme()`'s `style` object does — changes what
-every `bg-brand` etc. resolves to for that entire subtree, with zero extra
-JS per component.
+### Why `@theme inline` (root cause of the "static bg-brand" bug)
 
-`--color-brand`/`--color-brand-*` are **not** wrapped in `hsl()` (unlike
-the pre-existing `--color-primary` etc.) because `brand-primary` is a
-complete hex color set directly by the resolver, not an HSL triplet.
+Measured on the compiled CSS of the previous build (`.next/static/css`):
+
+```
+:root { … --color-brand: var(--brand-primary); … }        ← from the plain @theme block
+.bg-brand { background-color: var(--color-brand) }
+.text-brand-foreground { color: var(--color-brand-foreground) }
+:root { … --brand-primary: #0b1930; … }                    ← the Jelenius default from :root
+```
+
+`--color-brand` was declared on `:root` as `var(--brand-primary)`. A custom property that
+references another one is **resolved where it is declared** and children inherit the *computed*
+value. So `--color-brand` became `#0b1930` once, at `:root`, and every descendant inherited that.
+The organization's `--brand-primary` (set on the layout wrapper by `themeTokensToCssVars`) is a
+*different, deeper* declaration that `--color-brand` never re-reads. Result: `bg-brand`,
+`text-brand-foreground`, `bg-brand-accent`… always rendered the Jelenius default, on every
+school. (`hsl(var(--x))` tokens escaped this only because they are static.)
+
+With `inline`, Tailwind stops routing through `--color-*` and the utility itself emits the
+reference — `.bg-brand { background-color: var(--brand-primary) }` — which is resolved **at the
+element that uses it**, so it follows the nearest override. `bg-brand/20` compiles to
+`color-mix(in oklab, var(--brand-primary) 20%, transparent)` and works too.
+
+The earlier text of this document claimed overriding `--brand-*` on an ancestor "changes what
+every `bg-brand` resolves to for that subtree". That was never true for the plain `@theme`
+declaration; it is true now, and `tests/theme-navigation.test.mjs` compiles the real stylesheet
+and asserts the generated rules so it cannot silently regress (a `bg-brand` stuck to the default
+also fails `e2e/authenticated-branding.spec.ts` for every non-Jelenius org).
+
+Only tokens that are set per organization at runtime moved to the inline block; everything static
+stayed in `@theme`. `--color-brand*` are complete hex colors (not HSL triplets).
+
+### Foreground
+
+`foregroundFor()` now uses `pickForeground()` — the higher real WCAG contrast of white vs. the
+Jelenius ink (pure black as a last resort on mid-tones) — instead of a 0.4 luminance cut-off, and
+produces the foreground for primary, secondary **and** accent.
+
+### Application (navigation) tokens
+
+`resolveOrganizationTheme()` also returns `navigation` (`deriveNavigationTokens()`), written as
+`--app-header-*`, `--app-sidebar-*`, `--app-nav-*`, `--app-mobile-nav-*`. See
+`authenticated-branding.md` for the mapping, derivation rules and the list of migrated surfaces.
 
 ## Where it's wired in (this phase's scope only)
 

@@ -27,7 +27,14 @@ async function reuseCachedSession(page: Page): Promise<boolean> {
     }, origins)
   }
   await page.goto('/dash')
-  const ok = await page.waitForURL(/\/dash/, { timeout: 10_000 }).then(() => true).catch(() => false)
+  // Reaching the /dash URL is not proof of a live session: the page is served, then the client
+  // bounces a rejected (revoked) session to /login. Only the dashboard shell itself is proof.
+  const ok = await page
+    .locator('[data-testid="dash-sidebar"], [data-testid="dash-mobile-nav"]')
+    .first()
+    .waitFor({ state: 'visible', timeout: 10_000 })
+    .then(() => true)
+    .catch(() => false)
   if (!ok) cachedSession = null
   return ok
 }
@@ -37,6 +44,8 @@ export async function loginAsAdmin(page: Page, email: string, password: string):
     await dismissWelcomeModalIfPresent(page)
     return
   }
+  // A rejected cached session (revoked by a logout in an earlier spec) must not leak into the real login.
+  await page.context().clearCookies()
   await page.goto('/login')
   await page.getByLabel(/email/i).fill(email)
   await page.getByLabel(/password/i).fill(password)
@@ -45,10 +54,12 @@ export async function loginAsAdmin(page: Page, email: string, password: string):
   // its org card links to the org's public home ("/"), not the dashboard,
   // so go there directly rather than trying to reason about where the
   // card's own link lands.
-  await page.waitForURL(/\/dash|\/home|\/$/, { timeout: 15_000 })
-  if (!/\/dash/.test(page.url())) {
+  // Path only — `/login?…callbackUrl=/dash` must not count as having arrived.
+  const arrived = (url: URL) => /^\/(dash|home)(\/|$)/.test(url.pathname) || url.pathname === '/'
+  await page.waitForURL(arrived, { timeout: 15_000 })
+  if (!page.url().includes('/dash') || new URL(page.url()).pathname.startsWith('/login')) {
     await page.goto('/dash')
-    await page.waitForURL(/\/dash/, { timeout: 15_000 })
+    await page.waitForURL((url) => url.pathname.startsWith('/dash'), { timeout: 15_000 })
   }
   await dismissWelcomeModalIfPresent(page)
   cachedSession = await page.context().storageState()

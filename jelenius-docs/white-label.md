@@ -207,6 +207,15 @@ branding changes by hand.
 The instance was returned to Jelenius-default branding afterward, per the
 requirement that Jelenius, not a demo school, is the resting default.
 
+## Global navigation branding (phase 4)
+
+A school's identity now reaches the **whole** shell, not only the login page: the Tailwind
+runtime-token fix (`@theme inline`), semantic navigation tokens derived from the three brand
+colors, and the migration of the public header, authenticated header, desktop sidebar, mobile
+navigation, admin bar, auth screens and primary CTAs. Details, the derivation rules and the
+"how to add a new school" checklist: `authenticated-branding.md`. A worked real-world example
+(config only): `school-brand-example-donbosco.md`.
+
 ## White-label without arbitrary CSS
 
 Every color field (`color`, `secondary_color`, `accent_color`) is validated
