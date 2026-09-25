@@ -105,6 +105,34 @@ const UPGRADE_STARS: {
   { top: '20%', left: '44%', size: 1, delay: 2.0, dim: 0.1, bright: 0.45 },
 ]
 
+const NAV_TIP_CLASS =
+  "z-tooltip max-w-[220px] bg-[#1a1a1b] border-white/10 text-white/80 text-xs leading-snug px-2.5 py-1.5 shadow-lg shadow-black/20"
+
+// Hover tooltip with a short description of what a menu entry does. The text
+// lives under `dashboard.nav_tips.<id>` in the locale files.
+const NavTip = ({ id, children }: { id: string; children: React.ReactElement }) => {
+  const { t } = useTranslation()
+  return (
+    <Tooltip delayDuration={400}>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side="right" sideOffset={10} className={NAV_TIP_CLASS}>
+        {t(`dashboard.nav_tips.${id}`)}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+// Same description, shown as a subtitle inside a flyout menu. Used for parent
+// entries whose hover already opens a flyout, so a tooltip would collide with it.
+const NavDesc = ({ id }: { id: string }) => {
+  const { t } = useTranslation()
+  return (
+    <p className="px-3 pb-2 -mt-1 text-xs leading-snug text-white/40">
+      {t(`dashboard.nav_tips.${id}`)}
+    </p>
+  )
+}
+
 function DashLeftMenu() {
   const org = useOrg() as any
   const session = useLHSession() as any
@@ -321,6 +349,7 @@ function DashLeftMenu() {
           <div className="space-y-1">
             <MenuLink
               href="/dash"
+              tip="home"
               icon={<House size={20} weight="fill" />}
               label={t('common.home')}
               isCollapsed={isCollapsed}
@@ -333,12 +362,15 @@ function DashLeftMenu() {
               content={
                 <HoverMenuContent className="w-64">
                   <HoverMenuLabel className="text-white/70 font-medium">{t('courses.courses')}</HoverMenuLabel>
+                  <NavDesc id="courses" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <Link href="/dash/courses" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <BookOpen size={16} weight="fill" />
-                      <span>{t('common.all_courses')}</span>
-                    </Link>
+                    <NavTip id="all_courses">
+                      <Link href="/dash/courses" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <BookOpen size={16} weight="fill" />
+                        <span>{t('common.all_courses')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   {recentCourses.length > 0 && (
                     <>
@@ -404,12 +436,15 @@ function DashLeftMenu() {
               content={
                 <HoverMenuContent className="w-72">
                   <HoverMenuLabel className="text-white/70 font-medium">{t('common.assignments')}</HoverMenuLabel>
+                  <NavDesc id="assignments" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <Link href="/dash/assignments" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Files size={16} weight="fill" />
-                      <span>{t('common.all_assignments')}</span>
-                    </Link>
+                    <NavTip id="all_assignments">
+                      <Link href="/dash/assignments" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Files size={16} weight="fill" />
+                        <span>{t('common.all_assignments')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   {recentAssignments.length > 0 && (
                     <>
@@ -475,6 +510,7 @@ function DashLeftMenu() {
             {showLibrary && (
               <MenuLink
                 href="/dash/library"
+                tip="library"
                 icon={<FolderSimple size={20} weight="fill" />}
                 label={t('library.library')}
                 isCollapsed={isCollapsed}
@@ -484,6 +520,7 @@ function DashLeftMenu() {
             {showCommunities && (
               <MenuLink
                 href="/dash/communities"
+                tip="communities"
                 icon={<ChatsCircle size={20} weight="fill" />}
                 label={t('communities.title')}
                 isCollapsed={isCollapsed}
@@ -493,6 +530,7 @@ function DashLeftMenu() {
             {showPodcasts && (
               <MenuLink
                 href="/dash/podcasts"
+                tip="podcasts"
                 icon={<Headphones size={20} weight="fill" />}
                 label={t('podcasts.podcasts')}
                 isCollapsed={isCollapsed}
@@ -502,6 +540,7 @@ function DashLeftMenu() {
             {showBoards && (
               <MenuLink
                 href="/dash/boards"
+                tip="boards"
                 icon={<ChalkboardSimple size={20} weight="fill" />}
                 label={t('boards.boards')}
                 isCollapsed={isCollapsed}
@@ -511,6 +550,7 @@ function DashLeftMenu() {
             {showPlaygrounds && (
               <MenuLink
                 href="/dash/playgrounds"
+                tip="playgrounds"
                 icon={<Cube size={20} weight="fill" />}
                 label={t('common.playgrounds')}
                 isCollapsed={isCollapsed}
@@ -522,36 +562,47 @@ function DashLeftMenu() {
               content={
                 <HoverMenuContent className="w-64">
                   <HoverMenuLabel className="text-white/70 font-medium">{t('common.users')}</HoverMenuLabel>
+                  <NavDesc id="users" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <Link href="/dash/users/settings/users" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Users size={16} weight="fill" />
-                      <span>{t('dashboard.users.settings.tabs.users')}</span>
-                    </Link>
+                    <NavTip id="users_list">
+                      <Link href="/dash/users/settings/users" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Users size={16} weight="fill" />
+                        <span>{t('dashboard.users.settings.tabs.users')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/users/settings/usergroups" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <UsersThree size={16} weight="fill" />
-                      <span className="flex items-center">{t('dashboard.users.settings.tabs.usergroups')}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="usergroups">
+                      <Link href="/dash/users/settings/usergroups" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <UsersThree size={16} weight="fill" />
+                        <span className="flex items-center">{t('dashboard.users.settings.tabs.usergroups')}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/users/settings/roles" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Shield size={16} weight="fill" />
-                      <span className="flex items-center">{t('dashboard.users.settings.tabs.roles')}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="roles">
+                      <Link href="/dash/users/settings/roles" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Shield size={16} weight="fill" />
+                        <span className="flex items-center">{t('dashboard.users.settings.tabs.roles')}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/users/settings/signups" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <ClipboardText size={16} weight="fill" />
-                      <span>{t('dashboard.users.settings.tabs.signups')}</span>
-                    </Link>
+                    <NavTip id="signups">
+                      <Link href="/dash/users/settings/signups" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <ClipboardText size={16} weight="fill" />
+                        <span>{t('dashboard.users.settings.tabs.signups')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/users/settings/add" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <UserPlus size={16} weight="fill" />
-                      <span>{t('dashboard.users.settings.tabs.add')}</span>
-                    </Link>
+                    <NavTip id="add_users">
+                      <Link href="/dash/users/settings/add" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <UserPlus size={16} weight="fill" />
+                        <span>{t('dashboard.users.settings.tabs.add')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                 </HoverMenuContent>
               }
@@ -597,6 +648,7 @@ function DashLeftMenu() {
             {showPayments && (
               <MenuLink
                 href="/dash/payments/overview"
+                tip="payments"
                 icon={<CurrencyCircleDollar size={20} weight="fill" />}
                 label={t('common.payments')}
                 isCollapsed={isCollapsed}
@@ -609,44 +661,57 @@ function DashLeftMenu() {
               content={
                 <HoverMenuContent className="w-64">
                   <HoverMenuLabel className="text-white/70 font-medium">{t('common.organization')}</HoverMenuLabel>
+                  <NavDesc id="organization" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <Link href="/dash/org/settings/general" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Gear size={16} weight="fill" />
-                      <span>{t('dashboard.organization.settings.tabs.general')}</span>
-                    </Link>
+                    <NavTip id="org_general">
+                      <Link href="/dash/org/settings/general" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Gear size={16} weight="fill" />
+                        <span>{t('dashboard.organization.settings.tabs.general')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/org/settings/branding" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Palette size={16} weight="fill" />
-                      <span>{t('dashboard.organization.settings.tabs.branding')}</span>
-                    </Link>
+                    <NavTip id="org_branding">
+                      <Link href="/dash/org/settings/branding" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Palette size={16} weight="fill" />
+                        <span>{t('dashboard.organization.settings.tabs.branding')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/org/settings/landing" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Rocket size={16} weight="fill" />
-                      <span>{t('dashboard.organization.settings.tabs.landing')}</span>
-                    </Link>
+                    <NavTip id="org_landing">
+                      <Link href="/dash/org/settings/landing" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Rocket size={16} weight="fill" />
+                        <span>{t('dashboard.organization.settings.tabs.landing')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/org/settings/ai" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Robot size={16} weight="fill" />
-                      <span className="flex items-center">{t('dashboard.organization.settings.tabs.ai')}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="org_ai">
+                      <Link href="/dash/org/settings/ai" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Robot size={16} weight="fill" />
+                        <span className="flex items-center">{t('dashboard.organization.settings.tabs.ai')}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   {canManageOrg && (
                     <HoverMenuItem asChild>
-                      <Link href="/dash/org/settings/usage" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                        <ChartBar size={16} weight="fill" />
-                        <span>{t('dashboard.organization.settings.tabs.usage') || 'Usage'}</span>
-                      </Link>
+                      <NavTip id="org_usage">
+                        <Link href="/dash/org/settings/usage" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                          <ChartBar size={16} weight="fill" />
+                          <span>{t('dashboard.organization.settings.tabs.usage') || 'Usage'}</span>
+                        </Link>
+                      </NavTip>
                     </HoverMenuItem>
                   )}
                   <HoverMenuItem asChild>
-                    <Link href="/dash/org/settings/other" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Wrench size={16} weight="fill" />
-                      <span>{t('dashboard.organization.settings.tabs.other')}</span>
-                    </Link>
+                    <NavTip id="org_other">
+                      <Link href="/dash/org/settings/other" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Wrench size={16} weight="fill" />
+                        <span>{t('dashboard.organization.settings.tabs.other')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                 </HoverMenuContent>
               }
@@ -694,36 +759,47 @@ function DashLeftMenu() {
               content={
                 <HoverMenuContent className="w-64">
                   <HoverMenuLabel className="text-white/70 font-medium">{t('dashboard.developers.breadcrumb', { defaultValue: 'Developers' })}</HoverMenuLabel>
+                  <NavDesc id="developers" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <Link href="/dash/developers/api" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Key size={16} weight="fill" />
-                      <span className="flex items-center">{t('dashboard.organization.settings.tabs.api', { defaultValue: 'API Access' })}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="dev_api">
+                      <Link href="/dash/developers/api" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Key size={16} weight="fill" />
+                        <span className="flex items-center">{t('dashboard.organization.settings.tabs.api', { defaultValue: 'API Access' })}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/developers/automations" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Lightning size={16} weight="fill" />
-                      <span className="flex items-center">{t('dashboard.organization.settings.tabs.automations', { defaultValue: 'Automations' })}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="dev_automations">
+                      <Link href="/dash/developers/automations" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Lightning size={16} weight="fill" />
+                        <span className="flex items-center">{t('dashboard.organization.settings.tabs.automations', { defaultValue: 'Automations' })}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/developers/domains" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <LinkSimple size={16} weight="fill" />
-                      <span className="flex items-center">{t('dashboard.organization.settings.tabs.domains', { defaultValue: 'Domains' })}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="dev_domains">
+                      <Link href="/dash/developers/domains" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <LinkSimple size={16} weight="fill" />
+                        <span className="flex items-center">{t('dashboard.organization.settings.tabs.domains', { defaultValue: 'Domains' })}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/developers/seo" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <MagnifyingGlass size={16} weight="fill" />
-                      <span>SEO</span>
-                    </Link>
+                    <NavTip id="dev_seo">
+                      <Link href="/dash/developers/seo" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <MagnifyingGlass size={16} weight="fill" />
+                        <span>SEO</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/developers/sso" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Lock size={16} weight="fill" />
-                      <span className="flex items-center">{t('dashboard.organization.settings.tabs.sso', { defaultValue: 'SSO' })}<PlanBadge currentPlan={plan} requiredPlan="enterprise" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="dev_sso">
+                      <Link href="/dash/developers/sso" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Lock size={16} weight="fill" />
+                        <span className="flex items-center">{t('dashboard.organization.settings.tabs.sso', { defaultValue: 'SSO' })}<PlanBadge currentPlan={plan} requiredPlan="enterprise" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                 </HoverMenuContent>
               }
@@ -771,18 +847,23 @@ function DashLeftMenu() {
               content={
                 <HoverMenuContent className="w-64">
                   <HoverMenuLabel className="text-white/70 font-medium">Analytics</HoverMenuLabel>
+                  <NavDesc id="analytics" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <ChartBar size={16} weight="fill" />
-                      <span>{t('analytics.tabs.overview')}</span>
-                    </Link>
+                    <NavTip id="analytics_overview">
+                      <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <ChartBar size={16} weight="fill" />
+                        <span>{t('analytics.tabs.overview')}</span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
-                    <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <ChartLine size={16} weight="fill" />
-                      <span className="flex items-center">{t('analytics.tabs.advanced')}<PlanBadge currentPlan={plan} requiredPlan="enterprise" variant="dark" /></span>
-                    </Link>
+                    <NavTip id="analytics_advanced">
+                      <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <ChartLine size={16} weight="fill" />
+                        <span className="flex items-center">{t('analytics.tabs.advanced')}<PlanBadge currentPlan={plan} requiredPlan="enterprise" variant="dark" /></span>
+                      </Link>
+                    </NavTip>
                   </HoverMenuItem>
                 </HoverMenuContent>
               }
@@ -836,45 +917,56 @@ function DashLeftMenu() {
                         {t('common.disabled')}
                       </span>
                     </HoverMenuLabel>
+                    <NavDesc id="other" />
                     <HoverMenuSeparator />
                     {!showCommunities && (
                       <HoverMenuItem asChild>
-                        <Link href="/dash/communities" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
-                          <ChatsCircle size={16} weight="fill" />
-                          <span>{t('communities.title')}</span>
-                        </Link>
+                        <NavTip id="communities">
+                          <Link href="/dash/communities" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                            <ChatsCircle size={16} weight="fill" />
+                            <span>{t('communities.title')}</span>
+                          </Link>
+                        </NavTip>
                       </HoverMenuItem>
                     )}
                     {!showPodcasts && (
                       <HoverMenuItem asChild>
-                        <Link href="/dash/podcasts" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
-                          <Headphones size={16} weight="fill" />
-                          <span>{t('podcasts.podcasts')}</span>
-                        </Link>
+                        <NavTip id="podcasts">
+                          <Link href="/dash/podcasts" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                            <Headphones size={16} weight="fill" />
+                            <span>{t('podcasts.podcasts')}</span>
+                          </Link>
+                        </NavTip>
                       </HoverMenuItem>
                     )}
                     {!showBoards && (
                       <HoverMenuItem asChild>
-                        <Link href="/dash/boards" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
-                          <ChalkboardSimple size={16} weight="fill" />
-                          <span>{t('common.boards')}</span>
-                        </Link>
+                        <NavTip id="boards">
+                          <Link href="/dash/boards" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                            <ChalkboardSimple size={16} weight="fill" />
+                            <span>{t('common.boards')}</span>
+                          </Link>
+                        </NavTip>
                       </HoverMenuItem>
                     )}
                     {!showPlaygrounds && (
                       <HoverMenuItem asChild>
-                        <Link href="/dash/playgrounds" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
-                          <Cube size={16} weight="fill" />
-                          <span>{t('common.playgrounds')}</span>
-                        </Link>
+                        <NavTip id="playgrounds">
+                          <Link href="/dash/playgrounds" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                            <Cube size={16} weight="fill" />
+                            <span>{t('common.playgrounds')}</span>
+                          </Link>
+                        </NavTip>
                       </HoverMenuItem>
                     )}
                     {!showPayments && (
                       <HoverMenuItem asChild>
-                        <Link href="/dash/payments/overview" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
-                          <CurrencyCircleDollar size={16} weight="fill" />
-                          <span>{t('common.payments')}</span>
-                        </Link>
+                        <NavTip id="payments">
+                          <Link href="/dash/payments/overview" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                            <CurrencyCircleDollar size={16} weight="fill" />
+                            <span>{t('common.payments')}</span>
+                          </Link>
+                        </NavTip>
                       </HoverMenuItem>
                     )}
                   </HoverMenuContent>
@@ -1060,6 +1152,7 @@ function DashLeftMenu() {
                   <Globe size={16} weight="fill" />
                   <span>{t('common.language')}</span>
                 </HoverMenuLabel>
+                <NavDesc id="language" />
                 <HoverMenuSeparator />
                 {AVAILABLE_LANGUAGES.map((language) => (
                   <HoverMenuItem
@@ -1099,14 +1192,17 @@ function DashLeftMenu() {
                   <Question size={16} weight="fill" />
                   <span>{t('common.help')}</span>
                 </HoverMenuLabel>
+                <NavDesc id="help" />
                 <HoverMenuSeparator />
-                <HoverMenuItem
-                  onClick={() => setFeedbackModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors"
-                >
-                  <ChatCircleDots size={16} weight="fill" />
-                  <span>{t('common.help_menu.report_feedback')}</span>
-                </HoverMenuItem>
+                <NavTip id="feedback">
+                  <HoverMenuItem
+                    onClick={() => setFeedbackModalOpen(true)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors"
+                  >
+                    <ChatCircleDots size={16} weight="fill" />
+                    <span>{t('common.help_menu.report_feedback')}</span>
+                  </HoverMenuItem>
+                </NavTip>
               </HoverMenuContent>
             }
           >
@@ -1131,19 +1227,24 @@ function DashLeftMenu() {
                     <Buildings size={16} weight="fill" />
                     <span>{t('common.organizations', { defaultValue: 'Organizations' })}</span>
                   </HoverMenuLabel>
+                  <NavDesc id="orgs" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <a href={getMainDomainUri('/home')} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <House size={16} weight="fill" />
-                      <span>{t('common.home', { defaultValue: 'Home' })}</span>
-                    </a>
+                    <NavTip id="orgs_home">
+                      <a href={getMainDomainUri('/home')} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <House size={16} weight="fill" />
+                        <span>{t('common.home', { defaultValue: 'Home' })}</span>
+                      </a>
+                    </NavTip>
                   </HoverMenuItem>
                   {canManageOrg && (
                     <HoverMenuItem asChild>
-                      <a href={getMainDomainUri(`/billing?org=${org?.slug ?? ''}`)} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                        <CurrencyCircleDollar size={16} weight="fill" />
-                        <span>{t('common.billing', { defaultValue: 'Billing' })}</span>
-                      </a>
+                      <NavTip id="orgs_billing">
+                        <a href={getMainDomainUri(`/billing?org=${org?.slug ?? ''}`)} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                          <CurrencyCircleDollar size={16} weight="fill" />
+                          <span>{t('common.billing', { defaultValue: 'Billing' })}</span>
+                        </a>
+                      </NavTip>
                     </HoverMenuItem>
                   )}
                   {myOrgs.length > 0 && <HoverMenuSeparator />}
@@ -1161,10 +1262,12 @@ function DashLeftMenu() {
                   ))}
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
-                    <a href={getMainDomainUri('/new')} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                      <Plus size={16} weight="bold" />
-                      <span>{t('common.create_organization', { defaultValue: 'Create organization' })}</span>
-                    </a>
+                    <NavTip id="orgs_create">
+                      <a href={getMainDomainUri('/new')} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Plus size={16} weight="bold" />
+                        <span>{t('common.create_organization', { defaultValue: 'Create organization' })}</span>
+                      </a>
+                    </NavTip>
                   </HoverMenuItem>
                 </HoverMenuContent>
               }
@@ -1192,25 +1295,31 @@ function DashLeftMenu() {
                 </div>
                 <HoverMenuSeparator />
                 <HoverMenuItem asChild>
-                  <Link href="/account/general" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                    <Gear size={16} weight="fill" />
-                    <span>{t('common.settings')}</span>
-                  </Link>
+                  <NavTip id="account_settings">
+                    <Link href="/account/general" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Gear size={16} weight="fill" />
+                      <span>{t('common.settings')}</span>
+                    </Link>
+                  </NavTip>
                 </HoverMenuItem>
                 <HoverMenuItem asChild>
-                  <Link href={getUriWithOrg(org?.slug, '/account/purchases')} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
-                    <ShoppingBag size={16} weight="fill" />
-                    <span>{t('account.purchases')}</span>
-                  </Link>
+                  <NavTip id="purchases">
+                    <Link href={getUriWithOrg(org?.slug, '/account/purchases')} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <ShoppingBag size={16} weight="fill" />
+                      <span>{t('account.purchases')}</span>
+                    </Link>
+                  </NavTip>
                 </HoverMenuItem>
                 <HoverMenuSeparator />
-                <HoverMenuItem
-                  onClick={() => logOutUI()}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:text-red-400 hover:bg-white/[0.08] cursor-pointer transition-colors"
-                >
-                  <SignOut size={16} weight="fill" data-dir-flip />
-                  <span>{t('user.sign_out')}</span>
-                </HoverMenuItem>
+                <NavTip id="sign_out">
+                  <HoverMenuItem
+                    onClick={() => logOutUI()}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:text-red-400 hover:bg-white/[0.08] cursor-pointer transition-colors"
+                  >
+                    <SignOut size={16} weight="fill" data-dir-flip />
+                    <span>{t('user.sign_out')}</span>
+                  </HoverMenuItem>
+                </NavTip>
               </HoverMenuContent>
             }
           >
@@ -1243,15 +1352,17 @@ function DashLeftMenu() {
   )
 }
 
-const MenuLink = ({ href, icon, label, isCollapsed, isExternal, active, onClick }: {
+const MenuLink = ({ href, icon, label, tip, isCollapsed, isExternal, active, onClick }: {
   href: string
   icon: React.ReactNode
   label: string
+  tip?: string
   isCollapsed: boolean
   isExternal?: boolean
   active?: boolean
   onClick?: () => void
 }) => {
+  const { t } = useTranslation()
   const content = (
     <div
       className={cn(
@@ -1292,14 +1403,17 @@ const MenuLink = ({ href, icon, label, isCollapsed, isExternal, active, onClick 
         <TooltipTrigger asChild>
           {linkElement}
         </TooltipTrigger>
-        <TooltipContent side="right" className="z-tooltip bg-[#1a1a1b] border-white/10 text-white text-xs px-2 py-1 shadow-lg shadow-black/20">
+        <TooltipContent side="right" className="z-tooltip max-w-[220px] bg-[#1a1a1b] border-white/10 text-white text-xs px-2 py-1 shadow-lg shadow-black/20">
           {label}
+          {tip && (
+            <span className="block mt-0.5 leading-snug text-white/60">{t(`dashboard.nav_tips.${tip}`)}</span>
+          )}
         </TooltipContent>
       </Tooltip>
     )
   }
 
-  return linkElement
+  return tip ? <NavTip id={tip}>{linkElement}</NavTip> : linkElement
 }
 
 export default DashLeftMenu
