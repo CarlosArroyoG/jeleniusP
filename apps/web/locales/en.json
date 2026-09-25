@@ -1982,6 +1982,13 @@
     "hours_ago": "{{count}} hours ago",
     "minutes_ago": "{{count}} minutes ago"
   },
+  "public_home": {
+    "nav_label": "Main navigation",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
+    "people_default_title": "Teachers",
+    "view_more": "View more"
+  },
   "dashboard": {
     "nav_tips": {
     "home": "Overview of your organization: quick stats and shortcuts.",

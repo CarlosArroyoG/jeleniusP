@@ -1414,6 +1414,13 @@
     "hours_ago": "hace {{count}} horas",
     "minutes_ago": "hace {{count}} minutos"
   },
+  "public_home": {
+    "nav_label": "Navegación principal",
+    "open_menu": "Abrir menú",
+    "close_menu": "Cerrar menú",
+    "people_default_title": "Docentes",
+    "view_more": "Ver más"
+  },
   "dashboard": {
     "nav_tips": {
     "home": "Resumen de tu organización: estadísticas rápidas y accesos directos.",

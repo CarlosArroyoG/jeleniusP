@@ -46,6 +46,8 @@ import {
   TooltipTrigger,
 } from '@components/ui/tooltip'
 import { useLHAnalytics, AnalyticsEvent } from '@services/analytics'
+import { OrgPublicHeader } from '@components/Objects/Menus/OrgPublicHeader'
+import { usesPublicHeader } from '@/lib/publicNav'
 
 export const OrgMenu = (props: any) => {
   const orgslug = props.orgslug
@@ -139,6 +141,12 @@ export const OrgMenu = (props: any) => {
   // Only hide menu if we're in an activity page and focus mode is enabled
   if (pathname?.includes('/activity/') && isFocusMode) {
     return null;
+  }
+
+  // Visitors who are not signed in get the simplified public header; the full
+  // LMS shell below is only for authenticated users.
+  if (usesPublicHeader(session?.status)) {
+    return <OrgPublicHeader orgslug={orgslug} topOffset={topOffset} />
   }
 
   return (
