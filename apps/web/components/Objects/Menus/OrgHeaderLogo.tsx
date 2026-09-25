@@ -22,7 +22,6 @@ export function OrgHeaderLogo({ orgslug, testId }: { orgslug: string; testId?: s
       data-testid={testId}
     >
       {org?.logo_image ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={getOrgLogoMediaDirectory(org.org_uuid, org.logo_image)}
           alt={org?.name || 'Organization logo'}

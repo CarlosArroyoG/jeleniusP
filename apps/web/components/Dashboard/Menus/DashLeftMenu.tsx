@@ -1,7 +1,6 @@
 'use client'
 import { useOrg } from '@components/Contexts/OrgContext'
 import { signOut } from '@components/Contexts/AuthContext'
-import { JELENIUS_BRAND } from '@/lib/brand'
 import {
   House,
   BookOpen,
@@ -106,7 +105,7 @@ const UPGRADE_STARS: {
 ]
 
 const NAV_TIP_CLASS =
-  "z-tooltip max-w-[220px] bg-[#1a1a1b] border-white/10 text-white/80 text-xs leading-snug px-2.5 py-1.5 shadow-lg shadow-black/20"
+  "z-tooltip max-w-[220px] bg-app-sidebar border-app-nav-border text-app-sidebar-foreground text-xs leading-snug px-2.5 py-1.5 shadow-lg shadow-black/20"
 
 // Hover tooltip with a short description of what a menu entry does. The text
 // lives under `dashboard.nav_tips.<id>` in the locale files.
@@ -127,7 +126,7 @@ const NavTip = ({ id, children }: { id: string; children: React.ReactElement }) 
 const NavDesc = ({ id }: { id: string }) => {
   const { t } = useTranslation()
   return (
-    <p className="px-3 pb-2 -mt-1 text-xs leading-snug text-white/40">
+    <p className="px-3 pb-2 -mt-1 text-xs leading-snug text-app-sidebar-foreground/50">
       {t(`dashboard.nav_tips.${id}`)}
     </p>
   )
@@ -243,13 +242,9 @@ function DashLeftMenu() {
     }
     return orgs
   })()
-  const planPillColor =
-    mode === 'ee' ? 'bg-amber-400/15 text-amber-300' :
-    mode === 'oss' ? 'bg-green-400/15 text-green-300' :
-    plan === 'enterprise' ? 'bg-amber-400/15 text-amber-300' :
-    plan === 'pro' ? 'bg-purple-400/15 text-purple-300' :
-    plan === 'standard' ? 'bg-blue-400/15 text-blue-300' :
-    'bg-white/[0.08] text-white/50'
+  // Plan label: a neutral chip derived from the sidebar's own foreground — it is
+  // an informational label, not a status colour, so it must stay legible on any school color.
+  const planPillColor = 'bg-app-sidebar-foreground/10 text-app-sidebar-foreground/80'
 
   // Feature visibility from API resolved_features
   const rf = org?.config?.config?.resolved_features
@@ -266,14 +261,15 @@ function DashLeftMenu() {
     <TooltipProvider delayDuration={0}>
     <nav
       aria-label={t('dashboard.nav.sidebar_navigation')}
+      data-testid="dash-sidebar"
       className={cn(
-        "flex flex-col text-white h-screen sticky top-0 z-overlay border-e border-white/[0.08] bg-[#0f0f10] transition-all duration-300",
+        "flex flex-col text-app-sidebar-foreground h-screen sticky top-0 z-overlay border-e border-app-nav-border bg-app-sidebar transition-all duration-300",
         isCollapsed ? "w-[72px]" : "w-64"
       )}
     >
       {/* Header with Logo and Toggle */}
       <div className={cn(
-        "relative flex items-center h-16 border-b border-white/[0.08] px-4 shrink-0",
+        "relative flex items-center h-16 border-b border-app-nav-border px-4 shrink-0",
         isCollapsed ? "justify-center" : "justify-between"
       )}>
         <Link
@@ -289,7 +285,7 @@ function DashLeftMenu() {
           )}
           {!isCollapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="font-semibold text-sm text-white truncate">
+              <span className="font-semibold text-sm text-app-sidebar-foreground truncate">
                 {org?.name}
               </span>
               <span className={cn(
@@ -306,7 +302,7 @@ function DashLeftMenu() {
           <button
             aria-label={t('dashboard.nav.collapse_sidebar')}
             onClick={toggleCollapse}
-            className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] transition-all"
+            className="p-2 rounded-lg text-app-sidebar-foreground/50 hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all"
           >
             <SidebarSimple size={18} weight="fill" />
           </button>
@@ -317,13 +313,13 @@ function DashLeftMenu() {
         {showOnboarding && (
           <>
             {/* faint full-width track so the border reads as purple even at 0% */}
-            <div className="absolute -bottom-px start-0 end-0 h-[2px] bg-indigo-500/15" />
+            <div className="absolute -bottom-px start-0 end-0 h-[2px] bg-app-sidebar-foreground/10" />
             <motion.div
               className="absolute -bottom-px start-0 h-[2px] rounded-e-full"
               style={{
-                        background: `linear-gradient(90deg, ${JELENIUS_BRAND.primaryColor} 0%, ${JELENIUS_BRAND.accentColor} 55%, ${JELENIUS_BRAND.tertiaryColor} 100%)`,
+                        background: 'var(--app-nav-active-bg)',
                 boxShadow:
-                  '0 0 6px rgba(139,92,246,0.85), 0 0 14px rgba(168,85,247,0.55), 0 0 2px rgba(99,102,241,0.9)',
+                  '0 0 6px var(--app-nav-active-bg), 0 0 12px color-mix(in srgb, var(--app-nav-active-bg) 55%, transparent)',
               }}
               initial={false}
               animate={{ width: `${Math.max(onboarding.progress * 100, 6)}%` }}
@@ -361,12 +357,12 @@ function DashLeftMenu() {
             <HoverMenu
               content={
                 <HoverMenuContent className="w-64">
-                  <HoverMenuLabel className="text-white/70 font-medium">{t('courses.courses')}</HoverMenuLabel>
+                  <HoverMenuLabel className="text-app-sidebar-muted font-medium">{t('courses.courses')}</HoverMenuLabel>
                   <NavDesc id="courses" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="all_courses">
-                      <Link href="/dash/courses" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/courses" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <BookOpen size={16} weight="fill" />
                         <span>{t('common.all_courses')}</span>
                       </Link>
@@ -375,14 +371,14 @@ function DashLeftMenu() {
                   {recentCourses.length > 0 && (
                     <>
                       <HoverMenuSeparator />
-                      <HoverMenuLabel className="text-white/40">{t('common.recent')}</HoverMenuLabel>
+                      <HoverMenuLabel className="text-app-sidebar-foreground/50">{t('common.recent')}</HoverMenuLabel>
                       {recentCourses.map((course: any) => (
                         <HoverMenuItem key={course.course_uuid} asChild>
                           <Link
                             href={`/dash/courses/course/${course.course_uuid.replace('course_', '')}/settings`}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors"
                           >
-                            <PencilSimple size={14} className="text-white/40" />
+                            <PencilSimple size={14} className="text-app-sidebar-foreground/50" />
                             <span className="truncate">{course.name}</span>
                           </Link>
                         </HoverMenuItem>
@@ -402,27 +398,27 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-[var(--brand-primary)]/20"
-                        : "text-white/50 hover:text-white hover:bg-white/[0.08]",
+                        ? "text-app-nav-active-foreground bg-app-nav-active"
+                        : "text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
                   >
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-app-nav-active-foreground rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
                       <BookOpen size={20} weight="fill" />
                       {isCollapsed && (
-                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-white/60" : "text-white/30")} />
+                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50")} />
                       )}
                     </span>
                     {!isCollapsed && (
                       <>
                         <span className="text-sm font-medium flex-1 text-start">{t('courses.courses')}</span>
-                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-white/70" : "text-white/40"} />
+                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50"} />
                       </>
                     )}
                   </Link>
@@ -435,12 +431,12 @@ function DashLeftMenu() {
             <HoverMenu
               content={
                 <HoverMenuContent className="w-72">
-                  <HoverMenuLabel className="text-white/70 font-medium">{t('common.assignments')}</HoverMenuLabel>
+                  <HoverMenuLabel className="text-app-sidebar-muted font-medium">{t('common.assignments')}</HoverMenuLabel>
                   <NavDesc id="assignments" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="all_assignments">
-                      <Link href="/dash/assignments" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/assignments" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Files size={16} weight="fill" />
                         <span>{t('common.all_assignments')}</span>
                       </Link>
@@ -449,17 +445,17 @@ function DashLeftMenu() {
                   {recentAssignments.length > 0 && (
                     <>
                       <HoverMenuSeparator />
-                      <HoverMenuLabel className="text-white/40">{t('common.recent')}</HoverMenuLabel>
+                      <HoverMenuLabel className="text-app-sidebar-foreground/50">{t('common.recent')}</HoverMenuLabel>
                       {recentAssignments.map((assignment: any) => (
                         <HoverMenuItem key={assignment.assignment_uuid} asChild>
                           <Link
                             href={`/dash/assignments/${assignment.assignment_uuid.replace('assignment_', '')}?subpage=editor`}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors"
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors"
                           >
-                            <PencilSimple size={14} className="text-white/40" />
+                            <PencilSimple size={14} className="text-app-sidebar-foreground/50" />
                             <div className="flex flex-col min-w-0">
                               <span className="truncate">{assignment.title}</span>
-                              <span className="text-xs text-white/30 truncate">{assignment.courseName}</span>
+                              <span className="text-xs text-app-sidebar-foreground/50 truncate">{assignment.courseName}</span>
                             </div>
                           </Link>
                         </HoverMenuItem>
@@ -479,27 +475,27 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-[var(--brand-primary)]/20"
-                        : "text-white/50 hover:text-white hover:bg-white/[0.08]",
+                        ? "text-app-nav-active-foreground bg-app-nav-active"
+                        : "text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
                   >
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-app-nav-active-foreground rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
                       <Files size={20} weight="fill" />
                       {isCollapsed && (
-                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-white/60" : "text-white/30")} />
+                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50")} />
                       )}
                     </span>
                     {!isCollapsed && (
                       <>
                         <span className="text-sm font-medium flex-1 text-start">{t('common.assignments')}</span>
-                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-white/70" : "text-white/40"} />
+                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50"} />
                       </>
                     )}
                   </Link>
@@ -561,12 +557,12 @@ function DashLeftMenu() {
             <HoverMenu
               content={
                 <HoverMenuContent className="w-64">
-                  <HoverMenuLabel className="text-white/70 font-medium">{t('common.users')}</HoverMenuLabel>
+                  <HoverMenuLabel className="text-app-sidebar-muted font-medium">{t('common.users')}</HoverMenuLabel>
                   <NavDesc id="users" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="users_list">
-                      <Link href="/dash/users/settings/users" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/users/settings/users" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Users size={16} weight="fill" />
                         <span>{t('dashboard.users.settings.tabs.users')}</span>
                       </Link>
@@ -574,7 +570,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="usergroups">
-                      <Link href="/dash/users/settings/usergroups" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/users/settings/usergroups" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <UsersThree size={16} weight="fill" />
                         <span className="flex items-center">{t('dashboard.users.settings.tabs.usergroups')}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
                       </Link>
@@ -582,7 +578,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="roles">
-                      <Link href="/dash/users/settings/roles" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/users/settings/roles" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Shield size={16} weight="fill" />
                         <span className="flex items-center">{t('dashboard.users.settings.tabs.roles')}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
                       </Link>
@@ -590,7 +586,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="signups">
-                      <Link href="/dash/users/settings/signups" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/users/settings/signups" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <ClipboardText size={16} weight="fill" />
                         <span>{t('dashboard.users.settings.tabs.signups')}</span>
                       </Link>
@@ -598,7 +594,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="add_users">
-                      <Link href="/dash/users/settings/add" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/users/settings/add" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <UserPlus size={16} weight="fill" />
                         <span>{t('dashboard.users.settings.tabs.add')}</span>
                       </Link>
@@ -617,27 +613,27 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-[var(--brand-primary)]/20"
-                        : "text-white/50 hover:text-white hover:bg-white/[0.08]",
+                        ? "text-app-nav-active-foreground bg-app-nav-active"
+                        : "text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
                   >
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-app-nav-active-foreground rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
                       <Users size={20} weight="fill" />
                       {isCollapsed && (
-                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-white/60" : "text-white/30")} />
+                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50")} />
                       )}
                     </span>
                     {!isCollapsed && (
                       <>
                         <span className="text-sm font-medium flex-1 text-start">{t('common.users')}</span>
-                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-white/70" : "text-white/40"} />
+                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50"} />
                       </>
                     )}
                   </Link>
@@ -660,12 +656,12 @@ function DashLeftMenu() {
             <HoverMenu
               content={
                 <HoverMenuContent className="w-64">
-                  <HoverMenuLabel className="text-white/70 font-medium">{t('common.organization')}</HoverMenuLabel>
+                  <HoverMenuLabel className="text-app-sidebar-muted font-medium">{t('common.organization')}</HoverMenuLabel>
                   <NavDesc id="organization" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="org_general">
-                      <Link href="/dash/org/settings/general" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/org/settings/general" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Gear size={16} weight="fill" />
                         <span>{t('dashboard.organization.settings.tabs.general')}</span>
                       </Link>
@@ -673,7 +669,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="org_branding">
-                      <Link href="/dash/org/settings/branding" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/org/settings/branding" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Palette size={16} weight="fill" />
                         <span>{t('dashboard.organization.settings.tabs.branding')}</span>
                       </Link>
@@ -681,7 +677,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="org_landing">
-                      <Link href="/dash/org/settings/landing" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/org/settings/landing" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Rocket size={16} weight="fill" />
                         <span>{t('dashboard.organization.settings.tabs.landing')}</span>
                       </Link>
@@ -689,7 +685,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="org_ai">
-                      <Link href="/dash/org/settings/ai" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/org/settings/ai" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Robot size={16} weight="fill" />
                         <span className="flex items-center">{t('dashboard.organization.settings.tabs.ai')}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
                       </Link>
@@ -698,7 +694,7 @@ function DashLeftMenu() {
                   {canManageOrg && (
                     <HoverMenuItem asChild>
                       <NavTip id="org_usage">
-                        <Link href="/dash/org/settings/usage" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <Link href="/dash/org/settings/usage" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                           <ChartBar size={16} weight="fill" />
                           <span>{t('dashboard.organization.settings.tabs.usage') || 'Usage'}</span>
                         </Link>
@@ -707,7 +703,7 @@ function DashLeftMenu() {
                   )}
                   <HoverMenuItem asChild>
                     <NavTip id="org_other">
-                      <Link href="/dash/org/settings/other" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/org/settings/other" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Wrench size={16} weight="fill" />
                         <span>{t('dashboard.organization.settings.tabs.other')}</span>
                       </Link>
@@ -726,27 +722,27 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-[var(--brand-primary)]/20"
-                        : "text-white/50 hover:text-white hover:bg-white/[0.08]",
+                        ? "text-app-nav-active-foreground bg-app-nav-active"
+                        : "text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
                   >
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-app-nav-active-foreground rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
                       <Buildings size={20} weight="fill" />
                       {isCollapsed && (
-                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-white/60" : "text-white/30")} />
+                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50")} />
                       )}
                     </span>
                     {!isCollapsed && (
                       <>
                         <span className="text-sm font-medium flex-1 text-start">{t('common.organization')}</span>
-                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-white/70" : "text-white/40"} />
+                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50"} />
                       </>
                     )}
                   </Link>
@@ -758,12 +754,12 @@ function DashLeftMenu() {
             <HoverMenu
               content={
                 <HoverMenuContent className="w-64">
-                  <HoverMenuLabel className="text-white/70 font-medium">{t('dashboard.developers.breadcrumb', { defaultValue: 'Developers' })}</HoverMenuLabel>
+                  <HoverMenuLabel className="text-app-sidebar-muted font-medium">{t('dashboard.developers.breadcrumb', { defaultValue: 'Developers' })}</HoverMenuLabel>
                   <NavDesc id="developers" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="dev_api">
-                      <Link href="/dash/developers/api" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/developers/api" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Key size={16} weight="fill" />
                         <span className="flex items-center">{t('dashboard.organization.settings.tabs.api', { defaultValue: 'API Access' })}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
                       </Link>
@@ -771,7 +767,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="dev_automations">
-                      <Link href="/dash/developers/automations" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/developers/automations" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Lightning size={16} weight="fill" />
                         <span className="flex items-center">{t('dashboard.organization.settings.tabs.automations', { defaultValue: 'Automations' })}<PlanBadge currentPlan={plan} requiredPlan="pro" variant="dark" /></span>
                       </Link>
@@ -779,7 +775,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="dev_domains">
-                      <Link href="/dash/developers/domains" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/developers/domains" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <LinkSimple size={16} weight="fill" />
                         <span className="flex items-center">{t('dashboard.organization.settings.tabs.domains', { defaultValue: 'Domains' })}<PlanBadge currentPlan={plan} requiredPlan="standard" variant="dark" /></span>
                       </Link>
@@ -787,7 +783,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="dev_seo">
-                      <Link href="/dash/developers/seo" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/developers/seo" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <MagnifyingGlass size={16} weight="fill" />
                         <span>SEO</span>
                       </Link>
@@ -795,7 +791,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="dev_sso">
-                      <Link href="/dash/developers/sso" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/developers/sso" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Lock size={16} weight="fill" />
                         <span className="flex items-center">{t('dashboard.organization.settings.tabs.sso', { defaultValue: 'SSO' })}<PlanBadge currentPlan={plan} requiredPlan="enterprise" variant="dark" /></span>
                       </Link>
@@ -814,27 +810,27 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-[var(--brand-primary)]/20"
-                        : "text-white/50 hover:text-white hover:bg-white/[0.08]",
+                        ? "text-app-nav-active-foreground bg-app-nav-active"
+                        : "text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
                   >
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-app-nav-active-foreground rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
                       <Code size={20} weight="fill" />
                       {isCollapsed && (
-                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-white/60" : "text-white/30")} />
+                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50")} />
                       )}
                     </span>
                     {!isCollapsed && (
                       <>
                         <span className="text-sm font-medium flex-1 text-start">{t('dashboard.developers.breadcrumb', { defaultValue: 'Developers' })}</span>
-                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-white/70" : "text-white/40"} />
+                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50"} />
                       </>
                     )}
                   </Link>
@@ -846,12 +842,12 @@ function DashLeftMenu() {
             <HoverMenu
               content={
                 <HoverMenuContent className="w-64">
-                  <HoverMenuLabel className="text-white/70 font-medium">Analytics</HoverMenuLabel>
+                  <HoverMenuLabel className="text-app-sidebar-muted font-medium">Analytics</HoverMenuLabel>
                   <NavDesc id="analytics" />
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="analytics_overview">
-                      <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <ChartBar size={16} weight="fill" />
                         <span>{t('analytics.tabs.overview')}</span>
                       </Link>
@@ -859,7 +855,7 @@ function DashLeftMenu() {
                   </HoverMenuItem>
                   <HoverMenuItem asChild>
                     <NavTip id="analytics_advanced">
-                      <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <Link href="/dash/analytics" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <ChartLine size={16} weight="fill" />
                         <span className="flex items-center">{t('analytics.tabs.advanced')}<PlanBadge currentPlan={plan} requiredPlan="enterprise" variant="dark" /></span>
                       </Link>
@@ -878,27 +874,27 @@ function DashLeftMenu() {
                     className={cn(
                       "relative flex items-center w-full rounded-lg transition-all",
                       active
-                        ? "text-white bg-[var(--brand-primary)]/20"
-                        : "text-white/50 hover:text-white hover:bg-white/[0.08]",
+                        ? "text-app-nav-active-foreground bg-app-nav-active"
+                        : "text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover",
                       isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                     )}
                   >
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
+                        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-app-nav-active-foreground rounded-full"
                       />
                     )}
                     <span className="relative flex items-center justify-center">
                       <ChartBar size={20} weight="fill" />
                       {isCollapsed && (
-                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-white/60" : "text-white/30")} />
+                        <CaretDown aria-hidden="true" size={8} weight="bold" className={cn("absolute -end-2.5", active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50")} />
                       )}
                     </span>
                     {!isCollapsed && (
                       <>
                         <span className="text-sm font-medium flex-1 text-start">{t('common.analytics')}</span>
-                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-white/70" : "text-white/40"} />
+                        <CaretDown aria-hidden="true" size={14} weight="bold" className={active ? "text-app-sidebar-muted" : "text-app-sidebar-foreground/50"} />
                       </>
                     )}
                   </Link>
@@ -911,9 +907,9 @@ function DashLeftMenu() {
               <HoverMenu
                 content={
                   <HoverMenuContent className="w-64">
-                    <HoverMenuLabel className="flex items-center justify-between text-white/70 font-medium">
+                    <HoverMenuLabel className="flex items-center justify-between text-app-sidebar-muted font-medium">
                       <span>{t('common.other')}</span>
-                      <span className="text-[9px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.06] text-white/25">
+                      <span className="text-[9px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-app-sidebar-foreground/10 text-app-sidebar-foreground/50">
                         {t('common.disabled')}
                       </span>
                     </HoverMenuLabel>
@@ -922,7 +918,7 @@ function DashLeftMenu() {
                     {!showCommunities && (
                       <HoverMenuItem asChild>
                         <NavTip id="communities">
-                          <Link href="/dash/communities" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                          <Link href="/dash/communities" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-foreground/50 hover:text-app-sidebar-foreground/70 hover:bg-app-nav-hover cursor-pointer transition-colors">
                             <ChatsCircle size={16} weight="fill" />
                             <span>{t('communities.title')}</span>
                           </Link>
@@ -932,7 +928,7 @@ function DashLeftMenu() {
                     {!showPodcasts && (
                       <HoverMenuItem asChild>
                         <NavTip id="podcasts">
-                          <Link href="/dash/podcasts" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                          <Link href="/dash/podcasts" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-foreground/50 hover:text-app-sidebar-foreground/70 hover:bg-app-nav-hover cursor-pointer transition-colors">
                             <Headphones size={16} weight="fill" />
                             <span>{t('podcasts.podcasts')}</span>
                           </Link>
@@ -942,7 +938,7 @@ function DashLeftMenu() {
                     {!showBoards && (
                       <HoverMenuItem asChild>
                         <NavTip id="boards">
-                          <Link href="/dash/boards" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                          <Link href="/dash/boards" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-foreground/50 hover:text-app-sidebar-foreground/70 hover:bg-app-nav-hover cursor-pointer transition-colors">
                             <ChalkboardSimple size={16} weight="fill" />
                             <span>{t('common.boards')}</span>
                           </Link>
@@ -952,7 +948,7 @@ function DashLeftMenu() {
                     {!showPlaygrounds && (
                       <HoverMenuItem asChild>
                         <NavTip id="playgrounds">
-                          <Link href="/dash/playgrounds" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                          <Link href="/dash/playgrounds" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-foreground/50 hover:text-app-sidebar-foreground/70 hover:bg-app-nav-hover cursor-pointer transition-colors">
                             <Cube size={16} weight="fill" />
                             <span>{t('common.playgrounds')}</span>
                           </Link>
@@ -962,7 +958,7 @@ function DashLeftMenu() {
                     {!showPayments && (
                       <HoverMenuItem asChild>
                         <NavTip id="payments">
-                          <Link href="/dash/payments/overview" className="flex items-center gap-2 px-3 py-2 text-sm text-white/30 hover:text-white/50 hover:bg-white/[0.05] cursor-pointer transition-colors">
+                          <Link href="/dash/payments/overview" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-foreground/50 hover:text-app-sidebar-foreground/70 hover:bg-app-nav-hover cursor-pointer transition-colors">
                             <CurrencyCircleDollar size={16} weight="fill" />
                             <span>{t('common.payments')}</span>
                           </Link>
@@ -975,20 +971,20 @@ function DashLeftMenu() {
                 <button
                   aria-label={t('dashboard.nav.other')}
                   className={cn(
-                    "flex items-center w-full rounded-lg text-white/30 hover:text-white/50 hover:bg-white/[0.05] transition-all",
+                    "flex items-center w-full rounded-lg text-app-sidebar-foreground/50 hover:text-app-sidebar-foreground/70 hover:bg-app-nav-hover transition-all",
                     isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
                   )}
                 >
                   <span className="relative flex items-center justify-center">
                     <DotsThree size={20} weight="bold" />
                     {isCollapsed && (
-                      <CaretDown aria-hidden="true" size={8} weight="bold" className="absolute -end-2.5 text-white/20" />
+                      <CaretDown aria-hidden="true" size={8} weight="bold" className="absolute -end-2.5 text-app-sidebar-foreground/50" />
                     )}
                   </span>
                   {!isCollapsed && (
                     <>
                       <span className="text-sm font-medium flex-1 text-start">{t('common.other')}</span>
-                      <CaretDown aria-hidden="true" size={14} weight="bold" className="text-white/20" />
+                      <CaretDown aria-hidden="true" size={14} weight="bold" className="text-app-sidebar-foreground/50" />
                     </>
                   )}
                 </button>
@@ -1014,10 +1010,10 @@ function DashLeftMenu() {
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
-                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)`,
+                linear-gradient(color-mix(in srgb, var(--app-sidebar-fg) 5%, transparent) 1px, transparent 1px),
+                linear-gradient(90deg, color-mix(in srgb, var(--app-sidebar-fg) 5%, transparent) 1px, transparent 1px),
+                linear-gradient(color-mix(in srgb, var(--app-sidebar-fg) 2.5%, transparent) 1px, transparent 1px),
+                linear-gradient(90deg, color-mix(in srgb, var(--app-sidebar-fg) 2.5%, transparent) 1px, transparent 1px)`,
               backgroundSize: '56px 56px, 56px 56px, 14px 14px, 14px 14px',
               maskImage: 'linear-gradient(to top, black 0%, transparent 80%)',
               WebkitMaskImage: 'linear-gradient(to top, black 0%, transparent 80%)',
@@ -1031,7 +1027,7 @@ function DashLeftMenu() {
             transition={{ duration: 0.45, ease: 'easeOut' }}
             style={{
               background:
-                'radial-gradient(120% 90% at 50% 100%, rgba(250,204,21,0.12), rgba(255,255,255,0.05) 38%, transparent 72%)',
+                'radial-gradient(120% 90% at 50% 100%, color-mix(in srgb, var(--app-nav-active-bg) 14%, transparent), color-mix(in srgb, var(--app-sidebar-fg) 5%, transparent) 38%, transparent 72%)',
             }}
           />
           {/* Night-sky starfield — scattered points of light that twinkle and
@@ -1047,11 +1043,11 @@ function DashLeftMenu() {
                   left: s.left,
                   width: s.size,
                   height: s.size,
-                  background: s.north ? 'rgb(252,211,77)' : 'rgba(255,255,255,0.95)',
+                  background: s.north ? 'var(--app-nav-active-bg)' : 'var(--app-sidebar-fg)',
                   boxShadow: s.north
-                    ? '0 0 6px 1px rgba(250,204,21,0.7)'
+                    ? '0 0 6px 1px var(--app-nav-active-bg)'
                     : s.size >= 2
-                      ? '0 0 4px 0.5px rgba(255,255,255,0.6)'
+                      ? '0 0 4px 0.5px var(--app-sidebar-fg)'
                       : 'none',
                 }}
                 animate={{
@@ -1070,16 +1066,16 @@ function DashLeftMenu() {
 
           <motion.div layout className="relative">
             {/* Plan badge + CTA headline (replaces the plain "Free plan" title). */}
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-white/10 text-white/55 text-[8px] font-bold uppercase tracking-wider">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-app-sidebar-foreground/10 text-app-sidebar-muted text-[8px] font-bold uppercase tracking-wider">
               {t('plan.free_plan_title', { defaultValue: 'Free plan' })}
             </span>
-            <p className="mt-2 text-[13px] font-bold text-white leading-tight">
+            <p className="mt-2 text-[13px] font-bold text-app-sidebar-foreground leading-tight">
               {t('plan.free_plan_cta', { defaultValue: 'Unlock the full platform' })}
             </p>
 
             {/* Stable one-line pitch — no layout shift on hover; hover only
                 intensifies the gold glow / starfield / button halo. */}
-            <p className="mt-1 text-[11px] leading-relaxed text-white/40">
+            <p className="mt-1 text-[11px] leading-relaxed text-app-sidebar-foreground/50">
               {t('plan.free_plan_desc', {
                 defaultValue: 'Everything you need to teach, sell & grow.',
               })}
@@ -1091,11 +1087,11 @@ function DashLeftMenu() {
               whileTap={{ scale: 0.98 }}
               animate={{
                 boxShadow: upgradeHovered
-                  ? '0 0 0 1px rgba(250,204,21,0.5), 0 8px 24px -6px rgba(250,204,21,0.35)'
-                  : '0 0 0 0 rgba(250,204,21,0)',
+                  ? '0 0 0 1px var(--app-nav-active-bg), 0 8px 24px -6px var(--app-nav-active-bg)'
+                  : '0 0 0 0 transparent',
               }}
               transition={{ duration: 0.35 }}
-              className="mt-3 relative overflow-hidden flex items-center justify-center gap-1.5 w-full rounded-lg bg-white text-[#0f0f10] text-[13px] font-semibold py-2"
+              className="mt-3 relative overflow-hidden flex items-center justify-center gap-1.5 w-full rounded-lg bg-app-nav-active text-app-nav-active-foreground text-[13px] font-semibold py-2"
             >
               <span className="relative z-10 flex items-center gap-1.5">
                 <Rocket size={13} weight="duotone" />
@@ -1123,7 +1119,7 @@ function DashLeftMenu() {
       )}
 
       {/* Bottom Section */}
-      <div className="border-t border-white/[0.08] py-3 px-3 shrink-0">
+      <div className="border-t border-app-nav-border py-3 px-3 shrink-0">
         <div className="space-y-1">
           {/* Expand button when collapsed */}
           {isCollapsed && (
@@ -1132,12 +1128,12 @@ function DashLeftMenu() {
                 <button
                   aria-label={t('dashboard.nav.expand_sidebar')}
                   onClick={toggleCollapse}
-                  className="flex items-center justify-center w-full h-10 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] transition-all"
+                  className="flex items-center justify-center w-full h-10 rounded-lg text-app-sidebar-foreground/50 hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all"
                 >
                   <SidebarSimple size={20} weight="fill" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="right" className="z-tooltip bg-[#1a1a1b] border-white/10 text-white text-xs px-2 py-1 shadow-lg shadow-black/20">
+              <TooltipContent side="right" className="z-tooltip bg-app-sidebar border-app-nav-border text-app-sidebar-foreground text-xs px-2 py-1 shadow-lg shadow-black/20">
                 {t('common.expand')}
               </TooltipContent>
             </Tooltip>
@@ -1148,7 +1144,7 @@ function DashLeftMenu() {
             align="end"
             content={
               <HoverMenuContent className="w-64 max-h-96 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                <HoverMenuLabel className="flex items-center gap-2 text-white/70 font-medium">
+                <HoverMenuLabel className="flex items-center gap-2 text-app-sidebar-muted font-medium">
                   <Globe size={16} weight="fill" />
                   <span>{t('common.language')}</span>
                 </HoverMenuLabel>
@@ -1158,11 +1154,11 @@ function DashLeftMenu() {
                   <HoverMenuItem
                     key={language.code}
                     onClick={() => changeLanguage(language.code)}
-                    className="flex items-center justify-between px-3 py-2.5 cursor-pointer text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors"
+                    className="flex items-center justify-between px-3 py-2.5 cursor-pointer text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-colors"
                   >
                     <div className="flex flex-col">
                       <span className="font-medium text-sm">{language.nativeName}</span>
-                      <span className="text-xs text-white/40">{t(language.translationKey)}</span>
+                      <span className="text-xs text-app-sidebar-foreground/50">{t(language.translationKey)}</span>
                     </div>
                     {i18n.language.split('-')[0] === language.code && (
                       <Check size={16} weight="bold" className="text-green-500" />
@@ -1173,7 +1169,7 @@ function DashLeftMenu() {
             }
           >
             <button aria-label={t('dashboard.nav.open_language_menu')} className={cn(
-              "flex items-center w-full rounded-lg text-white/50 hover:text-white hover:bg-white/[0.08] transition-all group",
+              "flex items-center w-full rounded-lg text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all group",
               isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
             )}>
               <Globe size={20} weight="fill" />
@@ -1188,7 +1184,7 @@ function DashLeftMenu() {
             align="end"
             content={
               <HoverMenuContent className="w-56">
-                <HoverMenuLabel className="flex items-center gap-2 text-white/70 font-medium">
+                <HoverMenuLabel className="flex items-center gap-2 text-app-sidebar-muted font-medium">
                   <Question size={16} weight="fill" />
                   <span>{t('common.help')}</span>
                 </HoverMenuLabel>
@@ -1197,7 +1193,7 @@ function DashLeftMenu() {
                 <NavTip id="feedback">
                   <HoverMenuItem
                     onClick={() => setFeedbackModalOpen(true)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors"
                   >
                     <ChatCircleDots size={16} weight="fill" />
                     <span>{t('common.help_menu.report_feedback')}</span>
@@ -1207,7 +1203,7 @@ function DashLeftMenu() {
             }
           >
             <button aria-label={t('dashboard.nav.open_help_menu')} className={cn(
-              "flex items-center w-full rounded-lg text-white/50 hover:text-white hover:bg-white/[0.08] transition-all group",
+              "flex items-center w-full rounded-lg text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all group",
               isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
             )}>
               <Question size={20} weight="fill" />
@@ -1223,7 +1219,7 @@ function DashLeftMenu() {
               align="end"
               content={
                 <HoverMenuContent className="w-64 max-h-96 overflow-y-auto">
-                  <HoverMenuLabel className="flex items-center gap-2 text-white/70 font-medium">
+                  <HoverMenuLabel className="flex items-center gap-2 text-app-sidebar-muted font-medium">
                     <Buildings size={16} weight="fill" />
                     <span>{t('common.organizations', { defaultValue: 'Organizations' })}</span>
                   </HoverMenuLabel>
@@ -1231,7 +1227,7 @@ function DashLeftMenu() {
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="orgs_home">
-                      <a href={getMainDomainUri('/home')} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <a href={getMainDomainUri('/home')} className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <House size={16} weight="fill" />
                         <span>{t('common.home', { defaultValue: 'Home' })}</span>
                       </a>
@@ -1240,7 +1236,7 @@ function DashLeftMenu() {
                   {canManageOrg && (
                     <HoverMenuItem asChild>
                       <NavTip id="orgs_billing">
-                        <a href={getMainDomainUri(`/billing?org=${org?.slug ?? ''}`)} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                        <a href={getMainDomainUri(`/billing?org=${org?.slug ?? ''}`)} className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                           <CurrencyCircleDollar size={16} weight="fill" />
                           <span>{t('common.billing', { defaultValue: 'Billing' })}</span>
                         </a>
@@ -1251,8 +1247,8 @@ function DashLeftMenu() {
                   {myOrgs.map((o: any) => (
                     <HoverMenuItem key={o.id} asChild>
                       <a href={getUriWithOrg(o.slug, '/')} className={cn(
-                        "flex items-center gap-2 px-3 py-2 text-sm hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors",
-                        o.id === org?.id ? "text-white" : "text-white/70"
+                        "flex items-center gap-2 px-3 py-2 text-sm hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors",
+                        o.id === org?.id ? "text-app-sidebar-foreground" : "text-app-sidebar-muted"
                       )}>
                         <Buildings size={16} weight="fill" />
                         <span className="truncate flex-1">{o.name}</span>
@@ -1263,7 +1259,7 @@ function DashLeftMenu() {
                   <HoverMenuSeparator />
                   <HoverMenuItem asChild>
                     <NavTip id="orgs_create">
-                      <a href={getMainDomainUri('/new')} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                      <a href={getMainDomainUri('/new')} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-app-sidebar-foreground hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                         <Plus size={16} weight="bold" />
                         <span>{t('common.create_organization', { defaultValue: 'Create organization' })}</span>
                       </a>
@@ -1273,7 +1269,7 @@ function DashLeftMenu() {
               }
             >
               <button aria-label={t('dashboard.nav.open_organizations_menu')} className={cn(
-                "flex items-center w-full rounded-lg text-white/50 hover:text-white hover:bg-white/[0.08] transition-all group",
+                "flex items-center w-full rounded-lg text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all group",
                 isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
               )}>
                 <Buildings size={20} weight="fill" />
@@ -1290,13 +1286,13 @@ function DashLeftMenu() {
             content={
               <HoverMenuContent className="w-56">
                 <div className="px-3 py-2">
-                  <p className="text-sm font-semibold text-white/90">{session?.data?.user?.username}</p>
-                  <p className="text-xs text-white/40">{session?.data?.user?.email}</p>
+                  <p className="text-sm font-semibold text-app-sidebar-foreground">{session?.data?.user?.username}</p>
+                  <p className="text-xs text-app-sidebar-foreground/50">{session?.data?.user?.email}</p>
                 </div>
                 <HoverMenuSeparator />
                 <HoverMenuItem asChild>
                   <NavTip id="account_settings">
-                    <Link href="/account/general" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                    <Link href="/account/general" className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                       <Gear size={16} weight="fill" />
                       <span>{t('common.settings')}</span>
                     </Link>
@@ -1304,7 +1300,7 @@ function DashLeftMenu() {
                 </HoverMenuItem>
                 <HoverMenuItem asChild>
                   <NavTip id="purchases">
-                    <Link href={getUriWithOrg(org?.slug, '/account/purchases')} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/[0.08] cursor-pointer transition-colors">
+                    <Link href={getUriWithOrg(org?.slug, '/account/purchases')} className="flex items-center gap-2 px-3 py-2 text-sm text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover cursor-pointer transition-colors">
                       <ShoppingBag size={16} weight="fill" />
                       <span>{t('account.purchases')}</span>
                     </Link>
@@ -1314,7 +1310,7 @@ function DashLeftMenu() {
                 <NavTip id="sign_out">
                   <HoverMenuItem
                     onClick={() => logOutUI()}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:text-red-400 hover:bg-white/[0.08] cursor-pointer transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:text-red-400 hover:bg-app-nav-hover cursor-pointer transition-colors"
                   >
                     <SignOut size={16} weight="fill" data-dir-flip />
                     <span>{t('user.sign_out')}</span>
@@ -1324,14 +1320,14 @@ function DashLeftMenu() {
             }
           >
             <button className={cn(
-              "flex items-center w-full rounded-lg text-white/50 hover:text-white hover:bg-white/[0.08] transition-all group",
+              "flex items-center w-full rounded-lg text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all group",
               isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
             )}>
               <UserAvatar width={24} rounded="rounded-full" shadow="shadow-none" />
               {!isCollapsed && (
                 <div className="flex flex-col min-w-0 flex-1 text-start">
-                  <span className="text-sm font-medium truncate text-white/90">{session?.data?.user?.username}</span>
-                  <span className="text-xs text-white/40 truncate">{session?.data?.user?.email}</span>
+                  <span className="text-sm font-medium truncate text-app-sidebar-foreground">{session?.data?.user?.username}</span>
+                  <span className="text-xs text-app-sidebar-foreground/50 truncate">{session?.data?.user?.email}</span>
                 </div>
               )}
             </button>
@@ -1368,15 +1364,15 @@ const MenuLink = ({ href, icon, label, tip, isCollapsed, isExternal, active, onC
       className={cn(
         "relative flex items-center w-full rounded-lg transition-all",
         active
-          ? "text-white bg-[var(--brand-primary)]/20"
-          : "text-white/50 hover:text-white hover:bg-white/[0.08]",
+          ? "text-app-nav-active-foreground bg-app-nav-active"
+          : "text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover",
         isCollapsed ? "justify-center h-10" : "px-3 py-2 gap-3"
       )}
     >
       {active && (
         <span
           aria-hidden="true"
-          className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-brand rounded-full"
+          className="absolute start-0.5 top-1/2 -translate-y-1/2 h-5 w-[3px] bg-app-nav-active-foreground rounded-full"
         />
       )}
       {icon}
@@ -1403,10 +1399,10 @@ const MenuLink = ({ href, icon, label, tip, isCollapsed, isExternal, active, onC
         <TooltipTrigger asChild>
           {linkElement}
         </TooltipTrigger>
-        <TooltipContent side="right" className="z-tooltip max-w-[220px] bg-[#1a1a1b] border-white/10 text-white text-xs px-2 py-1 shadow-lg shadow-black/20">
+        <TooltipContent side="right" className="z-tooltip max-w-[220px] bg-app-sidebar border-app-nav-border text-app-sidebar-foreground text-xs px-2 py-1 shadow-lg shadow-black/20">
           {label}
           {tip && (
-            <span className="block mt-0.5 leading-snug text-white/60">{t(`dashboard.nav_tips.${tip}`)}</span>
+            <span className="block mt-0.5 leading-snug text-app-sidebar-muted">{t(`dashboard.nav_tips.${tip}`)}</span>
           )}
         </TooltipContent>
       </Tooltip>

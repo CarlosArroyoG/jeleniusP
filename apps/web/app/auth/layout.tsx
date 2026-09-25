@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { HydrationBoundary } from '@tanstack/react-query'
 import { OrgProvider } from '@components/Contexts/OrgContext'
 import OrgLanguageSync from '@components/Contexts/OrgLanguageSync'
+import OrgThemeRootSync from '@components/Contexts/OrgThemeRootSync'
 import { getAuthOrgSlug } from '@services/org/orgResolution'
 import { getServerOrgTheme } from '@/lib/theme/getServerOrgTheme'
 
@@ -28,6 +29,8 @@ export default async function AuthLayout({
 
     return (
         <div style={style}>
+            {/* Same tokens on <html> once running, for UI portaled to <body>. */}
+            <OrgThemeRootSync vars={style} />
             <HydrationBoundary state={dehydratedState}>
                 <OrgProvider orgslug={orgslug}>
                     <OrgLanguageSync />

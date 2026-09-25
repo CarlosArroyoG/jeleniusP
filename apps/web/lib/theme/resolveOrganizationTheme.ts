@@ -106,18 +106,3 @@ export function themeTokensToCssVars(tokens: ThemeTokens): Record<string, string
     ...navigationTokensToCssVars(tokens.navigation),
   }
 }
-
-/**
- * The same variables as a `:root { … }` rule body, for a server-rendered
- * `<style>`. Portaled UI (mobile nav, flyouts, dialogs) renders under
- * `document.body`, outside the org wrapper element, so it only sees variables
- * that are also declared on :root. Every value here is validated upstream
- * (hex colors via normalizeHexColor, font via CURATED_FONTS); `<` is escaped
- * anyway so the string can never close the <style> element.
- */
-export function themeVarsToRootCss(vars: Record<string, string>): string {
-  const body = Object.entries(vars)
-    .map(([name, value]) => `${name}:${value}`)
-    .join(';')
-  return `:root{${body}}`.replace(/</g, '\\3c ')
-}

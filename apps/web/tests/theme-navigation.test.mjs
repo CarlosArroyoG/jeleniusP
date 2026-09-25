@@ -10,7 +10,6 @@ import {
 import {
   resolveOrganizationTheme,
   themeTokensToCssVars,
-  themeVarsToRootCss,
 } from '../lib/theme/resolveOrganizationTheme.ts'
 
 const webRoot = path.resolve(import.meta.dirname, '..')
@@ -155,20 +154,18 @@ describe('fallbacks', () => {
 })
 
 describe('CSS variables (SSR)', () => {
-  test('every brand and navigation variable is produced', () => {
-    const vars = themeVarsToRootCss(themeTokensToCssVars(school(...DON_BOSCO_LIKE)))
+  test('every brand and navigation variable is produced (they are what the SSR wrapper inlines)', () => {
+    const vars = themeTokensToCssVars(school(...DON_BOSCO_LIKE))
     for (const name of [
       '--brand-primary', '--brand-primary-foreground', '--brand-secondary', '--brand-secondary-foreground',
       '--brand-accent', '--brand-accent-foreground', '--font-org-sans',
       ...Object.values(NAVIGATION_CSS_VARS),
     ]) {
-      expect(vars).toContain(`${name}:`)
+      expect(vars[name], name).toBeTruthy()
     }
-    expect(vars.startsWith(':root{')).toBe(true)
-  })
-
-  test('the :root rule can never close its <style> element', () => {
-    expect(themeVarsToRootCss({ '--x': '</style><script>' })).not.toContain('</style>')
+    expect(vars['--app-header-bg']).toBe('#162562')
+    expect(vars['--app-sidebar-bg']).toBe('#00001e')
+    expect(vars['--app-nav-active-bg']).toBe('#ff9d2f')
   })
 
   test('the :root defaults in globals.css are exactly the Jelenius derivation (no drift)', () => {

@@ -89,7 +89,8 @@ function DashMobileMenu() {
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}
       >
         <div
-          className="flex items-center gap-0.5 px-1.5 py-1.5 bg-[#111113]/90 backdrop-blur-xl rounded-full"
+          data-testid="dash-mobile-nav"
+          className="flex items-center gap-0.5 px-1.5 py-1.5 bg-app-mobile-nav backdrop-blur-xl rounded-full"
           style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
         >
           {/* Brand logo — links to home */}
@@ -123,13 +124,13 @@ function DashMobileMenu() {
             <PillLink href="/dash/payments/overview" icon={<CurrencyCircleDollar size={18} weight="fill" />} active={isActive('/dash/payments')} label={t('common.payments')} className="hidden min-[750px]:flex" />
           )}
 
-          <span className="w-px h-4 bg-white/[0.15] mx-1 shrink-0" />
+          <span className="w-px h-4 bg-app-nav-border mx-1 shrink-0" />
 
           {/* Search */}
           <button
             onClick={openSearch}
             aria-label={t('common.search')}
-            className="p-2.5 rounded-full transition-all duration-200 text-white/60 hover:text-white hover:bg-white/[0.1]"
+            className="p-2.5 rounded-full transition-all duration-200 text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover"
           >
             <MagnifyingGlass size={18} weight="bold" />
           </button>
@@ -141,7 +142,7 @@ function DashMobileMenu() {
             aria-expanded={menuOpen}
             className={cn(
               'p-2.5 rounded-full transition-all duration-200 overflow-hidden',
-              menuOpen ? 'bg-white text-[#111113]' : 'text-white/60 hover:text-white hover:bg-white/[0.1]'
+              menuOpen ? 'bg-app-nav-active text-app-nav-active-foreground' : 'text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover'
             )}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -175,7 +176,7 @@ function DashMobileMenu() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
               transition={{ type: 'spring', damping: 30, stiffness: 360 }}
-              className="fixed start-4 end-4 z-[9998] max-w-sm mx-auto bg-[#0e0e10]/95 backdrop-blur-xl rounded-2xl overflow-hidden"
+              className="fixed start-4 end-4 z-[9998] max-w-sm mx-auto bg-app-mobile-nav backdrop-blur-xl rounded-2xl overflow-hidden"
               style={{
                 bottom: 'calc(env(safe-area-inset-bottom) + 5.5rem)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
@@ -188,25 +189,20 @@ function DashMobileMenu() {
                     <OrgSquareLogo org={org} wideInsetClassName="p-0.5" fallback={null} />
                   </div>
                 ) : (
-                  <div className="h-7 w-7 flex items-center justify-center bg-white/[0.06] rounded-lg">
+                  <div className="h-7 w-7 flex items-center justify-center bg-app-sidebar-foreground/10 rounded-lg">
                     <BrandIcon className="h-4 w-4 rounded-sm" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate leading-none mb-0.5">{org?.name}</p>
+                  <p className="text-sm font-semibold text-app-sidebar-foreground truncate leading-none mb-0.5">{org?.name}</p>
                   <p className={cn(
                     'text-[10px] font-medium',
-                    mode === 'ee' ? 'text-amber-400' :
-                    mode === 'oss' ? 'text-green-400' :
-                    plan === 'enterprise' ? 'text-amber-400' :
-                    plan === 'pro' ? 'text-purple-400' :
-                    plan === 'standard' ? 'text-blue-400' :
-                    'text-white/30'
+                    'text-app-sidebar-muted'
                   )}>{planLabel}</p>
                 </div>
               </div>
 
-              <div className="h-px bg-white/[0.05] mx-4" />
+              <div className="h-px bg-app-nav-border mx-4" />
 
               {/* Nav items */}
               <div className="py-2 px-2 max-h-[52vh] overflow-y-auto overscroll-contain space-y-px">
@@ -224,26 +220,26 @@ function DashMobileMenu() {
                 <PanelItem href="/dash/org/settings/general" icon={<Buildings size={15} weight="fill" />} label={t('common.organization')} active={isActive('/dash/org')} onClick={close} />
                 <PanelItem href="/dash/developers/api" icon={<Code size={15} weight="fill" />} label={t('dashboard.developers.breadcrumb', { defaultValue: 'Developers' })} active={isActive('/dash/developers')} onClick={close} />
 
-                <div className="h-px bg-white/[0.05] mx-2 my-1.5" />
+                <div className="h-px bg-app-nav-border mx-2 my-1.5" />
 
                 <PanelItem href="/account/general" icon={<Gear size={15} weight="fill" />} label={t('common.settings')} active={isActive('/account')} onClick={close} />
 
                 {/* Language picker */}
                 <button
                   onClick={() => setLangExpanded(v => !v)}
-                  className="flex items-center w-full rounded-lg px-2.5 py-2 gap-2.5 text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all"
+                  className="flex items-center w-full rounded-lg px-2.5 py-2 gap-2.5 text-app-sidebar-foreground/50 hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all"
                 >
                   <Globe size={15} weight="fill" />
                   <span className="text-sm font-medium flex-1 text-start">{t('common.language')}</span>
                   <CaretDown size={10} weight="bold" className={cn('transition-transform', langExpanded && 'rotate-180')} />
                 </button>
                 {langExpanded && (
-                  <div className="ms-2 ps-3 border-s border-white/[0.05] space-y-px">
+                  <div className="ms-2 ps-3 border-s border-app-nav-border space-y-px">
                     {AVAILABLE_LANGUAGES.map(lang => (
                       <button
                         key={lang.code}
                         onClick={() => { changeLanguage(lang.code); setLangExpanded(false) }}
-                        className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all"
+                        className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm text-app-sidebar-foreground/50 hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all"
                       >
                         <span className="font-medium">{lang.nativeName}</span>
                         {i18n.language.split('-')[0] === lang.code && <Check size={11} weight="bold" className="text-green-500" />}
@@ -254,7 +250,7 @@ function DashMobileMenu() {
 
                 <button
                   onClick={() => { setFeedbackModalOpen(true); close() }}
-                  className="flex items-center w-full rounded-lg px-2.5 py-2 gap-2.5 text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all"
+                  className="flex items-center w-full rounded-lg px-2.5 py-2 gap-2.5 text-app-sidebar-foreground/50 hover:text-app-nav-hover-foreground hover:bg-app-nav-hover transition-all"
                 >
                   <ChatCircleDots size={15} weight="fill" />
                   <span className="text-sm font-medium">{t('common.help_menu.report_feedback')}</span>
@@ -262,18 +258,18 @@ function DashMobileMenu() {
               </div>
 
               {/* User footer */}
-              <div className="h-px bg-white/[0.05] mx-4" />
+              <div className="h-px bg-app-nav-border mx-4" />
               <div className="px-4 py-3">
                 <div className="flex items-center gap-3">
                   <UserAvatar width={28} rounded="rounded-full" shadow="shadow-none" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white/90 truncate leading-none mb-0.5">{session?.data?.user?.username}</p>
-                    <p className="text-[10px] text-white/30 truncate">{session?.data?.user?.email}</p>
+                    <p className="text-sm font-semibold text-app-sidebar-foreground truncate leading-none mb-0.5">{session?.data?.user?.username}</p>
+                    <p className="text-[10px] text-app-sidebar-foreground/50 truncate">{session?.data?.user?.email}</p>
                   </div>
                   <button
                     onClick={logOutUI}
                     aria-label={t('user.sign_out')}
-                    className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-white/[0.05] transition-all"
+                    className="p-1.5 rounded-lg text-app-sidebar-foreground/50 hover:text-red-400 hover:bg-app-nav-hover transition-all"
                   >
                     <SignOut size={14} weight="fill" data-dir-flip />
                   </button>
@@ -316,7 +312,7 @@ const PillLink = ({
     aria-current={active ? 'page' : undefined}
     className={cn(
       'flex items-center justify-center p-2.5 rounded-full transition-all duration-200',
-      active ? 'bg-[var(--brand-primary)]/30 text-white' : 'text-white/50 hover:text-white hover:bg-white/[0.08]',
+      active ? 'bg-app-nav-active text-app-nav-active-foreground' : 'text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover',
       className
     )}
   >
@@ -343,13 +339,13 @@ const PanelItem = ({
     aria-current={active ? 'page' : undefined}
     className={cn(
       'relative flex items-center w-full rounded-lg px-2.5 py-2 gap-2 transition-all',
-      active ? 'text-white bg-[var(--brand-primary)]/20' : 'text-white/50 hover:text-white hover:bg-white/[0.06]'
+      active ? 'text-app-nav-active-foreground bg-app-nav-active' : 'text-app-sidebar-muted hover:text-app-nav-hover-foreground hover:bg-app-nav-hover'
     )}
   >
     {active && (
       <span
         aria-hidden="true"
-        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-4 w-[2px] bg-brand rounded-full"
+        className="absolute start-0.5 top-1/2 -translate-y-1/2 h-4 w-[2px] bg-app-nav-active-foreground rounded-full"
       />
     )}
     {icon}

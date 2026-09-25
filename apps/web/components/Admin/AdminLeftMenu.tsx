@@ -47,13 +47,13 @@ function AdminTopMenu() {
       <div className="h-14" />
       {/* Fixed menu bar */}
       <div
-        className="fixed top-0 start-0 end-0 h-14 bg-black border-b border-white/[0.08] flex items-center text-white px-4 gap-6"
+        className="fixed top-0 start-0 end-0 h-14 bg-app-header border-b border-app-header-border flex items-center text-app-header-foreground px-4 gap-6"
         style={{ zIndex: 'var(--z-overlay)', ...themeVars }}
       >
         {/* Logo */}
         <Link className="flex items-center gap-2 transition-opacity hover:opacity-70 shrink-0" href="/admin">
           <BrandIcon className="h-7 w-7 rounded-md" />
-          <span className="font-semibold text-sm text-white">Admin</span>
+          <span className="font-semibold text-sm text-app-header-foreground">Admin</span>
           <span className="text-[9px] font-medium uppercase tracking-wider text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">
             Superadmin
           </span>
@@ -100,17 +100,17 @@ function AdminTopMenu() {
                 className="w-6 h-6 rounded-full object-cover bg-gray-700"
               />
             ) : (
-              <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
-                <User size={14} weight="fill" className="text-white/50" />
+              <div className="w-6 h-6 rounded-full bg-app-header-foreground/10 flex items-center justify-center">
+                <User size={14} weight="fill" className="text-app-header-muted" />
               </div>
             )}
-            <span className="text-sm text-white/60 hidden sm:inline">
+            <span className="text-sm text-app-header-muted hidden sm:inline">
               {user?.username}
             </span>
           </div>
           <button
             onClick={logOutUI}
-            className="flex items-center gap-1.5 rounded-lg text-red-500 hover:text-red-400 hover:bg-white/[0.08] transition-all px-2 py-1.5"
+            className="flex items-center gap-1.5 rounded-lg text-red-500 hover:text-red-400 hover:bg-app-header-hover transition-all px-2 py-1.5"
             title="Sign Out"
           >
             <SignOut size={16} weight="fill" data-dir-flip />
@@ -138,7 +138,7 @@ const NavLink = ({
       <div
         className={cn(
           'flex items-center rounded-lg transition-all px-3 py-1.5 gap-2',
-          active ? 'text-white bg-[var(--brand-primary)]/25' : 'text-white/50 hover:text-white hover:bg-white/[0.08]'
+          active ? 'text-app-nav-active-foreground bg-app-nav-active' : 'text-app-header-muted hover:text-app-header-foreground hover:bg-app-header-hover'
         )}
       >
         {icon}

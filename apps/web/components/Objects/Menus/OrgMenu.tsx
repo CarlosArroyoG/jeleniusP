@@ -153,6 +153,7 @@ export const OrgMenu = (props: any) => {
       <div className="backdrop-blur-lg h-[60px] blur-3xl" style={{ zIndex: 'var(--z-behind)', marginTop: topOffset }}></div>
       <nav
         aria-label="Top navigation"
+        data-testid="org-header"
         className="backdrop-blur-lg fixed start-0 end-0 h-[60px] bg-app-header text-app-header-foreground border-b border-app-header-border"
         style={{
           zIndex: 'var(--z-nav)',

@@ -11,7 +11,7 @@ import CompleteSignupFields from '@components/Auth/CompleteSignupFields'
 import { getOrgFaviconMediaDirectory } from '@services/media/media'
 import { getServerOrg } from '@/lib/theme/getServerOrg'
 import { getServerOrgTheme } from '@/lib/theme/getServerOrgTheme'
-import { themeVarsToRootCss } from '@/lib/theme/resolveOrganizationTheme'
+import OrgThemeRootSync from '@components/Contexts/OrgThemeRootSync'
 
 export async function generateMetadata({
   params,
@@ -45,10 +45,8 @@ export default async function RootLayout(props: {
 
   return (
     <div style={style}>
-      {/* Same tokens on :root, in the server HTML: UI portaled to <body> (mobile nav,
-          flyouts, dialogs) sits outside this wrapper and would otherwise see the
-          Jelenius defaults. */}
-      <style dangerouslySetInnerHTML={{ __html: themeVarsToRootCss(style) }} />
+      {/* Same tokens on <html> once running, for UI portaled to <body> (mobile nav, flyouts, dialogs). */}
+      <OrgThemeRootSync vars={style} />
       <HydrationBoundary state={dehydratedState}>
         <OrgProvider orgslug={params.orgslug}>
           <OrgLanguageSync />
