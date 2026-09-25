@@ -7,7 +7,6 @@ import { useOnboarding } from '@components/Hooks/useOnboarding'
 import { useOrg } from '@components/Contexts/OrgContext'
 import { getUriWithOrg } from '@services/config/config'
 import OnboardingSteps from '@components/Dashboard/Onboarding/OnboardingSteps'
-import { JELENIUS_BRAND } from '@/lib/brand'
 
 export default function OnboardingPage() {
   const { t } = useTranslation()
@@ -73,7 +72,7 @@ export default function OnboardingPage() {
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${progress * 100}%`,
-                    background: `linear-gradient(90deg, ${JELENIUS_BRAND.primaryColor} 0%, ${JELENIUS_BRAND.accentColor} 55%, ${JELENIUS_BRAND.tertiaryColor} 100%)`,
+                    background: `linear-gradient(90deg, var(--brand-primary) 0%, var(--brand-accent) 100%)`,
                     boxShadow: '0 0 8px rgba(139,92,246,0.55), 0 0 2px rgba(99,102,241,0.8)',
                   }}
                 />

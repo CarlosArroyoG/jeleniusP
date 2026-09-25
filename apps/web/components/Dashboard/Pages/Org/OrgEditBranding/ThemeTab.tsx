@@ -18,7 +18,7 @@ import { queryKeys } from '@/lib/query/keys'
 import { Input } from '@components/ui/input'
 import { Button } from '@components/ui/button'
 import { getOrgWideLogoUrl } from '@components/Objects/Org/OrgSquareLogo'
-import { isLightColor } from '@services/utils/ts/colorUtils'
+import { pickForeground } from '@/lib/theme/color'
 import { JELENIUS_BRAND } from '@/lib/brand'
 import FontSelector from './FontSelector'
 import { BrandingSection, SaveBar } from './BrandingShared'
@@ -26,7 +26,7 @@ import { PublicHeaderVignette } from './BrandingVignettes'
 
 /** Same contrast rule the theme engine uses at runtime (resolveOrganizationTheme.ts) — kept here only for this tab's live preview swatches. */
 function previewForeground(hex: string): string {
-  return isLightColor(hex) ? JELENIUS_BRAND.primaryColor : '#ffffff'
+  return pickForeground(hex, '#ffffff', JELENIUS_BRAND.primaryColor)
 }
 
 const SWATCHES = ['#111827', '#1d4ed8', '#0f766e', '#7c3aed', '#be123c', '#d97706', '#f5f5f4']

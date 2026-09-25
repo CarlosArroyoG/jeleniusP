@@ -26,7 +26,7 @@ export default function AuthMobileHeader({ org }: AuthMobileHeaderProps) {
   const getBackgroundStyle = (): React.CSSProperties => {
     if (background_type === 'gradient' || !background_image) {
       return {
-        background: `linear-gradient(041.61deg, ${JELENIUS_BRAND.secondaryColor} 7.15%, ${JELENIUS_BRAND.primaryColor} 90.96%)`,
+        background: `linear-gradient(041.61deg, var(--brand-secondary) 7.15%, var(--brand-primary) 90.96%)`,
       }
     }
     if (background_type === 'custom' && background_image) {
@@ -44,7 +44,7 @@ export default function AuthMobileHeader({ org }: AuthMobileHeaderProps) {
       }
     }
     return {
-      background: `linear-gradient(041.61deg, ${JELENIUS_BRAND.secondaryColor} 7.15%, ${JELENIUS_BRAND.primaryColor} 90.96%)`,
+      background: `linear-gradient(041.61deg, var(--brand-secondary) 7.15%, var(--brand-primary) 90.96%)`,
     }
   }
 
